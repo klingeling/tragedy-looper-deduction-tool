@@ -400,8 +400,8 @@ class Roles {
         },
         {
             name: 'Faceless',
-            goodwillRefusel:'optional',
-            unkillable:true,
+            goodwillRefusel: 'optional',
+            unkillable: true,
             abilities: [
                 {
                     type: 'mandatory',
@@ -413,6 +413,103 @@ class Roles {
                     timing: ['Always'],
                     description: 'If the Extra Gauge is 2 or more, this character gains the abilities of a Deep One.'
                 },
+            ],
+        },
+        {
+            name: 'Vampire',
+            goodwillRefusel: 'optional',
+            unkillable: true,
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'If the Key Person has at least 2 Intrigue and is in this character’s location, you may kill the Key Person.'
+                },
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'If there are at least 2 corpses in this character’s starting location, you may kill the Protagonists.'
+                },
+            ],
+        },
+        {
+            name: 'Werwolf',
+            goodwillRefusel: 'optional',
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'If Night of Madness occurred this day, you may kill the Protagonists.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Mastermind Action step'],
+                    description: 'The Mastermind cannot place cards on this character.'
+                },
+            ],
+        },
+        {
+            name: 'Nightmare',
+            goodwillRefusel: 'optional',
+            unkillable: true,
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'You may kill one character who is in this location.'
+                },
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'If there are 3 ore more Intrigue on all corpses in total, you may kill the Protagonists.'
+                },
+            ],
+        },
+        {
+            name: 'Ghost',
+            max: 1,
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Mastermind Ability'],
+                    description: 'Ifh this card is a corpse, palce 1 Paranoia on any character in this location, or any character in the Ghost’s starting location.'
+                },
+            ],
+        },
+        {
+            name: 'Show-Off',
+            unkillable: true,
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Always'],
+                    description: 'If this charcter has more then 2 Paranoia, (s)he hoses the Unkillable aspect and gains Mandatory Goodwill Refusal.'
+                },
+            ],
+        },
+        {
+            name: 'Coward',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Mastermind Ability'],
+                    description: 'If this charcter has 2 or more Paranoia, pick a neigboring location, and move the charcter there.'
+                },
+            ],
+        },
+        {
+            name: 'Zombie',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Day End'],
+                    description: 'If there is a location where there are more zombies than non-zombies, kill one character in that location (only once per day, for all zombies)(reminder: a corpse is no longer considered as a character).'
+                },
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'You may move one zombie corpse to a neighboring location (only once per day, for all zombies).'
+                }
             ],
         },
     ] as const satisfies readonly Role[];
