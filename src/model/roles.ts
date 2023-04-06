@@ -1,11 +1,14 @@
 import { toRecord } from "../misc";
 
-export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start' | 'Last Day' | 'Script creation' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald' | 'Mastermind Action step';
+export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start'
+    | 'Last Day' | 'Script creation' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald'
+    | 'Mastermind Action step' | 'Goodwill ablility step';
 
 
 export type Role = {
     name: string,
     max?: number,
+    unkillable?: true,
     goodwillRefusel?: 'optional' | 'mandatory',
     abilities: readonly Abilities[]
 }
@@ -81,12 +84,8 @@ class Roles {
         },
         {
             name: 'Time Traveler',
+            unkillable: true,
             abilities: [
-                {
-                    type: 'mandatory',
-                    timing: ['Always'],
-                    description: 'This character cannot die.'
-                },
                 {
                     type: 'mandatory',
                     timing: ['Card resolve'],
@@ -216,16 +215,12 @@ class Roles {
         },
         {
             name: 'Private Investigator',
+            unkillable: true,
             abilities: [
                 {
                     type: 'mandatory',
                     timing: ['Always'],
                     description: 'This character can never be a culprit.'
-                },
-                {
-                    type: 'mandatory',
-                    timing: ['Always'],
-                    description: 'This character cannot die.'
                 },
                 {
                     type: 'mandatory',
@@ -334,11 +329,89 @@ class Roles {
         },
         {
             name: 'Immortal',
+            unkillable: true,
+
+            abilities: [
+            ],
+        },
+        {
+            name: 'Sacrifice',
+            unkillable: true,
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'If this character has at least 2 Intrigue and at least 2 Paranoia, you may kill all characters and the Protagonists.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Incident step'],
+                    description: 'When determining whether an Incident, for which this character is the culprit, will occour or not, also treat Intrigue as Paranoia.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Script creation'],
+                    description: 'This character must be the culprit of an incident.'
+                },
+            ],
+        },
+        {
+            name: 'Deep One',
+            max: 1,
+            goodwillRefusel: 'optional',
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['Mastermind Ability'],
+                    description: 'You may place 1 Intruge on this location or on any character in this location.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Always'],
+                    description: 'When this charcter dies, reveal the role and increast the Extra Gauge 1 step.'
+                },
+            ],
+        },
+        {
+            name: 'Wizard',
+            max: 1,
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Loop End'],
+                    description: 'If this character is dead, the Protagonists lose.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Goodwill ablility step'],
+                    description: 'When this character’s Goodwill ability is used, reveal this role after resolution. Then, the leader may increase the Extra Gauge one step.'
+                },
+            ],
+        },
+        {
+            name: 'Witness',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Day End'],
+                    description: 'If this character has 4 or more Paranoia, this charcter dies, and the Extra Gauge increases with 1 step.'
+                },
+            ],
+        },
+        {
+            name: 'Faceless',
+            goodwillRefusel:'optional',
+            unkillable:true,
             abilities: [
                 {
                     type: 'mandatory',
                     timing: ['Always'],
-                    description: 'This character cannot die.'
+                    description: 'If the Extra Gauge is 1 or less, this character gains the abilities of a Conspiracy Theorist.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Always'],
+                    description: 'If the Extra Gauge is 2 or more, this character gains the abilities of a Deep One.'
                 },
             ],
         },
