@@ -1,6 +1,6 @@
 import { toRecord } from "../misc";
 
-export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start' | 'Last Day' | 'Script creation';
+export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start' | 'Last Day' | 'Script creation' | 'Incident step' | 'Incident trigger';
 
 
 export type Role = {
@@ -182,7 +182,111 @@ class Roles {
                 },
             ],
         },
+        {
+            name: 'Prisoner',
+            goodwillRefusel: 'optional',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Day End'],
+                    description: 'If the Extra Gauge is on 2 or more, this character and any other charcters in sem same location dies. (Onec per loop)'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Day End'],
+                    description: 'If the Extra Gauge is on 4 or more, the Protagonists die.'
+                },
+            ],
+        },
+        {
+            name: 'Fool',
+            max: 1,
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Script creation'],
+                    description: 'This character must be the culprit of an Incident'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Incident step'],
+                    description: 'After this character has triggered an Incident, remove all Paranoia counters from this card.'
+                },
+            ],
+        },
+        {
+            name: 'Private Investigator',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Always'],
+                    description: 'This character can never be a culprit.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Always'],
+                    description: 'This character cannot die.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Incident step'],
+                    description: 'If the Extra Gauge is 0, and the culprit is in this location, the Incident triggers regardless of the number of Paranoia counters on the culprit.'
+                },
+            ],
+        },
+        {
+            name: 'Paranoiac',
+            goodwillRefusel: 'mandatory',
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['Mastermind Ability'],
+                    description: 'You may place 1 Intrigue counter on this location or an any character in this location.'
+                },
+            ],
+        },
+        {
+            name: 'Twin',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Script creation'],
+                    description: 'This character must be the culprit of an Incident.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Incident trigger'],
+                    description: 'When this character triggers an Incident, it is considered as being on the diagonally opposit location.'
+                },
+            ],
+        },
+        {
+            name: 'Obstinate',
+            goodwillRefusel:'mandatory',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Script creation'],
+                    description: 'This character must be the culprit of an Incident.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Incident step'],
+                    description: 'This character amways triggers its Incidents (if alive), regardless of the amount of Paranoia counters on it.'
+                },
+            ],
+        },
+        {
+            name: 'Therapist',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Mastermind Ability'],
+                    description: 'If the Extra Gauge is 1 or above, remove 1 Paranoia counter from any other character in this location.'
+                },
+            ],
+        },
     ] as const satisfies readonly Role[];
 }
 
-export const roles = toRecord(new Roles().roles.map(x => [x.name, x] as const)) as Record<string,Role>;
+export const roles = toRecord(new Roles().roles.map(x => [x.name, x] as const)) as Record<string, Role>;
