@@ -1,6 +1,6 @@
 import { toRecord } from "../misc";
 
-export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start' | 'Last Day' | 'Script creation' | 'Incident step' | 'Incident trigger';
+export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start' | 'Last Day' | 'Script creation' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald' | 'Mastermind Action step';
 
 
 export type Role = {
@@ -262,7 +262,7 @@ class Roles {
         },
         {
             name: 'Obstinate',
-            goodwillRefusel:'mandatory',
+            goodwillRefusel: 'mandatory',
             abilities: [
                 {
                     type: 'mandatory',
@@ -283,6 +283,62 @@ class Roles {
                     type: 'mandatory',
                     timing: ['Mastermind Ability'],
                     description: 'If the Extra Gauge is 1 or above, remove 1 Paranoia counter from any other character in this location.'
+                },
+            ],
+        },
+        {
+            name: 'Magician',
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['Mastermind Ability'],
+                    description: 'You may move one character with at least one Paranoia counter frmo this location to an adjacent location (not diagonal). (Only once per loop, for all magicians combined.)'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['On character death'],
+                    description: 'When this character dies, remove all Paranoia counters from its corpse'
+                },
+            ],
+        },
+        {
+            name: 'Ninja',
+            goodwillRefusel: "optional",
+            abilities: [
+                {
+                    type: 'optional',
+                    timing: ['When this role is to be reveald'],
+                    description: 'You may, insead of saying the truth, state any other non-Person role that is in this script'
+                },
+                {
+                    type: 'optional',
+                    timing: ['Day End'],
+                    description: 'If there is any charcter with at least 2 Intrigue Counters in this location, you may kill that character.'
+                },
+            ],
+        },
+        {
+            name: 'Prophet',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Mastermind Action step'],
+                    description: 'The Mastermind cannot place cards on this character.'
+                },
+                {
+                    type: 'mandatory',
+                    timing: ['Incident step'],
+                    description: 'When determing whether an Incident triggers, and the culprit is in another location, that incident does not trigger, regardless of the number of Paranoia conters on the culprit.'
+                },
+            ],
+        },
+        {
+            name: 'Immortal',
+            abilities: [
+                {
+                    type: 'mandatory',
+                    timing: ['Always'],
+                    description: 'This character cannot die.'
                 },
             ],
         },
