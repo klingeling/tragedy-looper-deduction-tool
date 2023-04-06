@@ -250,6 +250,10 @@
 		{#each r as ri}
 			<div class="vertical-header role" style="grid-area: role-header-{cssesc(ri.name)};">
 				{ri.name}
+				{#if ri.unkillable}
+					<!-- <small>(Unkillable)</small> -->
+					<small>(Immortal)</small>
+				{/if}
 			</div>
 		{/each}
 		<div class="header vertical-header incident" style="grid-area: incident-header-day;">Day</div>
@@ -298,22 +302,6 @@
 		<div
 			style="display: flex; flex-wrap: wrap; justify-items: flex-start; align-content: flex-start; justify-content: flex-start; align-items: flex-start; grid-area: rest; flex-direction: column; "
 		>
-			{#each r as ri}
-				<article class="role">
-					<h1>
-						{ri.name}
-					</h1>
-					<h2>{ri.goodwillRefusel ? `Goodwill refusal: ${ri.goodwillRefusel}` : ''}</h2>
-
-					<div style="grid-area: role-ability-{cssesc(ri.name)};">
-						{@html join(
-							ri.abilities.map((a) => renderAbilitys(a)),
-							' '
-						)}
-					</div>
-				</article>
-			{/each}
-
 			{#each ince as i}
 				<article class="incident">
 					<h1>
@@ -324,6 +312,23 @@
 					<p>
 						{i.effect}
 					</p>
+				</article>
+			{/each}
+			{#each r as ri}
+				<article class="role">
+					<h1>
+						{ri.name}
+					</h1>
+					<h2>{ri.goodwillRefusel ? `Goodwill refusal: ${ri.goodwillRefusel}` : ''}</h2>
+					{#if ri.unkillable}
+						<h2>Immortal</h2>
+					{/if}
+					<div style="grid-area: role-ability-{cssesc(ri.name)};">
+						{@html join(
+							ri.abilities.map((a) => renderAbilitys(a)),
+							' '
+						)}
+					</div>
 				</article>
 			{/each}
 		</div>
@@ -367,16 +372,15 @@
 
 		h1 {
 			font-size: large;
-			margin: 0px ;
+			margin: 0px;
 		}
 		h2 {
 			font-size: small;
-			margin: 0px ;
+			margin: 0px;
 		}
 
-		div:first-of-type{
+		div:first-of-type {
 			margin-top: 4px;
-
 		}
 
 		:global(span)::after {
@@ -402,7 +406,7 @@
 	}
 	.table {
 		display: grid;
-		height:calc(100% + 0px);
+		height: calc(100% + 0px);
 		width: calc(100% + 0px);
 		//  overflow: auto;
 
