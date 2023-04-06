@@ -367,9 +367,16 @@
 
 		h1 {
 			font-size: large;
+			margin: 0px ;
 		}
 		h2 {
 			font-size: small;
+			margin: 0px ;
+		}
+
+		div:first-of-type{
+			margin-top: 4px;
+
 		}
 
 		:global(span)::after {
