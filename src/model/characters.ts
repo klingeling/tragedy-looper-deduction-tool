@@ -2,25 +2,28 @@ import { toRecord } from "../misc";
 
 
 export type Locations = 'Hospital' | 'Shirne' | 'City' | 'School';
-export type Tag = 'boy' | 'girl' | 'student' | "man" | "woman" | "adult";
+export type Tag = 'boy' | 'girl' | 'student' | "man" | "woman" | "adult" | 'construct' | 'fabrication' | 'animal';
 
 export type Character = {
     name: string,
     paranoiaLimit: number,
     tags: readonly Tag[],
-    goodwill: readonly GoodwillSkill[],
-    passive?: string
+    abilitys: readonly Ability[],
     startLocation: Locations;
     forbiddenLocation?: readonly Locations[]
 };
 
-export type GoodwillSkill = {
+export type Ability = {
+    type: 'active'
     goodwillRank: number,
     onesPerLoop?: true,
     immuneToGoodwillRefusel?: true,
     restrictedToLocation?: readonly Locations[],
     description: string
 
+} | {
+    type: 'passive',
+    description: string
 }
 
 export type CharacterNames = Characters['characters'][never]['name'];
@@ -36,8 +39,9 @@ class Characters {
             paranoiaLimit: 2,
             tags: ['student', "boy"],
             startLocation: 'School',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 2,
                     description: '-1 Paranoia on student in same location.'
                 }
@@ -48,8 +52,9 @@ class Characters {
             paranoiaLimit: 3,
             tags: ['student', "girl"],
             startLocation: 'School',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 2,
                     description: '-1 Paranoia on student in same location.'
                 }
@@ -60,8 +65,9 @@ class Characters {
             paranoiaLimit: 1,
             tags: ['student', "girl"],
             startLocation: 'School',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 3,
                     restrictedToLocation: ['School', 'City'],
                     description: '+1 Goodwill on character in same location.'
@@ -73,8 +79,9 @@ class Characters {
             paranoiaLimit: 2,
             tags: ['student', "girl"],
             startLocation: 'School',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 2,
                     onesPerLoop: true,
                     description: 'Leader gets one (1×∞) card back.'
@@ -86,9 +93,13 @@ class Characters {
             paranoiaLimit: 3,
             tags: ['student', "boy"],
             startLocation: 'School',
-            passive: 'Always has arole not associated with current plot.',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'passive',
+                    description: 'Always has arole not associated with current plot.',
+                },
+                {
+                    type: 'active',
                     goodwillRank: 3,
                     immuneToGoodwillRefusel: true,
                     description: 'Reveal own role.'
@@ -100,13 +111,15 @@ class Characters {
             paranoiaLimit: 2,
             tags: ['student', "girl"],
             startLocation: 'Shirne',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 3,
                     restrictedToLocation: ['Shirne'],
                     description: '-1 Intrigue on Shrine.'
                 },
                 {
+                    type: 'active',
                     goodwillRank: 5,
                     onesPerLoop: true,
                     description: 'Reveal role of character in same location'
@@ -118,13 +131,15 @@ class Characters {
             paranoiaLimit: 2,
             tags: ["girl"],
             startLocation: 'Shirne',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 4,
                     onesPerLoop: true,
                     description: 'Kill one character in same location.'
                 },
                 {
+                    type: 'active',
                     goodwillRank: 5,
                     onesPerLoop: true,
                     description: 'Revive one corpse in same location.'
@@ -136,14 +151,19 @@ class Characters {
             paranoiaLimit: 3,
             tags: ["man", "woman"],
             startLocation: 'Shirne',
-            passive: 'Enters game on predefined loop',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'passive',
+                    description: 'Enters game on predefined loop',
+                },
+                {
+                    type: 'active',
                     goodwillRank: 3,
                     onesPerLoop: true,
                     description: 'Reveal culprit for 1 incident.'
                 },
                 {
+                    type: 'active',
                     goodwillRank: 5,
                     description: '-1 Intrigue on same location or Character in same location.'
                 }
@@ -154,13 +174,15 @@ class Characters {
             paranoiaLimit: 3,
             tags: ["man", "adult"],
             startLocation: 'City',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 4,
                     onesPerLoop: true,
                     description: 'Reveal culprit for former incident.'
                 },
                 {
+                    type: 'active',
                     goodwillRank: 5,
                     onesPerLoop: true,
                     description: 'Put an Extra marker on another character in same location. Remove that marker to prevent that character from dying.'
@@ -172,8 +194,9 @@ class Characters {
             paranoiaLimit: 3,
             tags: ["man", "adult"],
             startLocation: 'City',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 3,
                     description: 'Reveal own role.'
                 },
@@ -184,8 +207,9 @@ class Characters {
             paranoiaLimit: 3,
             tags: ["woman", "adult"],
             startLocation: 'City',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 5,
                     onesPerLoop: true,
                     description: 'Leader names the title of any Subplot. Then, the Mastermind must name the title of any other active subplot.'
@@ -197,12 +221,14 @@ class Characters {
             paranoiaLimit: 2,
             tags: ["girl", "student"],
             startLocation: 'City',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 3,
                     description: '-1 Paranoia on character in same location.'
                 },
                 {
+                    type: 'active',
                     goodwillRank: 4,
                     description: '+1 Goodwill on character in same location.'
                 },
@@ -213,12 +239,14 @@ class Characters {
             paranoiaLimit: 2,
             tags: ["adult", "man"],
             startLocation: 'City',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 2,
                     description: '+1 Paranoia on character in same location.'
                 },
                 {
+                    type: 'active',
                     goodwillRank: 2,
                     description: '+1 Goodwill on character in same location.'
                 },
@@ -229,9 +257,13 @@ class Characters {
             paranoiaLimit: 4,
             tags: ["adult", "man"],
             startLocation: 'City',
-            passive: 'May be regarded as in his turf.',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'passive',
+                    description: 'May be regarded as in his turf.',
+                },
+                {
+                    type: 'active',
                     goodwillRank: 5,
                     onesPerLoop: true,
                     description: 'Reveal role of character in his turf.'
@@ -243,12 +275,14 @@ class Characters {
             paranoiaLimit: 2,
             tags: ["adult", "man"],
             startLocation: 'City',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 2,
                     description: '+/-1 Paranoia on character in same location.'
                 },
                 {
+                    type: 'active',
                     goodwillRank: 3,
                     description: 'revoke location restirction for Patient.'
                 },
@@ -260,7 +294,7 @@ class Characters {
             tags: ["boy"],
             startLocation: 'Hospital',
             forbiddenLocation: ['City', 'School', 'Shirne'],
-            goodwill: [
+            abilitys: [
             ],
         },
         {
@@ -268,8 +302,9 @@ class Characters {
             paranoiaLimit: 3,
             tags: ["adult", 'woman'],
             startLocation: 'Hospital',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'active',
                     goodwillRank: 2,
                     immuneToGoodwillRefusel: true,
                     description: '-1 Paranoia on panicked character in same location.'
@@ -281,14 +316,175 @@ class Characters {
             paranoiaLimit: 1,
             tags: ["adult", 'man'],
             startLocation: 'City',
-            passive: 'Mastermind chooses start location each loop',
-            goodwill: [
+            abilitys: [
                 {
+                    type: 'passive',
+                    description: 'Mastermind chooses start location each loop',
+                },
+                {
+                    type: 'active',
                     goodwillRank: 3,
                     description: 'Dose not trigger incidents.'
                 }
             ],
         },
+        {
+            name: 'Scientist',
+            paranoiaLimit: 2,
+            tags: ["adult", 'man'],
+            startLocation: 'City',
+            abilitys: [
+                {
+                    type: 'passive',
+                    description: 'At the start of a loop, place either a Paranoia counter, a Goodwill counter or an Intrigue counter on this character.',
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 3,
+                    description: 'Remove all counters from this character. Then, if you use the Extra gauge, increase or decrease this gauge.'
+                },
+            ],
+        },
+        {
+            name: 'Forensic Specialist',
+            paranoiaLimit: 3,
+            tags: ["adult", 'man'],
+            startLocation: 'City',
+            abilitys: [
+                {
+                    type: 'active',
+                    goodwillRank: 2,
+                    onesPerLoop: true,
+                    description: 'Move any one counter between any two other characters in this location.'
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 5,
+                    onesPerLoop: true,
+                    description: 'Reveal the role of any one corpse.'
+                },
+            ],
+        },
+        {
+            name: 'A.I.',
+            paranoiaLimit: 4,
+            tags: ["construct"],
+            startLocation: 'City',
+            abilitys: [
+                {
+                    type: 'passive',
+                    description: 'At script creation, this character cannot be a Person.'
+                },
+                {
+                    type: 'passive',
+                    description: 'When determining wether an Incident triggers, to which this character is the culprit, all conters on this character conut as Paranoia conuters.'
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 3,
+                    onesPerLoop: true,
+                    description: 'Resolve one of the incidents noted in the open information. The culprit is considered to be the A.I., but ahh the choices are not done by the Mastermind, but the Protagonist Leader. (This does not conut as triggering an Event.)'
+                },
+            ],
+        },
+        {
+            name: 'Illusion',
+            paranoiaLimit: 3,
+            tags: ["fabrication", "woman"],
+            startLocation: 'City',
+            abilitys: [
+                {
+                    type: 'passive',
+                    description: 'No action cards can be placed on this characte. All cards palced on this location are also applied to this character.'
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 3,
+                    onesPerLoop: true,
+                    description: 'Move any character from this location to any other location.'
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 4,
+                    onesPerLoop: true,
+                    description: 'Remove thsi character from the board for the rest of the loop.'
+                },
+            ],
+        },
+        {
+            name: 'Teacher',
+            paranoiaLimit: 2,
+            tags: ["adult", "man"],
+            startLocation: 'City',
+            abilitys: [
+                {
+                    type: 'active',
+                    goodwillRank: 3,
+                    description: 'Pick a Student in this location, and add or remove a Paranoia from that student.'
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 4,
+                    onesPerLoop: true,
+                    description: 'Reveal the role of one Student in this location.'
+                },
+            ],
+        },
+        {
+            name: 'Transfer Student',
+            paranoiaLimit: 2,
+            tags: ["student", "girl"],
+            startLocation: 'School',
+            abilitys: [
+                {
+                    type: 'passive',
+                    description: 'This character does not appear on the board until the start of the day specified by the script.'
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 2,
+                    description: 'Change an Intrigue conuter on any other character in this location to a Goodwill counter.'
+                },
+            ],
+        },
+        {
+            name: 'Soldier',
+            paranoiaLimit: 3,
+            tags: ["adult", "man"],
+            startLocation: 'School',
+            abilitys: [
+                {
+                    type: 'active',
+                    goodwillRank: 2,
+                    onesPerLoop: true,
+                    description: 'Place 2 Paranoia on another character in this location.'
+                },
+                {
+                    type: 'active',
+                    goodwillRank: 5,
+                    onesPerLoop: true,
+                    description: 'The Protagonists cannot die for the reminder of the loop.'
+                },
+            ],
+        },
+        {
+            name: 'Black Cat',
+            paranoiaLimit: 0,
+            tags: ["animal"],
+            startLocation: 'School',
+            abilitys: [
+                {
+                    type: 'passive',
+                    description: 'At the start of each loop, place an Intrigue on the Shrine.'
+                },
+                {
+                    type: 'passive',
+                    description: 'Incidents of which this character is the culprit, change their effect into "no effect". (rule-wise they occur)'
+                },
+            ],
+        },
+
+
     ] as const satisfies readonly Character[];
 }
 
