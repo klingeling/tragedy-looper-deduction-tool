@@ -291,16 +291,6 @@ export class Plots {
             ]
         },
         {
-            name: 'A Love Affair',
-            roles: {
-
-                "Loved One": 1,
-                "Lover": 1,
-            },
-            rules: [
-            ]
-        },
-        {
             name: 'Witch’s Curse',
             roles: {
 
@@ -748,7 +738,7 @@ export class Plots {
             ],
         },
         {
-            name: 'Unsamfe Trigger',
+            name: 'Unsafe Trigger',
             roles: {
                 "Factor": 1,
             },
