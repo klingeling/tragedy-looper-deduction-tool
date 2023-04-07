@@ -1,9 +1,8 @@
 
 
+
 export function toRecord<T = any, P extends string = string>(entries: Iterable<readonly [P, T]>): Record<P, T> {
-
     return Object.fromEntries(entries) as any;
-
 }
 
 export function distinct<T>(t: T[], keyFunction?: (a: T) => string) {

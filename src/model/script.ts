@@ -1,9 +1,22 @@
+import { toRecord } from "../misc";
 import type { CharacterNames } from "./characters";
 import type { IncidentNames } from "./incidents";
 import type { PlotNames } from "./plots";
 import type { RoleNames } from "./roles";
 import type { TragedySetNames } from "./tragedySets";
 
+
+export type ScriptParameter = {
+    tragedy: TragedySetNames;
+    characters: CharacterNames[];
+    incident: Omit<ScriptIncident, 'culprit'>[];
+};
+
+export type ScriptIncident = {
+    day: number,
+    incident: IncidentNames,
+    culprit: CharacterNames,
+};
 
 export type Script = {
     titel: string,
@@ -19,13 +32,11 @@ export type Script = {
         cast: CharacterNames,
         role: RoleNames
     }[],
-    incidents: readonly {
-        day: number,
-        incident: IncidentNames,
-        culprit: CharacterNames,
-    }[],
+    incidents: readonly ScriptIncident[],
     specialRule: string,
 };
+
+export type ScriptNames = Scripts['scripts'][never]['titel'];
 
 class Scripts {
     public readonly scripts = [
@@ -101,4 +112,4 @@ class Scripts {
     ] as const satisfies readonly Script[];
 }
 
-export const scripts = new Scripts().scripts;
+export const scripts = toRecord<Script|undefined,string>(new Scripts().scripts.map(x => [x.titel, x])) ;

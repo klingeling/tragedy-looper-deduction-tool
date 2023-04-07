@@ -1,21 +1,68 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { cssesc, distinct, join, keys } from '../misc';
-	import { characters } from '../model/characters';
+	import { characters, type Character, type CharacterNames } from '../model/characters';
 	import { incidents } from '../model/incidents';
 	import { plots } from '../model/plots';
 	import { roles, type Abilities } from '../model/roles';
-	import type { Script } from '../model/script';
-	import { tragedySets } from '../model/tragedySets';
+	import type { Script, ScriptIncident } from '../model/script';
+	import { tragedySets, type TragedySet, type TragedySetNames } from '../model/tragedySets';
 
-	export let script: Script;
-	const NEW_LINE = ` " " `;
+	// export let script: Script;
+
+	export let tragedySet: TragedySetNames;
+	export let charsName: readonly CharacterNames[];
+	export let incidentsMapping: readonly Omit<ScriptIncident, 'culprit'>[];
+
+	onMount(() => {
+		const incidentTemplate = document.getElementById('incidences') as HTMLTemplateElement;
+		const roleTemplate = document.getElementById('role') as HTMLTemplateElement;
+		const tragedyRulesTemplate = document.getElementById('tragedyRules') as HTMLTemplateElement;
+
+		const newPageTemplate = document.getElementById('newPage') as HTMLTemplateElement;
+		const root = document.getElementById('root') as HTMLElement;
+
+		const containers: (readonly [HTMLElement, DOMRect])[] = [3, 2, 1]
+			.map((x) => `rest-${x}`)
+			.map((id) => document.getElementById(id) as HTMLDivElement)
+			.map((container) => [container, container.getBoundingClientRect()] as const);
+
+		containers.forEach(([c]) => c.replaceChildren());
+
+		Array.from(tragedyRulesTemplate.content.children)
+			.concat(Array.from(incidentTemplate.content.children))
+			.concat(Array.from(roleTemplate.content.children))
+			.map((x) => x.cloneNode(true) as HTMLDivElement)
+			.forEach((incident) => {
+				for (const [container, rect] of containers) {
+					container.appendChild(incident);
+					const container2IncedentRect = incident.getBoundingClientRect();
+					if (isInsilde(container2IncedentRect, rect)) {
+						return;
+					}
+					incident.remove();
+				}
+				// add page
+				const newPage = newPageTemplate.content.firstChild?.cloneNode(true) as HTMLDivElement;
+				root.appendChild(newPage);
+				containers.push([newPage, newPage.getBoundingClientRect()]);
+				newPage.appendChild(incident);
+			});
+	});
+
+	function isInsilde(element: DOMRect, container: DOMRect): boolean {
+		return (
+			element.left >= container.left &&
+			element.right <= container.right &&
+			element.top >= container.top &&
+			element.bottom <= container.bottom
+		);
+	}
 
 	console.log(cssesc('test wert', { isIdentifier: true }));
 
-	$: tragedySet = script.tragedySet;
-	$: chars = script.characters
-		.map((x) => characters[x.cast])
-		.sort((a, b) => a.name.localeCompare(b.name));
+	// $: tragedySet = script.tragedySet;
+	$: chars = charsName.map((x) => characters[x]).sort((a, b) => a.name.localeCompare(b.name));
 
 	$: tg = tragedySets[tragedySet];
 
@@ -23,9 +70,9 @@
 		.sort()
 		.map((x) => roles[x]);
 
-	$: mainPlots = tragedySets[script.tragedySet].mainPlots.map((x) => plots[x]);
-	$: subPlots = tragedySets[script.tragedySet].subPlots.map((x) => plots[x]);
-	$: ince = script.incidents.map((x) => ({ ...incidents[x.incident], day: x.day }));
+	$: mainPlots = tragedySets[tragedySet].mainPlots.map((x) => plots[x]);
+	$: subPlots = tragedySets[tragedySet].subPlots.map((x) => plots[x]);
+	$: ince = incidentsMapping.map((x) => ({ ...incidents[x.incident], day: x.day }));
 
 	function WriteLiens(cellCollback: (() => string[])[]) {
 		let current = '';
@@ -92,11 +139,13 @@
 							})}`
 					),
 
-					'.'
+					'rest-2'
 				];
 			}),
 			() => {
-				return Array.from({ length: r.length + ince.length + 5 }).map(() => 'seccond');
+				return Array.from({ length: r.length + ince.length + 4 })
+					.map(() => 'seccond')
+					.concat(['rest-2']);
 			},
 			...subPlots.map((mp) => () => {
 				return [
@@ -116,7 +165,7 @@
 							})}`
 					),
 
-					'.'
+					'rest-2'
 				];
 			}),
 			() => {
@@ -126,8 +175,8 @@
 					'.',
 					'incident-header',
 					...ince.map((role) => `incident-header-${cssesc(role.name, { isIdentifier: true })}`),
-					'rest',
-					'rest'
+					'rest-1',
+					'rest-1'
 				];
 			},
 			() => {
@@ -137,8 +186,8 @@
 					'.',
 					'incident-header-day',
 					...ince.map((role) => `incident-day-${cssesc(role.name, { isIdentifier: true })}`),
-					'rest',
-					'rest'
+					'rest-1',
+					'rest-1'
 				];
 			},
 			...chars.map((char) => () => [
@@ -157,8 +206,8 @@
 							isIdentifier: true
 						})}-${cssesc(char.name, { isIdentifier: true })} `
 				),
-				'rest',
-				'rest'
+				'rest-1',
+				'rest-1'
 			]),
 			() => [
 				'goodwillrefusal-header',
@@ -166,32 +215,30 @@
 				'.',
 				'.',
 				...ince.map((role) => `incident-rule-${cssesc(role.name, { isIdentifier: true })}`),
-				'rest',
-				'rest'
+				'rest-1',
+				'rest-1'
 			],
 
 			() => [
-				'role-ability-header',
-				...r.map((role) => `role-ability-${cssesc(role.name, { isIdentifier: true })}`),
-				'.',
-				'.',
-				...ince.map((role) => `incident-rule-${cssesc(role.name, { isIdentifier: true })}`),
-				'rest',
-				'rest'
+				'rest-3',
+				...r.map((role) => `rest-3`),
+				'rest-3',
+				'rest-3',
+				...ince.map((role) => `rest-3`),
+				'rest-1',
+				'rest-1'
 			]
 		]);
 	}
-
-
 
 	function renderAbilitys(a: Abilities) {
 		return `<p><span>[<b>${a.type}</b> <i>${join(a.timing, ', ')}</i>]</span> ${a.description}</p>`;
 	}
 </script>
 
-<div class="root">
+<div class="root" id="root">
 	<div
-		class="table"
+		class="table page"
 		style="grid-template-columns: {gird_template_column} ;grid-template-rows: {gird_template_row} ; grid-template-areas: {gird_template_area ??
 			''};"
 	>
@@ -296,38 +343,65 @@
 		{/each}
 
 		<div
-			style="display: flex; flex-wrap: wrap; justify-items: flex-start; align-content: flex-start; justify-content: flex-start; align-items: flex-start; grid-area: rest; flex-direction: column; "
-		>
-			{#each ince as i}
-				<article class="incident">
-					<h1>
-						{i.name}
-					</h1>
-					<h2>Day {i.day}</h2>
-
-					<p>
-						{i.effect}
-					</p>
-				</article>
-			{/each}
-			{#each r as ri}
-				<article class="role">
-					<h1>
-						{ri.name}
-					</h1>
-					<h2>{ri.goodwillRefusel ? `Goodwill refusal: ${ri.goodwillRefusel}` : ''}</h2>
-					{#if ri.unkillable}
-						<h2>Immortal</h2>
-					{/if}
-					{@html join(
-						ri.abilities.map((a) => renderAbilitys(a)),
-						' '
-					)}
-				</article>
-			{/each}
-		</div>
+			class="overflow"
+			id="rest-1"
+			style="grid-area: rest-1; margin-top: 1px; margin-left: 1px;"
+		/>
+		<div class="overflow" id="rest-2" style="grid-area: rest-2; margin-top:1px; margin-left:1px;" />
+		<div
+			class="overflow"
+			id="rest-3"
+			style="grid-area: rest-3; margin-left: 1px; margin-top: 1px;"
+		/>
 	</div>
 </div>
+
+<template id="newPage">
+	<div class="page overflow" />
+</template>
+<template id="incidences">
+	{#each ince as i}
+		<article class="incident">
+			<h1>
+				{i.name}
+			</h1>
+			<h2>Day {i.day}</h2>
+
+			<p>
+				{i.effect}
+			</p>
+		</article>
+	{/each}
+</template>
+<template id="role">
+	{#each r as ri}
+		<article class="role">
+			<h1>
+				{ri.name}
+			</h1>
+			<h2>{ri.goodwillRefusel ? `Goodwill refusal: ${ri.goodwillRefusel}` : ''}</h2>
+			{#if ri.unkillable}
+				<h2>Immortal</h2>
+			{/if}
+			{@html join(
+				ri.abilities.map((a) => renderAbilitys(a)),
+				' '
+			)}
+		</article>
+	{/each}
+</template>
+<template id="tragedyRules">
+	{#each tg.extraRules as ri}
+		<article class="tragedyRules">
+			<h1>
+				{ri.name}
+			</h1>
+			<p>
+				{ri.description}
+			</p>
+		</article>
+	{/each}
+</template>
 
 <style lang="scss">
 	:root {
@@ -355,12 +429,57 @@
 
 		--rule-width: 205rem;
 
-		// --page-width: 277mm;
+		--page-width: 297mm;
+		--page-height: 210mm;
+	}
+
+	@media screen {
+		:global(.page) {
+			overflow: hidden;
+			margin: auto;
+			margin-top: 1rem;
+			margin-bottom: 1rem;
+			// border: 1px solid lightgray;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), inset 0 0 3px rgba(0, 0, 0, 0.6);
+		}
+		:global(body) {
+			background-color: var(--background);
+			margin: 0 auto 0 auto;
+		}
+	}
+	@media print {
+		@page {
+			size: A4 landscape;
+		}
+
+		:global(.page) {
+			overflow: hidden;
+		}
+
+		:global(.page) {
+			height: calc(var(--page-height) - 0px);
+			width: calc(var(--page-width) - 0px);
+			// margin: 2.5cm;
+			background-color: lightgoldenrodyellow;
+			page-break-after: always;
+		}
+	}
+
+	:global(.overflow) {
+		display: flex;
+		flex-wrap: wrap;
+		justify-items: flex-start;
+		align-content: flex-start;
+		justify-content: flex-start;
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 1px;
+		overflow: hidden;
 	}
 
 	article {
 		width: 5cm; //calc(var(--page-width) / 5 - 2px * 6);
-		margin: 2px;
+		// margin: 2px;
 		padding: 4px;
 		break-inside: avoid-page;
 
@@ -393,17 +512,23 @@
 		margin-top: 0px;
 		margin-bottom: 0px;
 	}
+	:global(.page) {
+		height: calc(var(--page-height) - 5px);
+		width: calc(var(--page-width) - 5px);
+		padding: 4px;
+		// margin: 2.5cm;
+		background-color: white;
+		page-break-after: always;
+	}
 	.root {
 		// max-width: var(--page-width);
-		height: calc(100% + 0px);
-		width: calc(100% + 0px);
 		// overflow: hidden;
 		// overflow: auto;
 	}
 	.table {
 		display: grid;
-		height: calc(100% + 0px);
-		width: calc(100% + 0px);
+		// height: calc(100% + 0px);
+		// width: calc(100% + 0px);
 		//  overflow: auto;
 
 		// justify-content: start;
@@ -415,13 +540,16 @@
 		// gap: 2px;
 		// background-color: var(--background);
 		font-size: 8pt;
-		& > * {
+
+		font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+			// font-family: Verdana, Geneva, Tahoma, sans-serif;
+		& > *:not(.overflow) {
 			margin: 1px;
 		}
 	}
 
-	.table > * {
-		background-color: var(--table-background);
+	.table > *:not(.overflow) {
+		// background-color: var(--table-background);
 		padding: 4px;
 	}
 
