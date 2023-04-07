@@ -16,7 +16,7 @@ export type Character = {
 export type Ability = {
     type: 'active'
     goodwillRank: number,
-    onesPerLoop?: true,
+    timesPerLoop?: number,
     immuneToGoodwillRefusel?: true,
     restrictedToLocation?: readonly Locations[],
     description: string
@@ -83,7 +83,7 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 2,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Leader gets one (1×∞) card back.'
                 }
             ],
@@ -121,7 +121,7 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 5,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Reveal role of character in same location'
                 }
             ],
@@ -135,13 +135,13 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 4,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Kill one character in same location.'
                 },
                 {
                     type: 'active',
                     goodwillRank: 5,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Revive one corpse in same location.'
                 }
             ],
@@ -159,7 +159,7 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 3,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Reveal culprit for 1 incident.'
                 },
                 {
@@ -178,13 +178,13 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 4,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Reveal culprit for former incident.'
                 },
                 {
                     type: 'active',
                     goodwillRank: 5,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Put an Extra marker on another character in same location. Remove that marker to prevent that character from dying.'
                 }
             ],
@@ -211,7 +211,7 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 5,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Leader names the title of any Subplot. Then, the Mastermind must name the title of any other active subplot.'
                 },
             ],
@@ -265,7 +265,7 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 5,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Reveal role of character in his turf.'
                 },
             ],
@@ -354,13 +354,13 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 2,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Move any one counter between any two other characters in this location.'
                 },
                 {
                     type: 'active',
                     goodwillRank: 5,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Reveal the role of any one corpse.'
                 },
             ],
@@ -382,7 +382,7 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 3,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Resolve one of the incidents noted in the open information. The culprit is considered to be the A.I., but ahh the choices are not done by the Mastermind, but the Protagonist Leader. (This does not conut as triggering an Event.)'
                 },
             ],
@@ -400,13 +400,13 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 3,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Move any character from this location to any other location.'
                 },
                 {
                     type: 'active',
                     goodwillRank: 4,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Remove thsi character from the board for the rest of the loop.'
                 },
             ],
@@ -425,7 +425,7 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 4,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Reveal the role of one Student in this location.'
                 },
             ],
@@ -456,13 +456,13 @@ class Characters {
                 {
                     type: 'active',
                     goodwillRank: 2,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'Place 2 Paranoia on another character in this location.'
                 },
                 {
                     type: 'active',
                     goodwillRank: 5,
-                    onesPerLoop: true,
+                    timesPerLoop: 1,
                     description: 'The Protagonists cannot die for the reminder of the loop.'
                 },
             ],

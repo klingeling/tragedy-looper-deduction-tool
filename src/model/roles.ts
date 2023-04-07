@@ -182,7 +182,7 @@ class Roles {
             ],
         },
         {
-            name: 'Prisoner',
+            name: 'Poisoner',
             goodwillRefusel: 'optional',
             abilities: [
                 {
