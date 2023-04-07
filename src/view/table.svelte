@@ -8,6 +8,7 @@
 	import { tragedySets } from '../model/tragedySets';
 
 	export let script: Script;
+	const NEW_LINE = ` " " `;
 
 	console.log(cssesc('test wert', { isIdentifier: true }));
 
@@ -26,167 +27,162 @@
 	$: subPlots = tragedySets[script.tragedySet].subPlots.map((x) => plots[x]);
 	$: ince = script.incidents.map((x) => ({ ...incidents[x.incident], day: x.day }));
 
+	function WriteLiens(cellCollback: (() => string[])[]) {
+		let current = '';
+
+		const rows = cellCollback.map((x) => x());
+		// check length
+		let columns: number | undefined = undefined;
+		for (let i = 0; i < rows.length; i++) {
+			if (i > 0) {
+				current += '\n';
+			}
+			current += '"';
+			const element = rows[i];
+			if (columns === undefined) {
+				columns = element.length;
+			} else if (columns != element.length) {
+				throw new Error(
+					`row ${i + 1} has length ${element.length} expected ${columns} ${join(element, ' ')}`
+				);
+			}
+			current += join(element, ' ') + '"';
+		}
+		// console.log(current.replaceAll('"', ''));
+		return [
+			current,
+			join(
+				Array.from({ length: (columns ?? 1) - 1 })
+					.map(() => 'auto')
+					.concat(['1fr']),
+				' '
+			),
+			join(
+				Array.from({ length: rows.length - 1 })
+					.map(() => 'auto')
+					.concat(['1fr']),
+				' '
+			)
+		];
+	}
+
 	let gird_template_area: string | undefined;
 	let gird_template_column: string | undefined;
 	let gird_template_row: string | undefined;
 	$: {
-		gird_template_area = '" ';
+		[gird_template_area, gird_template_column, gird_template_row] = WriteLiens([
+			() => {
+				return Array.from({ length: r.length + ince.length + 5 }).map(() => 'top');
+			},
+			...mainPlots.map((mp) => () => {
+				return [
+					'main-plot-header',
+					...r.map(
+						(role) =>
+							` main-role-plot-${cssesc(role.name, {
+								isIdentifier: true
+							})}-${cssesc(mp.name, { isIdentifier: true })} `
+					),
+					`main-plot-header-${cssesc(mp.name, { isIdentifier: true })}`,
+					`main-plot-header-${cssesc(mp.name, { isIdentifier: true })}`,
+					...ince.concat([undefined] as any).map(
+						() =>
+							`main-role-plot-rule-${cssesc(mp.name, {
+								isIdentifier: true
+							})}`
+					),
 
-		gird_template_area += ` top `;
+					'.'
+				];
+			}),
+			() => {
+				return Array.from({ length: r.length + ince.length + 5 }).map(() => 'seccond');
+			},
+			...subPlots.map((mp) => () => {
+				return [
+					'sub-plot-header',
+					...r.map(
+						(role) =>
+							` sub-role-plot-${cssesc(role.name, {
+								isIdentifier: true
+							})}-${cssesc(mp.name, { isIdentifier: true })} `
+					),
+					`sub-plot-header-${cssesc(mp.name, { isIdentifier: true })}`,
+					`sub-plot-header-${cssesc(mp.name, { isIdentifier: true })}`,
+					...ince.concat([undefined] as any).map(
+						() =>
+							`sub-role-plot-rule-${cssesc(mp.name, {
+								isIdentifier: true
+							})}`
+					),
 
-		for (let x = 0; x < r.length + 2 + ince.length + 1; x++) {
-			gird_template_area += ` top `;
-		}
+					'.'
+				];
+			}),
+			() => {
+				return [
+					'role-header',
+					...r.map((role) => `role-header-${cssesc(role.name, { isIdentifier: true })}`),
+					'.',
+					'incident-header',
+					...ince.map((role) => `incident-header-${cssesc(role.name, { isIdentifier: true })}`),
+					'rest',
+					'rest'
+				];
+			},
+			() => {
+				return [
+					'role-header',
+					...r.map((role) => `role-header-${cssesc(role.name, { isIdentifier: true })}`),
+					'.',
+					'incident-header-day',
+					...ince.map((role) => `incident-day-${cssesc(role.name, { isIdentifier: true })}`),
+					'rest',
+					'rest'
+				];
+			},
+			...chars.map((char) => () => [
+				`character-header`,
+				...r.map(
+					(role) =>
+						` role-char-${cssesc(role.name, { isIdentifier: true })}-${cssesc(char.name, {
+							isIdentifier: true
+						})} `
+				),
+				` char-header-${cssesc(char.name, { isIdentifier: true })} `,
+				` char-header-${cssesc(char.name, { isIdentifier: true })} `,
+				...ince.map(
+					(role) =>
+						` incdent-char-${cssesc(role.name, {
+							isIdentifier: true
+						})}-${cssesc(char.name, { isIdentifier: true })} `
+				),
+				'rest',
+				'rest'
+			]),
+			() => [
+				'goodwillrefusal-header',
+				...r.map((role) => `goodwillrefusal-${cssesc(role.name, { isIdentifier: true })}`),
+				'.',
+				'.',
+				...ince.map((role) => `incident-rule-${cssesc(role.name, { isIdentifier: true })}`),
+				'rest',
+				'rest'
+			],
 
-		for (let y = 0; y < mainPlots.length; y++) {
-			gird_template_area += ` " " `;
-			const mp = mainPlots[y];
-
-			gird_template_area += ` main-plot-header `;
-
-			for (let x = 0; x < r.length; x++) {
-				const role = r[x];
-				gird_template_area += ` main-role-plot-${cssesc(role.name, {
-					isIdentifier: true
-				})}-${cssesc(mp.name, { isIdentifier: true })} `;
-			}
-			gird_template_area += ` main-plot-header-${cssesc(mp.name, { isIdentifier: true })} `;
-			gird_template_area += ` main-plot-header-${cssesc(mp.name, { isIdentifier: true })} `;
-			for (let x = 0; x < ince.length + 1; x++) {
-				gird_template_area += ` main-role-plot-rule-${cssesc(mp.name, { isIdentifier: true })} `;
-			}
-		}
-
-		gird_template_area += ` " " `;
-		gird_template_area += ` second `;
-
-		for (let x = 0; x < r.length + 2 + ince.length + 1; x++) {
-			gird_template_area += ` second `;
-		}
-
-		for (let y = 0; y < subPlots.length; y++) {
-			gird_template_area += ` " " `;
-			const mp = subPlots[y];
-
-			gird_template_area += ` sub-plot-header `;
-
-			for (let x = 0; x < r.length; x++) {
-				const role = r[x];
-				gird_template_area += ` sub-role-plot-${cssesc(role.name, {
-					isIdentifier: true
-				})}-${cssesc(mp.name, { isIdentifier: true })} `;
-			}
-			gird_template_area += ` sub-plot-header-${cssesc(mp.name, { isIdentifier: true })} `;
-			gird_template_area += ` sub-plot-header-${cssesc(mp.name, { isIdentifier: true })} `;
-			for (let x = 0; x < ince.length + 1; x++) {
-				gird_template_area += ` sub-role-plot-rule-${cssesc(mp.name, { isIdentifier: true })} `;
-			}
-		}
-
-		gird_template_area += ` " " `;
-		gird_template_area += ' role-header ';
-		for (let x = 0; x < r.length; x++) {
-			const role = r[x];
-			gird_template_area += ` role-header-${cssesc(role.name, { isIdentifier: true })} `;
-		}
-		gird_template_area += '  . ';
-		gird_template_area += '  incident-header ';
-		for (let x = 0; x < ince.length; x++) {
-			const role = ince[x];
-			gird_template_area += ` incident-header-${cssesc(role.name, { isIdentifier: true })} `;
-		}
-		gird_template_area += '  rest ';
-		gird_template_area += ` " " `;
-		gird_template_area += ' role-header ';
-		for (let x = 0; x < r.length; x++) {
-			const role = r[x];
-			gird_template_area += ` role-header-${cssesc(role.name, { isIdentifier: true })} `;
-		}
-		gird_template_area += '  . ';
-		gird_template_area += '  incident-header-day ';
-		for (let x = 0; x < ince.length; x++) {
-			const role = ince[x];
-			gird_template_area += ` incident-day-${cssesc(role.name, { isIdentifier: true })} `;
-		}
-		gird_template_area += '  rest ';
-
-		// gird_template_area += ` " " `;
-		// gird_template_area += ` character-header `;
-
-		// for (let x = 0; x < r.length; x++) {
-		// 	gird_template_area += ` character-header `;
-		// }
-
-		for (let y = 0; y < chars.length; y++) {
-			gird_template_area += ` " " `;
-			const char = chars[y];
-
-			gird_template_area += ` character-header `;
-
-			for (let x = 0; x < r.length; x++) {
-				const role = r[x];
-				gird_template_area += ` role-char-${cssesc(role.name, { isIdentifier: true })}-${cssesc(
-					char.name,
-					{ isIdentifier: true }
-				)} `;
-			}
-			gird_template_area += ` char-header-${cssesc(char.name, { isIdentifier: true })} `;
-			gird_template_area += ` char-header-${cssesc(char.name, { isIdentifier: true })} `;
-			for (let x = 0; x < ince.length; x++) {
-				const role = ince[x];
-				gird_template_area += ` incdent-char-${cssesc(role.name, { isIdentifier: true })}-${cssesc(
-					char.name,
-					{ isIdentifier: true }
-				)} `;
-			}
-			gird_template_area += '  rest ';
-		}
-
-		gird_template_area += ` " " `;
-		gird_template_area += ' goodwillrefusal-header ';
-		for (let x = 0; x < r.length; x++) {
-			const role = r[x];
-			gird_template_area += ` goodwillrefusal-${cssesc(role.name, { isIdentifier: true })} `;
-		}
-		gird_template_area += '  . ';
-		gird_template_area += '  . ';
-		for (let x = 0; x < ince.length; x++) {
-			const i = ince[x];
-			gird_template_area += ` incident-rule-${cssesc(i.name)} `;
-		}
-		gird_template_area += '  rest ';
-
-		gird_template_area += ` " " `;
-		gird_template_area += ' role-ability-header ';
-		for (let x = 0; x < r.length; x++) {
-			const role = r[x];
-			gird_template_area += ` role-ability-${cssesc(role.name, { isIdentifier: true })} `;
-		}
-		gird_template_area += '  . ';
-		gird_template_area += '  . ';
-		for (let x = 0; x < ince.length; x++) {
-			const i = ince[x];
-			gird_template_area += ` incident-rule-${cssesc(i.name)} `;
-		}
-		gird_template_area += '  rest ';
-
-		gird_template_area += ` " `;
+			() => [
+				'role-ability-header',
+				...r.map((role) => `role-ability-${cssesc(role.name, { isIdentifier: true })}`),
+				'.',
+				'.',
+				...ince.map((role) => `incident-rule-${cssesc(role.name, { isIdentifier: true })}`),
+				'rest',
+				'rest'
+			]
+		]);
 	}
 
-	$: {
-		gird_template_column = ' auto ';
-		for (let x = 0; x < r.length + ince.length + 2; x++) {
-			gird_template_column += ` auto `;
-		}
-		gird_template_column += ` 1fr `;
-	}
-	$: {
-		gird_template_row = ' auto ';
-		for (let x = 0; x < chars.length + mainPlots.length + subPlots.length + 4; x++) {
-			gird_template_row += ` auto `;
-		}
-		gird_template_row += ` 1fr `;
-	}
+
 
 	function renderAbilitys(a: Abilities) {
 		return `<p><span>[<b>${a.type}</b> <i>${join(a.timing, ', ')}</i>]</span> ${a.description}</p>`;
@@ -323,12 +319,10 @@
 					{#if ri.unkillable}
 						<h2>Immortal</h2>
 					{/if}
-					<div style="grid-area: role-ability-{cssesc(ri.name)};">
-						{@html join(
-							ri.abilities.map((a) => renderAbilitys(a)),
-							' '
-						)}
-					</div>
+					{@html join(
+						ri.abilities.map((a) => renderAbilitys(a)),
+						' '
+					)}
 				</article>
 			{/each}
 		</div>
@@ -371,16 +365,18 @@
 		break-inside: avoid-page;
 
 		h1 {
-			font-size: large;
+			// font-size: large;
 			margin: 0px;
+			font-size: 9pt;
 		}
 		h2 {
-			font-size: small;
+			// font-size: small;
 			margin: 0px;
+			font-size: 9pt;
 		}
 
-		div:first-of-type {
-			margin-top: 4px;
+		:global(p:first-of-type) {
+			margin-top: 1px;
 		}
 
 		:global(span)::after {
@@ -418,7 +414,7 @@
 
 		// gap: 2px;
 		// background-color: var(--background);
-		font-size: 9pt;
+		font-size: 8pt;
 		& > * {
 			margin: 1px;
 		}
