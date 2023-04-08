@@ -10,7 +10,9 @@ export type Character = {
     tags: readonly Tag[],
     abilitys: readonly Ability[],
     startLocation: Locations;
-    forbiddenLocation?: readonly Locations[]
+    forbiddenLocation?: readonly Locations[],
+    comesInLaterLoop?: true,
+    scriptSpecifiedLocation?: true,
 };
 
 export type Ability = {
@@ -27,6 +29,16 @@ export type Ability = {
 }
 
 export type CharacterNames = Characters['characters'][never]['name'];
+
+
+type CharactersComesInLaterLoopHelper<T> = T extends { 'comesInLaterLoop': true } ? T : never;
+export type CharactersComesInLaterLoop = CharactersComesInLaterLoopHelper<Characters['characters'][never]>['name'];
+
+
+type CharactersScriptSpecifiedLocationHelper<T> = T extends { 'scriptSpecifiedLocation': true } ? T : never;
+export type CharactersScriptSpecifiedLocation = CharactersScriptSpecifiedLocationHelper<Characters['characters'][never]>['name'];
+
+
 
 class Characters {
 
@@ -151,6 +163,7 @@ class Characters {
             paranoiaLimit: 3,
             tags: ["man", "woman"],
             startLocation: 'Shirne',
+            comesInLaterLoop: true,
             abilitys: [
                 {
                     type: 'passive',
@@ -257,6 +270,7 @@ class Characters {
             paranoiaLimit: 4,
             tags: ["adult", "man"],
             startLocation: 'City',
+            scriptSpecifiedLocation: true,
             abilitys: [
                 {
                     type: 'passive',
@@ -490,6 +504,7 @@ class Characters {
 
 const c = new Characters();
 
+export const charactersComesInLaterLoop = c.characters.filter(x=>(x as {comesInLaterLoop?:true})['comesInLaterLoop']).map(x=>x.name)  as readonly CharactersComesInLaterLoop[];
 export function isCharacterName(name: string): name is CharacterNames {
     return c.characters.some(x => x.name == name);
 }

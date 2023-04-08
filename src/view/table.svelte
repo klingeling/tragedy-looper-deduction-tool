@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { cssesc, distinct, join, keys } from '../misc';
-	import { characters, type Character, type CharacterNames } from '../model/characters';
+	import {
+		characters,
+		type Character,
+		type CharacterNames,
+		charactersComesInLaterLoop
+	} from '../model/characters';
 	import { incidents } from '../model/incidents';
 	import { plots } from '../model/plots';
 	import { roles, type Abilities } from '../model/roles';
@@ -13,6 +18,7 @@
 	export let tragedySet: TragedySetNames;
 	export let charsName: readonly CharacterNames[];
 	export let incidentsMapping: readonly Omit<ScriptIncident, 'culprit'>[];
+	export let specialRules: readonly string[];
 
 	onMount(() => {
 		const incidentTemplate = document.getElementById('incidences') as HTMLTemplateElement;
@@ -22,20 +28,20 @@
 		const newPageTemplate = document.getElementById('newPage') as HTMLTemplateElement;
 		const root = document.getElementById('root') as HTMLElement;
 
-		const containers: (readonly [HTMLElement, DOMRect])[] = [3, 2, 1]
+		const containers: HTMLElement[] = [1, 2, 3]
 			.map((x) => `rest-${x}`)
-			.map((id) => document.getElementById(id) as HTMLDivElement)
-			.map((container) => [container, container.getBoundingClientRect()] as const);
+			.map((id) => document.getElementById(id) as HTMLDivElement);
 
-		containers.forEach(([c]) => c.replaceChildren());
+		containers.forEach((c) => c.replaceChildren());
 
 		Array.from(tragedyRulesTemplate.content.children)
 			.concat(Array.from(incidentTemplate.content.children))
 			.concat(Array.from(roleTemplate.content.children))
 			.map((x) => x.cloneNode(true) as HTMLDivElement)
 			.forEach((incident) => {
-				for (const [container, rect] of containers) {
+				for (const container of containers) {
 					container.appendChild(incident);
+					const rect = container.getBoundingClientRect();
 					const container2IncedentRect = incident.getBoundingClientRect();
 					if (isInsilde(container2IncedentRect, rect)) {
 						return;
@@ -45,7 +51,7 @@
 				// add page
 				const newPage = newPageTemplate.content.firstChild?.cloneNode(true) as HTMLDivElement;
 				root.appendChild(newPage);
-				containers.push([newPage, newPage.getBoundingClientRect()]);
+				containers.push(newPage);
 				newPage.appendChild(incident);
 			});
 	});
@@ -62,7 +68,9 @@
 	console.log(cssesc('test wert', { isIdentifier: true }));
 
 	// $: tragedySet = script.tragedySet;
-	$: chars = charsName.map((x) => characters[x]).sort((a, b) => a.name.localeCompare(b.name));
+	$: chars = distinct(charsName.concat(charactersComesInLaterLoop))
+		.map((x) => characters[x])
+		.sort((a, b) => a.name.localeCompare(b.name));
 
 	$: tg = tragedySets[tragedySet];
 
@@ -99,9 +107,18 @@
 		return [
 			current,
 			join(
-				Array.from({ length: (columns ?? 1) - 1 })
-					.map(() => 'auto')
-					.concat(['1fr']),
+				[
+					'min-content',
+					...r.map(() => 'auto'),
+					'auto',
+					'min-content',
+					...ince.map(() => 'min-content'),
+					'auto',
+					'1fr'
+				],
+				// Array.from({ length: (columns ?? 1) - 1 })
+				// 	.map(() => 'auto')
+				// 	.concat(['1fr']),
 				' '
 			),
 			join(
@@ -139,13 +156,13 @@
 							})}`
 					),
 
-					'rest-2'
+					'rest-3'
 				];
 			}),
 			() => {
 				return Array.from({ length: r.length + ince.length + 4 })
 					.map(() => 'seccond')
-					.concat(['rest-2']);
+					.concat(['rest-3']);
 			},
 			...subPlots.map((mp) => () => {
 				return [
@@ -165,7 +182,7 @@
 							})}`
 					),
 
-					'rest-2'
+					'rest-3'
 				];
 			}),
 			() => {
@@ -175,8 +192,8 @@
 					'.',
 					'incident-header',
 					...ince.map((role) => `incident-header-${cssesc(role.name, { isIdentifier: true })}`),
-					'rest-1',
-					'rest-1'
+					'rest-2',
+					'rest-3'
 				];
 			},
 			() => {
@@ -186,8 +203,8 @@
 					'.',
 					'incident-header-day',
 					...ince.map((role) => `incident-day-${cssesc(role.name, { isIdentifier: true })}`),
-					'rest-1',
-					'rest-1'
+					'rest-2',
+					'rest-3'
 				];
 			},
 			...chars.map((char) => () => [
@@ -206,8 +223,8 @@
 							isIdentifier: true
 						})}-${cssesc(char.name, { isIdentifier: true })} `
 				),
-				'rest-1',
-				'rest-1'
+				'rest-2',
+				'rest-3'
 			]),
 			() => [
 				'goodwillrefusal-header',
@@ -215,18 +232,18 @@
 				'.',
 				'.',
 				...ince.map((role) => `incident-rule-${cssesc(role.name, { isIdentifier: true })}`),
-				'rest-1',
-				'rest-1'
+				'rest-2',
+				'rest-3'
 			],
 
 			() => [
-				'rest-3',
-				...r.map((role) => `rest-3`),
-				'rest-3',
-				'rest-3',
-				...ince.map((role) => `rest-3`),
 				'rest-1',
-				'rest-1'
+				...r.map((role) => `rest-1`),
+				'rest-1',
+				'rest-1',
+				...ince.map((role) => `rest-1`),
+				'rest-2',
+				'rest-3'
 			]
 		]);
 	}
@@ -257,11 +274,16 @@
 			</div>
 
 			{#each r as ri}
+				{@const amount = p.roles[ri.name]}
 				<div
 					class="plot-main role-counter"
 					style="grid-area: main-role-plot-{cssesc(ri.name)}-{cssesc(p.name)};"
 				>
-					{p.roles[ri.name] ?? ''}
+					{#if Array.isArray(amount)}
+						{amount[0]} - {amount[1]}
+					{:else if typeof amount == 'number'}
+						{amount}
+					{/if}
 				</div>
 			{/each}
 		{/each}
@@ -279,11 +301,16 @@
 			</div>
 
 			{#each r as ri}
+				{@const amount = p.roles[ri.name]}
 				<div
 					class="plot-sub role-counter"
 					style="grid-area: sub-role-plot-{cssesc(ri.name)}-{cssesc(p.name)};"
 				>
-					{p.roles[ri.name] ?? ''}
+					{#if Array.isArray(amount)}
+						{amount[0]} - {amount[1]}
+					{:else if typeof amount == 'number'}
+						{amount}
+					{/if}
 				</div>
 			{/each}
 		{/each}
@@ -316,6 +343,7 @@
 		{#each chars as ci}
 			<div class="character" style="grid-area: char-header-{cssesc(ci.name)}; ">
 				{ci.name}
+				{#if charactersComesInLaterLoop.includes(ci.name)} <i>(?)</i>{/if}
 			</div>
 
 			{#each r as ri}
@@ -391,6 +419,15 @@
 	{/each}
 </template>
 <template id="tragedyRules">
+	<article class="tragedyRules">
+		<h1>Special Rule</h1>
+		{#each specialRules as sp}
+			<p>
+				{sp}
+			</p>
+		{/each}
+	</article>
+
 	{#each tg.extraRules as ri}
 		<article class="tragedyRules">
 			<h1>
@@ -542,7 +579,7 @@
 		font-size: 8pt;
 
 		font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-			// font-family: Verdana, Geneva, Tahoma, sans-serif;
+		// font-family: Verdana, Geneva, Tahoma, sans-serif;
 		& > *:not(.overflow) {
 			margin: 1px;
 		}

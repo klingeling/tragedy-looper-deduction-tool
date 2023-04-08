@@ -20,8 +20,9 @@
 {#if param}
 	<Table
 		tragedySet={param.tragedy}
-		charsName={param.characters}
-		incidentsMapping={param.incident}
+		charsName={param.characters ?? []}
+		incidentsMapping={param.incident ?? []}
+		specialRules={param.spectalRules ?? []}
 	/>
 {/if}
 
