@@ -162,4 +162,10 @@ class Incidents {
     ] as const satisfies readonly Incident[];
 }
 
-export const incidents = toRecord((new Incidents().incidents).map(x => [x.name, x] as const));
+const i = new Incidents();
+
+export function isIncidentName(name: string): name is IncidentNames {
+    return i.incidents.some(x => x.name == name);
+}
+
+export const incidents = toRecord<Incident & { name: IncidentNames }, IncidentNames>((i.incidents).map(x => [x.name, x] as const));

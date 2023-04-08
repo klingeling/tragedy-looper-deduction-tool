@@ -1,13 +1,20 @@
 <script lang="ts">
-	import { scripts } from '../../../model/script';
+	import { scripts, type Script, isScriptName } from '../../../model/script';
 	import type { ScriptNames } from '../../../model/script';
 
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { keys } from '../../../misc';
 
-	$: name = $page.params['scriptName'] as ScriptNames;
+	$: name = $page.params['scriptName'];
 
-	$: script = scripts[name];
+	let script: Script | undefined;
+	$: {
+		if (isScriptName(name)) {
+			script = scripts[name];
+		}
+	}
+
 	let host = '';
 	let protocoll = '';
 
@@ -24,7 +31,7 @@
 			href={`${protocoll}//${host}/#${encodeURIComponent(
 				JSON.stringify({
 					tragedy: script.tragedySet,
-					characters: script.characters.map((x) => x.cast),
+					characters: Object.keys(script.cast),
 					incident: script.incidents.map((x) => ({
 						day: x.day,
 						incident: x.incident

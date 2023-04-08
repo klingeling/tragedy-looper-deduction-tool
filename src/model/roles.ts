@@ -515,4 +515,12 @@ class Roles {
     ] as const satisfies readonly Role[];
 }
 
-export const roles = toRecord(new Roles().roles.map(x => [x.name, x] as const)) as Record<string, Role>;
+
+
+const r = new Roles();
+export function isRoleName(name: string): name is RoleNames {
+    return r.roles.some(x => x.name == name);
+}
+
+
+export const roles = toRecord<Role & { name: RoleNames }, RoleNames>(r.roles.map(x => [x.name, x] as const));

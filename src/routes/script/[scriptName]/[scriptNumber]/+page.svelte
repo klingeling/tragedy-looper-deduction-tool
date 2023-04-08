@@ -10,9 +10,7 @@
 
 	$: script = Object.values(scripts).filter(
 		(x) =>
-			x != undefined &&
-			x.number == number &&
-			(x.set ?? 'independent').toLowerCase() == name.toLowerCase()
+			x.set != undefined && x.set.number == number && x.set.name.toLowerCase() == name.toLowerCase()
 	)[0];
 	let host = '';
 	let protocoll = '';
@@ -30,7 +28,7 @@
 			href={`${protocoll}//${host}/#${encodeURIComponent(
 				JSON.stringify({
 					tragedy: script.tragedySet,
-					characters: script.characters.map((x) => x.cast),
+					characters: Object.values(script.cast),
 					incident: script.incidents.map((x) => ({
 						day: x.day,
 						incident: x.incident

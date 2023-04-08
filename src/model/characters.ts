@@ -488,4 +488,10 @@ class Characters {
     ] as const satisfies readonly Character[];
 }
 
-export const characters = toRecord(new Characters().characters.map(x => [x.name, x] as const));
+const c = new Characters();
+
+export function isCharacterName(name: string): name is CharacterNames {
+    return c.characters.some(x => x.name == name);
+}
+
+export const characters = toRecord<Character & { name: CharacterNames }, CharacterNames>(c.characters.map(x => [x.name, x] as const));

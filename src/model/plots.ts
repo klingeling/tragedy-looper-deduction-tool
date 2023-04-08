@@ -774,4 +774,10 @@ export class Plots {
     ] as const satisfies readonly Plot[];
 }
 
-export const plots = toRecord(new Plots().plots.map(x => [x.name, x] as const));
+const p = new Plots();
+
+export function isPlotName(name: string): name is PlotNames {
+    return p.plots.some(x => x.name == name);
+}
+
+export const plots = toRecord<Plot & { name: PlotNames }, PlotNames>(p.plots.map(x => [x.name, x] as const));

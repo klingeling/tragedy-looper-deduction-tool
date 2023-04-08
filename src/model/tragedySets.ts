@@ -241,4 +241,10 @@ class TragedySets {
     ] as const satisfies readonly TragedySet[];
 }
 
-export const tragedySets = toRecord(new TragedySets().tragedySets.map(x => [x.name, x] as const));
+const t = new TragedySets()
+
+export function isTragedySetName(name: string): name is TragedySetNames {
+    return t.tragedySets.some(x => x.name == name);
+}
+
+export const tragedySets = toRecord<TragedySet & { name: TragedySetNames }, TragedySetNames>(t.tragedySets.map(x => [x.name, x] as const));

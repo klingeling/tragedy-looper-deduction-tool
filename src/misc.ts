@@ -1,7 +1,7 @@
 
 
 
-export function toRecord<T = any, P extends string = string>(entries: Iterable<readonly [P, T]>): Record<P, T> {
+export function toRecord<ELEMENT = any, Key extends string = string>(entries: Iterable<readonly [Key, ELEMENT]>): Record<Key, ELEMENT> {
     return Object.fromEntries(entries) as any;
 }
 
