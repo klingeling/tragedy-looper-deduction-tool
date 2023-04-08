@@ -39,7 +39,7 @@ export type Script = {
     & Partial<Record<CharactersComesInLaterLoop, readonly [RoleNames, number]>>
     & Partial<Record<CharactersScriptSpecifiedLocation, readonly [RoleNames, Locations]>>,
     incidents: readonly ScriptIncident[],
-    specialRules?:string,
+    specialRules?: string,
     specifics: string,
     story: string,
     mastermindHints: string,
@@ -628,7 +628,7 @@ class Scripts {
                     culprit: "Patient"
                 },
             ],
-            specialRules:'Mastermind removes "Forbid Goodwill" from his hand. It cannot be used in any loop',
+            specialRules: 'Mastermind removes "Forbid Goodwill" from his hand. It cannot be used in any loop',
             specifics: 'See Tragedy Looper Mastermind Handbook',
             story: 'See Tragedy Looper Mastermind Handbook',
             mastermindHints: 'See Tragedy Looper Mastermind Handbook',
@@ -694,7 +694,10 @@ class Scripts {
 
 const s = new Scripts();
 
-export function isScriptName(name: string): name is ScriptNames {
+export function isScriptName(name: string | undefined | null): name is ScriptNames {
+    if(!name){
+        return false;
+    }
     return s.scripts.some(x => x.titel == name);
 }
 

@@ -1,20 +1,11 @@
 <script lang="ts">
-	import { scripts, type Script, isScriptName, type ScriptParameter } from '../../../model/script';
-	import type { ScriptNames } from '../../../model/script';
+	import type { scripts, Script, isScriptName, ScriptParameter } from '../../model/script';
 
-	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { keys } from '../../../misc';
-	import type { CharacterNames } from '../../../model/characters';
+	
+	import type { CharacterNames } from '../../model/characters';
 
-	$: name = $page.params['scriptName'];
-
-	let script: Script | undefined;
-	$: {
-		if (isScriptName(name)) {
-			script = scripts[name];
-		}
-	}
+	export let script: Script;
 
 	$: parameter = script
 		? ({
