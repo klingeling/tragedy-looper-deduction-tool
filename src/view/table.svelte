@@ -12,6 +12,7 @@
 	import { roles, type Abilities } from '../model/roles';
 	import type { Script, ScriptIncident } from '../model/script';
 	import { tragedySets, type TragedySet, type TragedySetNames } from '../model/tragedySets';
+	import Selection from './selection.svelte';
 
 	// export let script: Script;
 
@@ -348,7 +349,7 @@
 
 			{#each r as ri}
 				<div class="role-char" style="grid-area: role-char-{cssesc(ri.name)}-{cssesc(ci.name)};">
-					{''}
+					<Selection />
 				</div>
 			{/each}
 			{#each ince as ri}
@@ -356,7 +357,7 @@
 					class="incident-char"
 					style="grid-area: incdent-char-{cssesc(ri.name)}-{cssesc(ci.name)};"
 				>
-					{''}
+					<Selection />
 				</div>
 			{/each}
 		{/each}
@@ -467,10 +468,12 @@
 		--plot-main-color: #ffffff;
 
 		--rule-width: 205rem;
-
 	}
-
-
+	.role-char,
+	.incident-char {
+		display: grid;
+		padding: 0px !important;
+	}
 	:global(.overflow) {
 		display: flex;
 		flex-wrap: wrap;
