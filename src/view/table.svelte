@@ -419,14 +419,16 @@
 	{/each}
 </template>
 <template id="tragedyRules">
-	<article class="tragedyRules">
-		<h1>Special Rule</h1>
-		{#each specialRules as sp}
-			<p>
-				{sp}
-			</p>
-		{/each}
-	</article>
+	{#if (specialRules?.length ?? 0) > 0}
+		<article class="tragedyRules">
+			<h1>Special Rule</h1>
+			{#each specialRules as sp}
+				<p>
+					{sp}
+				</p>
+			{/each}
+		</article>
+	{/if}
 
 	{#each tg.extraRules as ri}
 		<article class="tragedyRules">
@@ -466,41 +468,8 @@
 
 		--rule-width: 205rem;
 
-		--page-width: 297mm;
-		--page-height: 210mm;
 	}
 
-	@media screen {
-		:global(.page) {
-			overflow: hidden;
-			margin: auto;
-			margin-top: 1rem;
-			margin-bottom: 1rem;
-			// border: 1px solid lightgray;
-			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), inset 0 0 3px rgba(0, 0, 0, 0.6);
-		}
-		:global(body) {
-			background-color: var(--background);
-			margin: 0 auto 0 auto;
-		}
-	}
-	@media print {
-		@page {
-			size: A4 landscape;
-		}
-
-		:global(.page) {
-			overflow: hidden;
-		}
-
-		:global(.page) {
-			height: calc(var(--page-height) - 0px);
-			width: calc(var(--page-width) - 0px);
-			// margin: 2.5cm;
-			background-color: lightgoldenrodyellow;
-			page-break-after: always;
-		}
-	}
 
 	:global(.overflow) {
 		display: flex;
@@ -549,14 +518,7 @@
 		margin-top: 0px;
 		margin-bottom: 0px;
 	}
-	:global(.page) {
-		height: calc(var(--page-height) - 5px);
-		width: calc(var(--page-width) - 5px);
-		padding: 4px;
-		// margin: 2.5cm;
-		background-color: white;
-		page-break-after: always;
-	}
+
 	.root {
 		// max-width: var(--page-width);
 		// overflow: hidden;

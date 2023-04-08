@@ -24,6 +24,12 @@
 		incidentsMapping={param.incident ?? []}
 		specialRules={param.spectalRules ?? []}
 	/>
+{:else}
+	<h1>Tragedy Looper Deduction overview</h1>
+	<p>
+		If your are the Mastermind <a href="script">choose a script (SPOILER!!)</a>.
+	</p>
+	<p>Otherwise ask your Mastermind to choose a script and send you the link.</p>
 {/if}
 
 <style>
