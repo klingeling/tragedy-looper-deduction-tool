@@ -51,7 +51,7 @@
 		.sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
 		{#if s}
 			<div>
-				<a href={`?title=${encodeURIComponent( s.titel)}`}>{s.set?.number ?? ''} {s.titel} [{s.tragedySet}]</a>
+				<a href={`?title=${encodeURIComponent( s.titel)}`}>{s.set?.number ?? ''} {s.titel} by {s.creator} [{s.tragedySet}]</a>
 			</div>
 		{/if}
 	{/each}
