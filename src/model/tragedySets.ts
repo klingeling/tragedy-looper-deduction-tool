@@ -1,20 +1,21 @@
 import { toRecord } from "../misc"
-import type { IncidentNames } from "./incidents"
-import type { PlotNames } from "./plots"
+import type { IncidentName } from "./incidents"
+import type { PlotName } from "./plots"
 
-export type TragedySet = {
+export type TragedySet = TragedySetInternal & { name: TragedySetName, };
+type TragedySetInternal = {
     name: string,
-    mainPlots: readonly PlotNames[]
-    subPlots: readonly PlotNames[]
+    mainPlots: readonly PlotName[]
+    subPlots: readonly PlotName[]
     numberOfSubPlots: number,
-    incidents: readonly IncidentNames[],
+    incidents: readonly IncidentName[],
     extraRules: readonly {
         name: string,
         description: string
     }[],
 }
 
-export type TragedySetNames = TragedySets['tragedySets'][never]['name'];
+export type TragedySetName = TragedySets['tragedySets'][never]['name'];
 
 class TragedySets {
     public readonly tragedySets = [
@@ -238,13 +239,13 @@ class TragedySets {
                 },
             ],
         },
-    ] as const satisfies readonly TragedySet[];
+    ] as const satisfies readonly TragedySetInternal[];
 }
 
 const t = new TragedySets()
 
-export function isTragedySetName(name: string): name is TragedySetNames {
+export function isTragedySetName(name: string): name is TragedySetName {
     return t.tragedySets.some(x => x.name == name);
 }
 
-export const tragedySets = toRecord<TragedySet & { name: TragedySetNames }, TragedySetNames>(t.tragedySets.map(x => [x.name, x] as const));
+export const tragedySets = toRecord<TragedySet, TragedySetName>(t.tragedySets.map(x => [x.name, x] as const));

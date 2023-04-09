@@ -1,12 +1,16 @@
 import { toRecord } from "../misc";
 
 
-export type Incident = {
+export type Incident = IncidentInternal & {
+    name: IncidentName,
+
+}
+type IncidentInternal = {
     name: string,
     effect: string,
 }
 
-export type IncidentNames = Incidents['incidents'][never]['name'];
+export type IncidentName = Incidents['incidents'][never]['name'];
 
 
 class Incidents {
@@ -159,13 +163,13 @@ class Incidents {
             name: 'Discovery',
             effect: 'Increase the Extra Gauge 1 step.',
         },
-    ] as const satisfies readonly Incident[];
+    ] as const satisfies readonly IncidentInternal[];
 }
 
 const i = new Incidents();
 
-export function isIncidentName(name: string): name is IncidentNames {
+export function isIncidentName(name: string): name is IncidentName {
     return i.incidents.some(x => x.name == name);
 }
 
-export const incidents = toRecord<Incident & { name: IncidentNames }, IncidentNames>((i.incidents).map(x => [x.name, x] as const));
+export const incidents = toRecord<Incident, IncidentName>((i.incidents).map(x => [x.name, x] as const));

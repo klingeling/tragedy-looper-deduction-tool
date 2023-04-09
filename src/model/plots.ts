@@ -1,9 +1,10 @@
 import { toRecord } from "../misc";
-import type { RoleNames, timing } from "./roles";
+import type { RoleName, timing } from "./roles";
 
-export type Plot = {
+export type Plot = PlotInternal & { name: PlotName, };
+type PlotInternal = {
     name: string,
-    roles: Readonly<Partial<Record<RoleNames, number | readonly [number, number]>>>,
+    roles: Readonly<Partial<Record<RoleName, number | readonly [number, number]>>>,
     rules: readonly PlotRule[]
 }
 export type PlotRule = {
@@ -14,7 +15,7 @@ export type PlotRule = {
     description: string,
 }
 
-export type PlotNames = Plots['plots'][never]['name'];
+export type PlotName = Plots['plots'][never]['name'];
 
 export class Plots {
     public readonly plots = [
@@ -771,13 +772,13 @@ export class Plots {
         },
 
 
-    ] as const satisfies readonly Plot[];
+    ] as const satisfies readonly PlotInternal[];
 }
 
 const p = new Plots();
 
-export function isPlotName(name: string): name is PlotNames {
+export function isPlotName(name: string): name is PlotName {
     return p.plots.some(x => x.name == name);
 }
 
-export const plots = toRecord<Plot & { name: PlotNames }, PlotNames>(p.plots.map(x => [x.name, x] as const));
+export const plots = toRecord<Plot, PlotName>(p.plots.map(x => [x.name, x] as const));

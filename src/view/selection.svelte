@@ -8,18 +8,14 @@
 	}
 </script>
 
-<div class="click" on:click={() => next()}>
+<div class="click hide-on-print" on:click={() => next()}>
 	<div>
 		{states[currentState]}
 	</div>
 </div>
 
 <style>
-	@media print {
-		.click {
-			display: none;
-		}
-	}
+	
 
 	.click {
 		display: grid;

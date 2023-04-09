@@ -5,7 +5,8 @@ export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve
     | 'Mastermind Action step' | 'Goodwill ablility step';
 
 
-export type Role = {
+export type Role = RoleInternal & { name: RoleName, };
+type RoleInternal = {
     name: string,
     max?: number,
     unkillable?: true,
@@ -18,7 +19,7 @@ export type Abilities = {
     timing: readonly (timing)[]
 }
 
-export type RoleNames = Roles['roles'][never]['name'];
+export type RoleName = Roles['roles'][never]['name'];
 
 
 class Roles {
@@ -512,15 +513,15 @@ class Roles {
                 }
             ],
         },
-    ] as const satisfies readonly Role[];
+    ] as const satisfies readonly RoleInternal[];
 }
 
 
 
 const r = new Roles();
-export function isRoleName(name: string): name is RoleNames {
+export function isRoleName(name: string): name is RoleName {
     return r.roles.some(x => x.name == name);
 }
 
 
-export const roles = toRecord<Role & { name: RoleNames }, RoleNames>(r.roles.map(x => [x.name, x] as const));
+export const roles = toRecord<Role & { name: RoleName }, RoleName>(r.roles.map(x => [x.name, x] as const));

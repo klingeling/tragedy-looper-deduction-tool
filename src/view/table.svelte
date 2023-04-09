@@ -2,23 +2,20 @@
 	import { onMount } from 'svelte';
 	import { cssesc, distinct, join, keys } from '../misc';
 	import {
-		characters,
-		type Character,
-		type CharacterNames,
-		charactersComesInLaterLoop
+		type CharacterName,
+		charactersComesInLaterLoop,
+		characters as characterLookup
 	} from '../model/characters';
-	import { incidents } from '../model/incidents';
+	import { incidents as incidentsLookup } from '../model/incidents';
 	import { plots } from '../model/plots';
 	import { roles, type Abilities } from '../model/roles';
 	import type { Script, ScriptIncident } from '../model/script';
-	import { tragedySets, type TragedySet, type TragedySetNames } from '../model/tragedySets';
+	import { tragedySets, type TragedySet, type TragedySetName } from '../model/tragedySets';
 	import Selection from './selection.svelte';
 
-	// export let script: Script;
-
-	export let tragedySet: TragedySetNames;
-	export let charsName: readonly CharacterNames[];
-	export let incidentsMapping: readonly Omit<ScriptIncident, 'culprit'>[];
+	export let tragedySet: TragedySetName;
+	export let cast: readonly CharacterName[];
+	export let incidents: readonly Omit<ScriptIncident, 'culprit'>[];
 	export let specialRules: readonly string[];
 
 	onMount(() => {
@@ -69,8 +66,8 @@
 	console.log(cssesc('test wert', { isIdentifier: true }));
 
 	// $: tragedySet = script.tragedySet;
-	$: chars = distinct(charsName.concat(charactersComesInLaterLoop))
-		.map((x) => characters[x])
+	$: chars = distinct(cast.concat(charactersComesInLaterLoop))
+		.map((x) => characterLookup[x])
 		.sort((a, b) => a.name.localeCompare(b.name));
 
 	$: tg = tragedySets[tragedySet];
@@ -81,7 +78,7 @@
 
 	$: mainPlots = tragedySets[tragedySet].mainPlots.map((x) => plots[x]);
 	$: subPlots = tragedySets[tragedySet].subPlots.map((x) => plots[x]);
-	$: ince = incidentsMapping.map((x) => ({ ...incidents[x.incident], day: x.day }));
+	$: ince = incidents.map((x) => ({ ...incidentsLookup[x.incident], day: x.day }));
 
 	function WriteLiens(cellCollback: (() => string[])[]) {
 		let current = '';
@@ -382,6 +379,18 @@
 			id="rest-3"
 			style="grid-area: rest-3; margin-left: 1px; margin-top: 1px;"
 		/>
+
+		<!-- <div
+			style="background-color: green; grid-row-start: role-char-{cssesc(r[0].name)}-{cssesc(
+				chars[0].name
+			)} ; grid-row-end: role-char-{cssesc(r[r.length - 1].name)}-{cssesc(
+				chars[chars.length - 1].name
+			)} ; grid-column-start: role-char-{cssesc(r[0].name)}-{cssesc(
+				chars[0].name
+			)} ; grid-column-end: role-char-{cssesc(r[r.length - 1].name)}-{cssesc(
+				chars[chars.length - 1].name
+			)} ; width:100%;height:100%;"
+		/> -->
 	</div>
 </div>
 

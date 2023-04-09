@@ -54,6 +54,10 @@
 
     }
 
+    .hide-on-print {
+        display: none !important;
+    }
+
     .page {
         overflow: hidden;
     }

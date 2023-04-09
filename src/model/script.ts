@@ -1,25 +1,69 @@
 import { toRecord } from "../misc";
-import type { CharacterNames, CharactersComesInLaterLoop, CharactersScriptSpecifiedLocation, Locations } from "./characters";
-import type { IncidentNames } from "./incidents";
-import type { PlotNames } from "./plots";
-import type { RoleNames } from "./roles";
-import type { TragedySetNames } from "./tragedySets";
+import { isCharacterName, type CharacterName, type CharactersComesInLaterLoop, type CharactersScriptSpecifiedLocation, type LocationName, isLocationName } from "./characters";
+import { isIncidentName, type IncidentName } from "./incidents";
+import type { PlotName } from "./plots";
+import type { RoleName } from "./roles";
+import type { TragedySetName } from "./tragedySets";
 
 
 export type ScriptParameter = {
-    tragedy: TragedySetNames;
-    characters: CharacterNames[];
+    tragedy: TragedySetName;
+    characters: CharacterName[];
     incident: Omit<ScriptIncident, 'culprit'>[];
     spectalRules?: string[];
 };
 
+
 export type ScriptIncident = {
     day: number,
-    incident: IncidentNames,
-    culprit: CharacterNames,
+    incident: IncidentName,
+    culprit: CharacterName | readonly [LocationName, number],
 };
+export type ScriptIncidentPlayer = Omit<ScriptIncident, 'culprit'>;
+export function isScriptIncident(obj: unknown, omitCulprit: true): obj is ScriptIncidentPlayer;
+export function isScriptIncident(obj: unknown): obj is ScriptIncident;
+export function isScriptIncident(obj: unknown, omitCulprit?: true): obj is ScriptIncident {
 
-export type Script = {
+    if (typeof obj !== 'object') {
+        return false;
+    }
+    if (!obj) {
+        return false;
+    }
+
+    if (!('day' in obj)) {
+        return false;
+    }
+    if (typeof obj.day !== 'number') {
+        return false;
+    }
+
+    if (!('incident' in obj)) {
+        return false;
+    }
+    if (typeof obj.incident !== 'string' || isIncidentName(obj.incident)) {
+        return false;
+    }
+
+    if (!omitCulprit) {
+        if (!('culprit' in obj)) {
+            return false;
+        }
+        if ((typeof obj.culprit !== 'string' || isCharacterName(obj.culprit)) &&
+            (!Array.isArray(obj.culprit) || obj.culprit.length != 2 || !isLocationName(obj.culprit[0]) || typeof obj.culprit[1] != 'number')) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+export function isScriptIncidentWithoutCulprit(obj: unknown): obj is Omit<ScriptIncident, 'culprit'> {
+    return isScriptIncident(obj, true);
+}
+
+export type Script = ScriptInternal & { titel: ScriptName };
+type ScriptInternal = {
     titel: string,
     creator: string,
 
@@ -31,13 +75,13 @@ export type Script = {
         numberOfLoops: number,
         difficulty: number,
     }[],
-    tragedySet: TragedySetNames,
-    mainPlot: readonly PlotNames[],
-    subPlots: readonly PlotNames[],
+    tragedySet: TragedySetName,
+    mainPlot: readonly PlotName[],
+    subPlots: readonly PlotName[],
     daysPerLoop: number,
-    cast: Partial<Record<Exclude<Exclude<CharacterNames, CharactersComesInLaterLoop>, CharactersScriptSpecifiedLocation>, RoleNames>>
-    & Partial<Record<CharactersComesInLaterLoop, readonly [RoleNames, number]>>
-    & Partial<Record<CharactersScriptSpecifiedLocation, readonly [RoleNames, Locations]>>,
+    cast: Partial<Record<Exclude<Exclude<CharacterName, CharactersComesInLaterLoop>, CharactersScriptSpecifiedLocation>, RoleName>>
+    & Partial<Record<CharactersComesInLaterLoop, readonly [RoleName, number]>>
+    & Partial<Record<CharactersScriptSpecifiedLocation, readonly [RoleName, LocationName]>>,
     incidents: readonly ScriptIncident[],
     specialRules?: string,
     specifics: string,
@@ -47,7 +91,7 @@ export type Script = {
 
 
 
-export type ScriptNames = Scripts['scripts'][never]['titel'];
+export type ScriptName = Scripts['scripts'][never]['titel'];
 
 class Scripts {
     public readonly scripts = [
@@ -689,16 +733,16 @@ class Scripts {
             mastermindHints: 'See Tragedy Looper: Midnight Circle Mastermind Handbook',
         },
 
-    ] as const satisfies readonly Script[];
+    ] as const satisfies readonly ScriptInternal[];
 }
 
 const s = new Scripts();
 
-export function isScriptName(name: string | undefined | null): name is ScriptNames {
-    if(!name){
+export function isScriptName(name: string | undefined | null): name is ScriptName {
+    if (!name) {
         return false;
     }
     return s.scripts.some(x => x.titel == name);
 }
 
-export const scripts = toRecord<Script & { titel: ScriptNames }, ScriptNames>(s.scripts.map(x => [x.titel, x] as const));
+export const scripts = toRecord<Script, ScriptName>(s.scripts.map(x => [x.titel, x] as const));

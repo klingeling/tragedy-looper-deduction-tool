@@ -2,23 +2,22 @@
 	import type { scripts, Script, isScriptName, ScriptParameter } from '../../model/script';
 
 	import { onMount } from 'svelte';
-
-	import type { CharacterNames } from '../../model/characters';
-	import { incidents } from '../../model/incidents';
-
+  
+	import type { CharacterName } from '../../model/characters';
+	import { stringifySearchForPlayerAid } from '../../serilezer';
+	import { keys } from '../../misc';
 	export let script: Script;
 
-	$: parameter = script
-		? ({
-				tragedy: script.tragedySet,
-				characters: Object.keys(script.cast) as CharacterNames[],
-				incident: script.incidents.map((x) => ({
-					day: x.day,
-					incident: x.incident
-				})),
-				spectalRules: script.specialRules ? [script.specialRules] : undefined
-		  } satisfies ScriptParameter)
-		: undefined;
+	function getParams(script: Script) {
+		return stringifySearchForPlayerAid(
+			script.tragedySet,
+			keys(script.cast),
+			script.incidents,
+			script.specialRules ? [script.specialRules] : []
+		).toString();
+	}
+
+	$: parameter = script ? getParams(script) : undefined;
 	let host = '';
 	let protocoll = '';
 
@@ -110,7 +109,7 @@
 		</table>
 	</div>
 	{#if script.specialRules}
-	<h5>Special Rules</h5>
+		<h5>Special Rules</h5>
 		<div>
 			{script.specialRules}
 		</div>
@@ -127,11 +126,11 @@
 		<h5>Hints for the Mastermind</h5>
 		{script.mastermindHints}
 	</div>
-<hr>
+	<hr />
 	<div>
 		{#if host}
 			<a
-				href={`${protocoll}//${host}/#${encodeURIComponent(JSON.stringify(parameter))}`}
+				href={`${protocoll}//${host}/?${parameter}`}
 				target="_blank">Link to Script specific Player Aid</a
 			>
 		{/if}

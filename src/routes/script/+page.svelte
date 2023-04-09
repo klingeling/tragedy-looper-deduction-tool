@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { distinct, join } from '../../misc';
+	import { distinct, join, keys } from '../../misc';
 	import { scripts as scriptLookup, type Script, isScriptName } from '../../model/script';
 	import { page } from '$app/stores';
 	import ScriptDetails from './scriptDetails.svelte';
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
+	import { stringifySearchForPlayerAid } from '../../serilezer';
 
 	$: scripts = Object.values(scriptLookup);
 
@@ -34,6 +36,7 @@
 			selectedScript = scriptLookup[title];
 		}
 	}
+
 </script>
 
 {#if selectedScript}
@@ -51,7 +54,13 @@
 		.sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
 		{#if s}
 			<div>
-				<a href={`?title=${encodeURIComponent( s.titel)}`}>{s.set?.number ?? ''} {s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(s.difficultySets.map(x=>x.difficulty.toString()),' / ')}</a>
+				<a href={`${base}/{?title=${encodeURIComponent(s.titel)}`}
+					>{s.set?.number ?? ''}
+					{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
+						s.difficultySets.map((x) => x.difficulty.toString()),
+						' / '
+					)}</a
+				>
 			</div>
 		{/if}
 	{/each}

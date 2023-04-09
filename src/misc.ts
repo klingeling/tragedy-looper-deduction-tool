@@ -26,6 +26,9 @@ export function distinct<T>(t: T[], keyFunction?: (a: T) => string) {
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 
 export function keys<T>(o: T): (KeysOfUnion<T>)[] {
+    if (typeof o !== 'object' || o == null) {
+        return [];
+    }
     return Object.keys(o) as any;
 }
 
@@ -75,6 +78,10 @@ export function head<T>(a: readonly T[]): T[] {
     return a.slice(0, -1);
 }
 
+export function getLast<T>(array?: readonly T[]) {
+    if (array == undefined) return undefined;
+    return array.length == 0 ? undefined : array[array.length - 1];
+}
 
 export function join(array: readonly string[], delimeter?: string, lastDelimeter?: string): string {
     if (!delimeter) {
@@ -111,7 +118,7 @@ function merge<T>(options: T | undefined, defaults: T) {
     return result as T;
 };
 
-const regexAnySingleEscape = /[ -,./:-@\[-^`{-~]/;
+const regexAnySingleEscape = /[ -,./:-@[-^`{-~]/;
 const regexSingleEscape = /[ -,./:-@[\]^`{-~]/;
 const regexAlwaysEscape = /['"\\]/;
 const regexExcessiveSpaces = /(^|\\+)?(\\[A-F0-9]{1,6})\x20(?![a-fA-F0-9\x20])/g;

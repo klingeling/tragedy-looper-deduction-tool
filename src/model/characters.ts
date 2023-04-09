@@ -1,16 +1,20 @@
 import { toRecord } from "../misc";
 
 
-export type Locations = 'Hospital' | 'Shirne' | 'City' | 'School';
+export type LocationName = 'Hospital' | 'Shirne' | 'City' | 'School';
+
+export const locations = ['Hospital', 'Shirne', 'City', 'School'] as const;
+
 export type Tag = 'boy' | 'girl' | 'student' | "man" | "woman" | "adult" | 'construct' | 'fabrication' | 'animal';
 
-export type Character = {
+export type Character = CharacterIntern & { name: CharacterName };
+type CharacterIntern = {
     name: string,
     paranoiaLimit: number,
     tags: readonly Tag[],
     abilitys: readonly Ability[],
-    startLocation: Locations;
-    forbiddenLocation?: readonly Locations[],
+    startLocation: LocationName;
+    forbiddenLocation?: readonly LocationName[],
     comesInLaterLoop?: true,
     scriptSpecifiedLocation?: true,
 };
@@ -20,7 +24,7 @@ export type Ability = {
     goodwillRank: number,
     timesPerLoop?: number,
     immuneToGoodwillRefusel?: true,
-    restrictedToLocation?: readonly Locations[],
+    restrictedToLocation?: readonly LocationName[],
     description: string
 
 } | {
@@ -28,7 +32,7 @@ export type Ability = {
     description: string
 }
 
-export type CharacterNames = Characters['characters'][never]['name'];
+export type CharacterName = Characters['characters'][never]['name'];
 
 
 type CharactersComesInLaterLoopHelper<T> = T extends { 'comesInLaterLoop': true } ? T : never;
@@ -499,14 +503,20 @@ class Characters {
         },
 
 
-    ] as const satisfies readonly Character[];
+    ] as const satisfies readonly CharacterIntern[];
 }
 
 const c = new Characters();
 
-export const charactersComesInLaterLoop = c.characters.filter(x=>(x as {comesInLaterLoop?:true})['comesInLaterLoop']).map(x=>x.name)  as readonly CharactersComesInLaterLoop[];
-export function isCharacterName(name: string): name is CharacterNames {
+export const charactersComesInLaterLoop = c.characters.filter(x => (x as { comesInLaterLoop?: true })['comesInLaterLoop']).map(x => x.name) as readonly CharactersComesInLaterLoop[];
+export function isCharacterName(name: string): name is CharacterName {
     return c.characters.some(x => x.name == name);
 }
+export function isLocationName(name: string): name is LocationName {
+    return locations.some(x => x == name);
+}
 
-export const characters = toRecord<Character & { name: CharacterNames }, CharacterNames>(c.characters.map(x => [x.name, x] as const));
+
+
+export const characters = toRecord<Character, CharacterName>(c.characters.map(x => [x.name, x] as const));
+
