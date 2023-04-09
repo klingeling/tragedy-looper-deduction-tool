@@ -39,6 +39,8 @@ jobs:
       - name: download depednecys ci
         run: npm ci
       - name: bulid
+        env:
+          BASE_PATH: tragedy-looper-deduction-tool
         run: npm run build --if-present
       - name: Setup Pages
         uses: actions/configure-pages@v3

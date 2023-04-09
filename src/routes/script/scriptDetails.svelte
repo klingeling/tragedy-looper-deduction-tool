@@ -6,6 +6,7 @@
 	import type { CharacterName } from '../../model/characters';
 	import { stringifySearchForPlayerAid } from '../../serilezer';
 	import { keys } from '../../misc';
+	import { base } from '$app/paths';
 	export let script: Script;
 
 	function getParams(script: Script) {
@@ -130,7 +131,7 @@
 	<div>
 		{#if host}
 			<a
-				href={`${protocoll}//${host}/?${parameter}`}
+				href={`${base}/?${parameter}`}
 				target="_blank">Link to Script specific Player Aid</a
 			>
 		{/if}

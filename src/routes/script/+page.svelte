@@ -54,7 +54,7 @@
 		.sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
 		{#if s}
 			<div>
-				<a href={`${base}/{?title=${encodeURIComponent(s.titel)}`}
+				<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
 					>{s.set?.number ?? ''}
 					{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
 						s.difficultySets.map((x) => x.difficulty.toString()),
