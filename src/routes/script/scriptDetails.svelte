@@ -1,24 +1,35 @@
 <script lang="ts">
-	import type { scripts, Script, isScriptName, ScriptParameter } from '../../model/script';
+	import {
+		type scripts,
+		type Script,
+		type isScriptName,
+		type ScriptParameter,
+		toPlayerIncident
+	} from '../../model/script';
 
 	import { onMount } from 'svelte';
-  
-	import type { CharacterName } from '../../model/characters';
+
+	import { charactersComesInLaterLoop, type CharacterName } from '../../model/characters';
 	import { stringifySearchForPlayerAid } from '../../serilezer';
-	import { keys } from '../../misc';
+	import { distinct, keys } from '../../misc';
 	import { base } from '$app/paths';
 	export let script: Script;
 
-	function getParams(script: Script) {
+	let alwaysTransmitCharacters: boolean[] = charactersComesInLaterLoop.map(()=>true) ;
+
+	$: additionalCharacters = alwaysTransmitCharacters.map((b,i)=>[b,charactersComesInLaterLoop[i]]as const).filter(([x])=>x)
+	.map(([,x])=>x);
+
+	function getParams(script: Script,additionalCharacters:CharacterName[]) {
 		return stringifySearchForPlayerAid(
 			script.tragedySet,
-			keys(script.cast),
-			script.incidents,
+			distinct(keys(script.cast).concat(additionalCharacters)),
+			script.incidents.map(toPlayerIncident),
 			script.specialRules ? [script.specialRules] : []
 		).toString();
 	}
 
-	$: parameter = script ? getParams(script) : undefined;
+	$: parameter = script ? getParams(script,additionalCharacters) : undefined;
 	let host = '';
 	let protocoll = '';
 
@@ -29,30 +40,32 @@
 </script>
 
 {#if script}
-	<h3>{script.creator}</h3>
-	<h1>{script.titel}</h1>
+	<hgroup>
+		<h4>{script.creator}</h4>
+		<h1>{script.titel}</h1>
 
-	{#if script.set}
-		<h3>({script.set.number}) {script.set.name}</h3>
-	{/if}
+		{#if script.set}
+			<h2>({script.set.number}) {script.set.name}</h2>
+		{/if}
+	</hgroup>
 
 	{#each script.difficultySets as e}
 		<div>
 			Loops: {e.numberOfLoops} / difficulty:
 			{#each Array.from({ length: e.difficulty }) as d}<div
-					style="width: 1em; height: 1em; background-color: blue; display: inline-block; border-radius: 1em;"
+					style="width: 1em; height: 1em; background-color: var(--primary); display: inline-block; border-radius: 1em; border: 1px solid var(--secondary)"
 				/>{/each}{#each Array.from({ length: 8 - e.difficulty }) as d}<div
-					style="width: 1em; height: 1em; background-color: transparent; border: 1px solid blue; display: inline-block; border-radius: 1em;"
+					style="width: 1em; height: 1em; background-color: transparent; border: 1px solid var(--secondary); display: inline-block; border-radius: 1em;"
 				/>{/each} ({e.difficulty})
 		</div>
 	{/each}
 	<div>
 		<strong>{script.tragedySet}</strong>
 	</div>
-	<div style="display: grid; justify-content: start; align-content:  baseline;">
-		<strong style="grid-column: 1; grid-row: 1;">Main Plot:</strong>:
+	<div style="display: grid; justify-content: start; align-content:  baseline; gap: 0.3em;">
+		<strong style="grid-column: 1; grid-row: 1;">Main Plot:</strong>
 		<span style="grid-column: 2; grid-row: 1;">{script.mainPlot}</span>
-		<strong style="grid-column: 1; grid-row: 2;">Sub Plot :</strong>:
+		<strong style="grid-column: 1; grid-row: 2;">Sub Plot :</strong>
 		{#each script.subPlots as s, i}
 			<span style="grid-column: 2; grid-row: {i + 2};">
 				{s}
@@ -74,12 +87,10 @@
 						</td>
 						<td>
 							{#if Array.isArray(role)}
-								{role[0]} 
-								{#each Object.entries(role[1]) as [key ,value] }
-								
-								<br>
-								{key}: {value}
-									
+								{role[0]}
+								{#each Object.entries(role[1]) as [key, value]}
+									<br />
+									{key}: {value}
 								{/each}
 							{:else}
 								{role}
@@ -105,7 +116,14 @@
 							{day}
 						</td>
 						<td>
-							{incident}
+							{#if Array.isArray(incident)}
+								{incident[0]}<br />
+								<small>
+									({incident[1]})
+								</small>
+							{:else}
+								{incident}
+							{/if}
 						</td>
 						<td>
 							{culprit}
@@ -136,10 +154,19 @@
 	<hr />
 	<div>
 		{#if host}
-			<a
-				href={`${base}/?${parameter}`}
-				target="_blank">Link to Script specific Player Aid</a
-			>
+			<strong>Always include suprise characters</strong>
+			<ul>
+				{#each charactersComesInLaterLoop as a, i}
+					<li>
+						<lable>
+							<input type="checkbox" role="switch" bind:checked={alwaysTransmitCharacters[i]} />
+							{a}
+						</lable>
+					</li>
+				{/each}
+			</ul>
+
+			<a href={`${base}/?${parameter}`} target="_blank">Link to Script specific Player Aid</a>
 		{/if}
 	</div>
 {/if}

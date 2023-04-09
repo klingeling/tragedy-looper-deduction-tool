@@ -7,6 +7,7 @@
 	import { parseSearchForPlayerAid } from '../serilezer';
 	import { base } from '$app/paths';
 
+	
 	let param: ScriptParameter | undefined;
 
 	let searchParams: URLSearchParams | undefined;

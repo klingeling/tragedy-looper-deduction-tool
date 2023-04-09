@@ -5,7 +5,7 @@ export function toRecord<ELEMENT = any, Key extends string = string>(entries: It
     return Object.fromEntries(entries) as any;
 }
 
-export function distinct<T>(t: T[], keyFunction?: (a: T) => string) {
+export function distinct<T>(t: readonly T[], keyFunction?: (a: T) => string) {
     if (keyFunction) {
         const result = [];
         const set = new Set();

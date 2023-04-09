@@ -19,7 +19,21 @@ export type ScriptIncident = {
     incident: Exclude<IncidentName, FakedIncident> | readonly [FakedIncident, Exclude<IncidentName, FakedIncident>],
     culprit: CharacterName | readonly [LocationName, number],
 };
-export type ScriptIncidentPlayer = Omit<Exclude<ScriptIncident, FakedIncident>, 'culprit'>;
+
+
+
+export type ScriptIncidentPlayer = {
+    day: number,
+    incident: Exclude<IncidentName, FakedIncident>
+}
+export function toPlayerIncident(params: ScriptIncident): ScriptIncidentPlayer {
+    return {
+        day: params.day,
+        incident: Array.isArray(params.incident) ? params.incident[1] : params.incident,
+    }
+
+}
+
 export function isScriptIncident(obj: unknown, omitCulprit: true): obj is ScriptIncidentPlayer;
 export function isScriptIncident(obj: unknown): obj is ScriptIncident;
 export function isScriptIncident(obj: unknown, omitCulprit?: true): obj is ScriptIncident {
@@ -41,7 +55,7 @@ export function isScriptIncident(obj: unknown, omitCulprit?: true): obj is Scrip
     if (!('incident' in obj)) {
         return false;
     }
-    if (typeof obj.incident !== 'string' || isIncidentName(obj.incident)) {
+    if (typeof obj.incident !== 'string' || !isIncidentName(obj.incident)) {
         return false;
     }
 
@@ -49,7 +63,7 @@ export function isScriptIncident(obj: unknown, omitCulprit?: true): obj is Scrip
         if (!('culprit' in obj)) {
             return false;
         }
-        if ((typeof obj.culprit !== 'string' || isCharacterName(obj.culprit)) &&
+        if ((typeof obj.culprit !== 'string' || !isCharacterName(obj.culprit)) &&
             (!Array.isArray(obj.culprit) || obj.culprit.length != 2 || !isLocationName(obj.culprit[0]) || typeof obj.culprit[1] != 'number')) {
             return false;
         }

@@ -9,14 +9,16 @@
 	import { incidents as incidentsLookup } from '../model/incidents';
 	import { plots } from '../model/plots';
 	import { roles, type Abilities } from '../model/roles';
-	import type { Script, ScriptIncident } from '../model/script';
+	import type { Script, ScriptIncident, ScriptIncidentPlayer } from '../model/script';
 	import { tragedySets, type TragedySet, type TragedySetName } from '../model/tragedySets';
 	import Selection from './selection.svelte';
 
 	export let tragedySet: TragedySetName;
 	export let cast: readonly CharacterName[];
-	export let incidents: readonly Omit<ScriptIncident, 'culprit'>[];
+	export let incidents: readonly ScriptIncidentPlayer[];
 	export let specialRules: readonly string[];
+
+	export let tablet = false;
 
 	onMount(() => {
 		const incidentTemplate = document.getElementById('incidences') as HTMLTemplateElement;
@@ -25,33 +27,71 @@
 
 		const newPageTemplate = document.getElementById('newPage') as HTMLTemplateElement;
 		const root = document.getElementById('root') as HTMLElement;
+		if (tablet) {
+			const containers: HTMLElement[] = [3, 2, 1]
+				.map((x) => `rest-${x}`)
+				.map((id) => document.getElementById(id) as HTMLDivElement);
 
-		const containers: HTMLElement[] = [1, 2, 3]
-			.map((x) => `rest-${x}`)
-			.map((id) => document.getElementById(id) as HTMLDivElement);
+			containers.forEach((c) => c.replaceChildren());
 
-		containers.forEach((c) => c.replaceChildren());
-
-		Array.from(tragedyRulesTemplate.content.children)
-			.concat(Array.from(incidentTemplate.content.children))
-			.concat(Array.from(roleTemplate.content.children))
-			.map((x) => x.cloneNode(true) as HTMLDivElement)
-			.forEach((incident) => {
-				for (const container of containers) {
-					container.appendChild(incident);
-					const rect = container.getBoundingClientRect();
-					const container2IncedentRect = incident.getBoundingClientRect();
-					if (isInsilde(container2IncedentRect, rect)) {
-						return;
+			Array.from(tragedyRulesTemplate.content.children)
+				.concat(Array.from(incidentTemplate.content.children))
+				.concat(Array.from(roleTemplate.content.children))
+				.map((x) => x.cloneNode(true) as HTMLDivElement)
+				.forEach((incident) => {
+					let currentContainer: HTMLElement;
+					let currntDepth: number = Infinity;
+					for (const [container, i] of containers.map((x, i) => [x, i] as const)) {
+						container.appendChild(incident);
+						const container2IncedentRect = incident.getBoundingClientRect();
+						let rect = container.getBoundingClientRect();
+						if (isInsilde(container2IncedentRect, rect)) {
+							incident.remove();
+							
+							rect = container.getBoundingClientRect();
+							if (rect.bottom < currntDepth) {
+								currntDepth=rect.bottom;
+								currentContainer = container; 
+								continue;
+							}
+						}
 					}
-					incident.remove();
-				}
-				// add page
-				const newPage = newPageTemplate.content.firstChild?.cloneNode(true) as HTMLDivElement;
-				root.appendChild(newPage);
-				containers.push(newPage);
-				newPage.appendChild(incident);
-			});
+					currentContainer.appendChild(incident);
+
+					// // add page
+					// const newPage = newPageTemplate.content.firstChild?.cloneNode(true) as HTMLDivElement;
+					// root.appendChild(newPage);
+					// containers.push(newPage);
+					// newPage.appendChild(incident);
+				});
+		} else {
+			const containers: HTMLElement[] = [1, 2, 3]
+				.map((x) => `rest-${x}`)
+				.map((id) => document.getElementById(id) as HTMLDivElement);
+
+			containers.forEach((c) => c.replaceChildren());
+
+			Array.from(tragedyRulesTemplate.content.children)
+				.concat(Array.from(incidentTemplate.content.children))
+				.concat(Array.from(roleTemplate.content.children))
+				.map((x) => x.cloneNode(true) as HTMLDivElement)
+				.forEach((incident) => {
+					for (const container of containers) {
+						container.appendChild(incident);
+						const rect = container.getBoundingClientRect();
+						const container2IncedentRect = incident.getBoundingClientRect();
+						if (isInsilde(container2IncedentRect, rect)) {
+							return;
+						}
+						incident.remove();
+					}
+					// add page
+					const newPage = newPageTemplate.content.firstChild?.cloneNode(true) as HTMLDivElement;
+					root.appendChild(newPage);
+					containers.push(newPage);
+					newPage.appendChild(incident);
+				});
+		}
 	});
 
 	function isInsilde(element: DOMRect, container: DOMRect): boolean {
@@ -66,7 +106,7 @@
 	console.log(cssesc('test wert', { isIdentifier: true }));
 
 	// $: tragedySet = script.tragedySet;
-	$: chars = distinct(cast.concat(charactersComesInLaterLoop))
+	$: chars = distinct(cast)
 		.map((x) => characterLookup[x])
 		.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -251,7 +291,7 @@
 	}
 </script>
 
-<div class="root" id="root">
+<div class="root" class:tablet id="root" style=" scrollbar-gutter: stable both-edges;">
 	<div
 		class="table page"
 		style="grid-template-columns: {gird_template_column} ;grid-template-rows: {gird_template_row} ; grid-template-areas: {gird_template_area ??
@@ -294,7 +334,7 @@
 			<div class="plot-sub rules" style="grid-area: sub-role-plot-rule-{cssesc(p.name)};">
 				{@html join(
 					p.rules.map((a) => renderAbilitys(a)),
-					'<br>'
+					' '
 				)}
 			</div>
 
@@ -611,5 +651,19 @@
 		writing-mode: vertical-rl;
 		transform: scale(-1, -1);
 		/* width: min-content; */
+	}
+
+	.tablet {
+		--page-width: 100%;
+		--page-height: unset;
+		.page {
+			margin-top: 0px;
+			margin-bottom: 0px;
+			box-shadow: none;
+			height: min-content;
+		}
+		.overflow {
+			flex-direction: row;
+		}
 	}
 </style>

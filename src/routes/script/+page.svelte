@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { stringifySearchForPlayerAid } from '../../serilezer';
+	import {} from '@picocss/pico/css/pico.css';
 
 	$: scripts = Object.values(scriptLookup);
 
@@ -36,35 +37,42 @@
 			selectedScript = scriptLookup[title];
 		}
 	}
-
 </script>
 
-{#if selectedScript}
-	<ScriptDetails script={selectedScript} />
+<main class="container">
+	{#if selectedScript}
+		<article>
+			<ScriptDetails script={selectedScript} />
+		</article>
 
-	<h1>Other Scripts</h1>
-{/if}
+		<h1>Other Scripts</h1>
+	{/if}
 
-{#each distinct(scripts
-		.map((key) => key.set?.name)
-		.sort( (a, b) => (a == undefined ? (b == undefined ? 0 : -1) : b == undefined ? 1 : a.localeCompare(b)) )) as set}
-	<h2>{set ?? 'Independent'}</h2>
-	{#each scripts
-		.filter((x) => x.set?.name == set)
-		.sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
-		{#if s}
-			<div>
-				<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
-					>{s.set?.number ?? ''}
-					{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
-						s.difficultySets.map((x) => x.difficulty.toString()),
-						' / '
-					)}</a
-				>
-			</div>
-		{/if}
+	{#each distinct(scripts
+			.map((key) => key.set?.name)
+			.sort( (a, b) => (a == undefined ? (b == undefined ? 0 : -1) : b == undefined ? 1 : a.localeCompare(b)) )) as set}
+		<article>
+			<header>
+				<h2>{set ?? 'Independent'}</h2>
+			</header>
+			{#each scripts
+				.filter((x) => x.set?.name == set)
+				.sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
+				{#if s}
+					<div>
+						<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
+							>{s.set?.number ?? ''}
+							{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
+								s.difficultySets.map((x) => x.difficulty.toString()),
+								' / '
+							)}</a
+						>
+					</div>
+				{/if}
+			{/each}
+		</article>
 	{/each}
-{/each}
+</main>
 
 <style>
 </style>
