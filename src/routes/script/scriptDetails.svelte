@@ -74,7 +74,13 @@
 						</td>
 						<td>
 							{#if Array.isArray(role)}
-								{role[0]} ({role[1]})
+								{role[0]} 
+								{#each Object.entries(role[1]) as [key ,value] }
+								
+								<br>
+								{key}: {value}
+									
+								{/each}
 							{:else}
 								{role}
 							{/if}

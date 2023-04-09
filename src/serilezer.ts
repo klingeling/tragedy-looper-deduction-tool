@@ -13,7 +13,13 @@ export function parseSearchForPlayerAid(searchParams: URLSearchParams | undefine
     const cast = searchParams?.getAll('cast').filter(isCharacterName);
     const incidents = searchParams
         ?.getAll('incident')
-        .map((x) => JSON.parse(x))
+        .map((x) => {
+            try {
+                return JSON.parse(x);
+            } catch (e) {
+                return {};
+            }
+        })
         .filter(isScriptIncidentWithoutCulprit);
     const specialRules = searchParams?.getAll('special');
 
@@ -27,7 +33,7 @@ export function stringifySearchForPlayerAid(tragedySet: TragedySetName, cast: re
     searchParams.append('set', tragedySet);
     cast.forEach(c => searchParams.append('cast', c))
     incidents.forEach(c => searchParams.append('incident', JSON.stringify(c)))
-    specialRules.forEach(c => searchParams.append('incident', c))
+    specialRules.forEach(c => searchParams.append('special', c))
 
     return searchParams;
 }

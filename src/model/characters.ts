@@ -1,4 +1,7 @@
 import { toRecord } from "../misc";
+import type { IncidentName } from "./incidents";
+import type { PlotName } from "./plots";
+import type { RoleName } from "./roles";
 
 
 export type LocationName = 'Hospital' | 'Shirne' | 'City' | 'School';
@@ -16,7 +19,7 @@ type CharacterIntern = {
     startLocation: LocationName;
     forbiddenLocation?: readonly LocationName[],
     comesInLaterLoop?: true,
-    scriptSpecifiedLocation?: true,
+    scriptSpecified?: readonly { name: string, type: 'location' | 'incident' | 'role' | 'character' | 'plot' | 'number' | 'text' }[],
 };
 
 export type Ability = {
@@ -39,10 +42,54 @@ type CharactersComesInLaterLoopHelper<T> = T extends { 'comesInLaterLoop': true 
 export type CharactersComesInLaterLoop = CharactersComesInLaterLoopHelper<Characters['characters'][never]>['name'];
 
 
-type CharactersScriptSpecifiedLocationHelper<T> = T extends { 'scriptSpecifiedLocation': true } ? T : never;
-export type CharactersScriptSpecifiedLocation = CharactersScriptSpecifiedLocationHelper<Characters['characters'][never]>['name'];
+// type CharactersScriptSpecifiedLocationHelper<T> = T extends { 'scriptSpecifiedLocation': true } ? T : never;
+// export type CharactersScriptSpecifiedLocation = CharactersScriptSpecifiedLocationHelper<Characters['characters'][never]>['name'];
+
+type CharactersScriptSpecifiedHelper<T> = T extends { 'scriptSpecified': any } ? T : never;
+export type CharactersScriptSpecified = CharactersScriptSpecifiedHelper<Characters['characters'][never]>['name'];
+type CharactersScriptSpecifiedHelperData<T, TName extends CharactersScriptSpecified> =
+    T extends { name: TName }
+    ? T extends { 'scriptSpecified': infer K } ? mapArray<K>
+    : never
+    : never;
+
+type mapArray<T> = T extends readonly any[]
+    ? JOIN<{
+        [a in keyof T]: objectMapper<T[a]>
+    }>
+    : objectMapper<T>;
+
+type objectMapper<x> = x extends { name: string, type: string } ?
+    {
+        [z in x['name']]: typeLookup<x['type']>
+    }
+    : never;
+type typeLookup<x extends string> =
+    x extends 'location'
+    ? LocationName
+    : x extends 'incident'
+    ? IncidentName
+    : x extends 'role'
+    ? RoleName
+    : x extends 'character'
+    ? CharacterName
+    : x extends 'plot'
+    ? PlotName
+    : x extends 'number'
+    ? number
+    : x extends 'text'
+    ? string : never;
 
 
+type JOIN<xE> =
+    xE extends readonly [infer a]
+    ? a
+    : xE extends readonly [infer a, ...infer b]
+    ? a & JOIN<b>
+    : never;
+
+
+export type CharactersScriptSpecifiedData<T extends CharactersScriptSpecified> = CharactersScriptSpecifiedHelperData<Characters['characters'][never], T>;
 
 class Characters {
 
@@ -274,7 +321,7 @@ class Characters {
             paranoiaLimit: 4,
             tags: ["adult", "man"],
             startLocation: 'City',
-            scriptSpecifiedLocation: true,
+            scriptSpecified: [{ name: 'Turf', type: 'location' }],
             abilitys: [
                 {
                     type: 'passive',

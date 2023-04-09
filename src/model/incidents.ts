@@ -8,9 +8,13 @@ export type Incident = IncidentInternal & {
 type IncidentInternal = {
     name: string,
     effect: string,
+    faked?: true,
 }
 
 export type IncidentName = Incidents['incidents'][never]['name'];
+
+type FakedIncidentHelper<T> = T extends { 'faked': true } ? T : never;
+export type FakedIncident = FakedIncidentHelper<Incidents['incidents'][never]>['name'];
 
 
 class Incidents {
@@ -98,6 +102,7 @@ class Incidents {
         {
             name: 'Fake Incident',
             effect: 'If there are 2 Intrigue counters on the culprit’s starting location, the Protagonists die.',
+            faked: true,
         },
         {
             name: 'Breakthrough',
