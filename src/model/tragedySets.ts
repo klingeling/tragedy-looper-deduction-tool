@@ -1,12 +1,15 @@
-import { toRecord } from "../misc"
+import { toRecord, toRecord2, type Union } from "../misc"
 import type { IncidentName } from "./incidents"
 import type { PlotName } from "./plots"
+import type { RoleName } from "./roles";
 
-export type TragedySet = TragedySetInternal & { name: TragedySetName, };
+export type TragedySet = Union<TragedySets2['tragedySets']>;
+export type TragedySets = TragedySets2['tragedySets'];
 type TragedySetInternal = {
     name: string,
     mainPlots: readonly PlotName[]
     subPlots: readonly PlotName[]
+    aditionalRoles?: readonly RoleName[],
     numberOfSubPlots: number,
     incidents: readonly IncidentName[],
     extraRules: readonly {
@@ -15,9 +18,12 @@ type TragedySetInternal = {
     }[],
 }
 
-export type TragedySetName = TragedySets['tragedySets'][never]['name'];
+export type TragedySetName = TragedySets1['tragedySets'][never]['name'];
 
-class TragedySets {
+
+
+
+class TragedySets1 {
     public readonly tragedySets = [
         {
             name: 'Frist Steps',
@@ -71,6 +77,7 @@ class TragedySets {
                 'Panic and Obsession',
                 'People Who Don’t Listen',
             ],
+            aditionalRoles: ['Zombie'],
             incidents: [
                 'Sacrilegious Murder',
                 'Increasing Unease',
@@ -242,10 +249,17 @@ class TragedySets {
     ] as const satisfies readonly TragedySetInternal[];
 }
 
-const t = new TragedySets()
+
+const t = new TragedySets1()
 
 export function isTragedySetName(name: string): name is TragedySetName {
     return t.tragedySets.some(x => x.name == name);
 }
+class TragedySets2 {
+    public readonly tragedySets = toRecord2(t.tragedySets, 'name');
 
-export const tragedySets = toRecord<TragedySet, TragedySetName>(t.tragedySets.map(x => [x.name, x] as const));
+}
+
+export const tragedySets = new TragedySets2().tragedySets;
+
+// export const tragedySets = toRecord<TragedySet, TragedySetName>(t.tragedySets.map(x => [x.name, x] as const));

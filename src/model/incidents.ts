@@ -1,24 +1,31 @@
-import { toRecord } from "../misc";
+import { toRecord, toRecord2, type Union } from "../misc";
 
 
-export type Incident = IncidentInternal & {
-    name: IncidentName,
+// export type Incident = IncidentInternal & {
+//     name: IncidentName,
+// }
 
-}
+export type Incident = Union<IncidentsHelper['incidents']>;
+export type Incidents = IncidentsHelper['incidents'];
+
+
 type IncidentInternal = {
     name: string,
     effect: string,
     faked?: true,
+    mob?: number,
 }
 
-export type IncidentName = Incidents['incidents'][never]['name'];
+export type IncidentName = keyof IncidentsHelper['incidents'];
 
+type MobIncidentHelper<T> = T extends { 'mob': number } ? T : never;
+export type MobIncident = MobIncidentHelper<Incident>['name'];
 type FakedIncidentHelper<T> = T extends { 'faked': true } ? T : never;
-export type FakedIncident = FakedIncidentHelper<Incidents['incidents'][never]>['name'];
+export type FakedIncident = FakedIncidentHelper<Incident>['name'];
 
 
-class Incidents {
-    public readonly incidents = [
+class IncidentsHelper {
+    public readonly incidents = toRecord2([
         {
             name: 'Murder',
             effect: 'One (1) other character in culprit’s Location dies',
@@ -134,19 +141,23 @@ class Incidents {
         },
         {
             name: 'Night of Madness',
-            effect: '[Mob incident:0 (will always occur)] If there are 6 or more zombies when this incident occurs, the Protagonists will die after the day has ended.',
+            mob: 0,
+            effect: 'If there are 6 or more zombies when this incident occurs, the Protagonists will die after the day has ended.',
         },
         {
             name: 'Awakened Curse',
-            effect: '[Mob incident:1] Place a curse on the culprit’s location.',
+            mob: 1,
+            effect: 'Place a curse on the culprit’s location.',
         },
         {
             name: 'Fountain of Filth',
-            effect: '[Mob incident:2] Place 2 Paranoia on any one character, and an Intrigue on any location.',
+            mob: 2,
+            effect: 'Place 2 Paranoia on any one character, and an Intrigue on any location.',
         },
         {
             name: 'Evangelium of the Dead',
-            effect: '[Mob incident:2] Kull all characters in the culprits location. Then, if that location has 5 or more corpses, the Protagonists are killed.',
+            mob: 2,
+            effect: 'Kill all characters in the culprits location. Then, if that location has 5 or more corpses, the Protagonists are killed.',
         },
         {
             name: 'Insane Murder',
@@ -168,13 +179,13 @@ class Incidents {
             name: 'Discovery',
             effect: 'Increase the Extra Gauge 1 step.',
         },
-    ] as const satisfies readonly IncidentInternal[];
+    ] as const satisfies readonly IncidentInternal[], 'name');
 }
 
-const i = new Incidents();
+const i = new IncidentsHelper();
 
 export function isIncidentName(name: string): name is IncidentName {
-    return i.incidents.some(x => x.name == name);
+    return i.incidents[name as IncidentName] != undefined;
 }
 
-export const incidents = toRecord<Incident, IncidentName>((i.incidents).map(x => [x.name, x] as const));
+export const incidents = i.incidents;

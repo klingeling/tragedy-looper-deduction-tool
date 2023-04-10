@@ -1,17 +1,23 @@
-import { toRecord } from "../misc";
+import { toRecord, type KeysOfUnion, type Union, type SetIntersection, type OptionalProp } from "../misc";
 import { isCharacterName, type CharacterName, type CharactersComesInLaterLoop, type LocationName, isLocationName, type CharactersScriptSpecified, type CharactersScriptSpecifiedData } from "./characters";
-import { isIncidentName, type IncidentName, type FakedIncident } from "./incidents";
-import type { PlotName } from "./plots";
+import { isIncidentName, type IncidentName, type FakedIncident, type MobIncident } from "./incidents";
+import type { Plot, PlotName, Plots } from "./plots";
 import type { RoleName } from "./roles";
-import type { TragedySetName } from "./tragedySets";
+import type { TragedySet, TragedySetName, TragedySets } from "./tragedySets";
 
 
 
 
-export type ScriptIncident = {
+export type ScriptIncident<T extends keyof TragedySets = keyof TragedySets> = {
     day: number,
-    incident: Exclude<IncidentName, FakedIncident> | readonly [FakedIncident, Exclude<IncidentName, FakedIncident>],
-    culprit: CharacterName | readonly [LocationName, number],
+    // incident: Exclude<IncidentName, FakedIncident> | readonly [FakedIncident, Exclude<IncidentName, FakedIncident>],
+    incident: Exclude<Union<TragedySets[T]['incidents']>, FakedIncident | MobIncident> | readonly [Exclude<SetIntersection<Union<TragedySets[T]['incidents']>, FakedIncident>, MobIncident>, Exclude<Union<TragedySets[T]['incidents']>, FakedIncident>],
+    culprit: CharacterName,
+} | {
+    day: number,
+    // incident: Exclude<IncidentName, FakedIncident> | readonly [FakedIncident, Exclude<IncidentName, FakedIncident>],
+    incident: SetIntersection<MobIncident, Exclude<Union<TragedySets[T]['incidents']>, FakedIncident>> | readonly [SetIntersection<MobIncident, SetIntersection<Union<TragedySets[T]['incidents']>, FakedIncident>>, Exclude<Union<TragedySets[T]['incidents']>, FakedIncident>],
+    culprit: LocationName,
 };
 
 
@@ -71,36 +77,76 @@ export function isScriptIncidentWithoutCulprit(obj: unknown): obj is ScriptIncid
 }
 
 export type Script = ScriptInternal & { titel: ScriptName };
-type ScriptInternal = {
-    titel: string,
-    creator: string,
-
-    set?: {
-        name: string,
-        number: number
-    },
-    difficultySets: readonly {
-        numberOfLoops: number,
-        difficulty: number,
-    }[],
-    tragedySet: TragedySetName,
-    mainPlot: readonly PlotName[],
-    subPlots: readonly PlotName[],
-    daysPerLoop: number,
-    cast: Partial<Record<Exclude<CharacterName, CharactersComesInLaterLoop | CharactersScriptSpecified>, RoleName | readonly [RoleName, { overideStartLocation: LocationName }]>>
-
-    & Partial<Record<CharactersComesInLaterLoop, readonly [RoleName, { 'loop': number } & { overideStartLocation?: LocationName }]>>
-    & Partial<CharactersScriptSpecifiedMapping>,
-    incidents: readonly ScriptIncident[],
-    specialRules?: string,
-    specifics: string,
-    story: string,
-    mastermindHints: string,
-};
 
 
-type CharactersScriptSpecifiedMapping = {
-    [p in CharactersScriptSpecified]: readonly [RoleName, CharactersScriptSpecifiedData<p> & { overideStartLocation?: LocationName }]
+
+type tmp<t> = t extends { aditionalRoles: any } ? t['aditionalRoles'] : never
+    ;
+
+type roleToTragedySet<T extends keyof TragedySets> = 'Person' | tmp<TragedySets[T]>[never] | KeysOfUnion<Plots[TragedySets[T]['subPlots'][never]]['roles'] | Plots[TragedySets[T]['mainPlots'][never]]['roles']>;
+
+
+
+type ScriptInternal = Union<{
+    [k in keyof TragedySets]:
+    {
+        titel: string,
+        creator: string,
+        set?: {
+            name: string,
+            number: number
+        },
+        difficultySets: readonly {
+            numberOfLoops: number,
+            difficulty: number,
+        }[],
+        tragedySet: TragedySets[k]['name'],
+        mainPlot: readonly Union<TragedySets[k]['mainPlots']>[],
+        subPlots: readonly Union<TragedySets[k]['subPlots']>[],
+        daysPerLoop: number,
+        cast: Partial<Record<Exclude<CharacterName, CharactersScriptSpecified>, roleToTragedySet<k> | readonly [roleToTragedySet<k>, { overideStartLocation: LocationName }]>>
+
+        // & Partial<Record<CharactersComesInLaterLoop, readonly [roleToTragedySet<k>, { 'loop': number } & { overideStartLocation?: LocationName }]>>
+        & Partial<CharactersScriptSpecifiedMapping<roleToTragedySet<k>>>,
+        incidents: readonly ScriptIncident<k>[],
+        specialRules?: string,
+        specifics: string,
+        story: string,
+        mastermindHints: string,
+    }
+}>
+
+
+// type ScriptInternal = {
+//     titel: string,
+//     creator: string,
+
+//     set?: {
+//         name: string,
+//         number: number
+//     },
+//     difficultySets: readonly {
+//         numberOfLoops: number,
+//         difficulty: number,
+//     }[],
+//     tragedySet: TragedySetName,
+//     mainPlot: readonly PlotName[],
+//     subPlots: readonly PlotName[],
+//     daysPerLoop: number,
+//     cast: Partial<Record<Exclude<CharacterName, CharactersComesInLaterLoop | CharactersScriptSpecified>, RoleName | readonly [RoleName, { overideStartLocation: LocationName }]>>
+
+//     & Partial<Record<CharactersComesInLaterLoop, readonly [RoleName, { 'loop': number } & { overideStartLocation?: LocationName }]>>
+//     & Partial<CharactersScriptSpecifiedMapping>,
+//     incidents: readonly ScriptIncident[],
+//     specialRules?: string,
+//     specifics: string,
+//     story: string,
+//     mastermindHints: string,
+// };
+
+
+type CharactersScriptSpecifiedMapping<T extends RoleName> = {
+    [p in CharactersScriptSpecified]: readonly [T, CharactersScriptSpecifiedData<p> & { overideStartLocation?: LocationName }]
 
 };
 
@@ -408,7 +454,7 @@ class Scripts {
                 'Boy Student': 'Time Traveler',
                 'Rich Man’s Daughter': 'Person',
                 'Shrine Maiden': 'Cultist',
-                'Godly Being': ['Loved One', { loop: 3 }],
+                'Godly Being': ['Loved One', { "enters on loop": 3 }],
                 'Police Officer': 'Person',
                 'Office Worker': 'Serial Killer',
                 'Pop Idol': 'Lover',
@@ -651,7 +697,7 @@ class Scripts {
                 'Class Rep': 'Person',
                 'Mystery Boy': 'Brain',
                 'Alien': 'Person',
-                'Godly Being': ['Witch', { loop: 4 }],
+                'Godly Being': ['Witch', { "enters on loop": 4 }],
                 'Office Worker': 'Person',
                 'Pop Idol': 'Person',
                 'Boss': ['Conspiracy Theorist', {
@@ -786,7 +832,7 @@ class Scripts {
                 'Police Officer': 'Brain',
 
                 'Office Worker': 'Person',
-                'Informer': 'Paranoiac',
+                'Informer': 'Person',
                 'Doctor': 'Conspiracy Theorist',
                 'Patient': 'Cultist',
             },
@@ -947,7 +993,7 @@ class Scripts {
                 'Rich Man’s Daughter': 'Person',
                 'Shrine Maiden': 'Person',
                 'Alien': 'Conspiracy Theorist',
-                'Godly Being': ['Brain', { loop: 2 }],
+                'Godly Being': ['Brain', { "enters on loop": 2 }],
                 'Police Officer': 'Serial Killer',
                 'Office Worker': 'Factor',
                 'Doctor': 'Person',
@@ -1388,6 +1434,406 @@ class Scripts {
             story: 'See Tragedy Looper: Midnight Circle Mastermind Handbook',
             mastermindHints: 'See Tragedy Looper: Midnight Circle Mastermind Handbook',
         },
+
+
+
+        {
+            titel: 'Secret Cat Walk',
+            creator: 'GEnd',
+            set: {
+                name: 'Cosmic Evil',
+                number: 1,
+            },
+            tragedySet: 'Basic Tragedy',
+            mainPlot: ['The Sealed Item'],
+            subPlots: ['Paranoia Virus', 'Unknown Factor X'],
+            difficultySets: [
+                {
+                    numberOfLoops: 5,
+                    difficulty: 4
+                },
+                {
+                    numberOfLoops: 4,
+                    difficulty: 6
+                },
+            ],
+            daysPerLoop: 6,
+            cast: {
+                'Boy Student': 'Person',
+                'Rich Man’s Daughter': 'Cultist',
+                'Teacher': 'Conspiracy Theorist',
+                'Shrine Maiden': 'Person',
+                'Black Cat': 'Factor',
+                'Office Worker': 'Person',
+                'Informer': 'Brain',
+                'Patient': 'Person',
+                'Soldier': 'Person',
+            },
+            incidents: [
+                {
+                    day: 3,
+                    incident: 'Missing Person',
+                    culprit: 'Boy Student',
+                },
+                {
+                    day: 4,
+                    incident: 'Hospital Incident',
+                    culprit: 'Shrine Maiden',
+                },
+                {
+                    day: 6,
+                    incident: 'Butterfly Effect',
+                    culprit: 'Black Cat',
+                },
+            ],
+            specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        },
+
+
+        {
+            titel: 'Master Thief Seven Tails',
+            creator: 'BakaFire',
+            set: {
+                name: 'Cosmic Evil',
+                number: 2,
+            },
+            tragedySet: 'Prime Evil',
+            mainPlot: ['The Cursed Land'],
+            subPlots: ['Panic and Obsession', 'The Key Girl'],
+            difficultySets: [
+                {
+                    numberOfLoops: 4,
+                    difficulty: 3
+                },
+                {
+                    numberOfLoops: 3,
+                    difficulty: 5
+                },
+            ],
+            daysPerLoop: 4,
+            cast: {
+                'Boy Student': 'Witch',
+                'Rich Man’s Daughter': 'Ghost',
+                'Class Rep': 'Coward',
+                'Shrine Maiden': 'Key Person',
+                'Police Officer': 'Show-Off',
+                'Office Worker': 'Serial Killer',
+            },
+            incidents: [
+                {
+                    day: 2,
+                    incident: 'Missing Person',
+                    culprit: 'Rich Man’s Daughter',
+                },
+                {
+                    day: 3,
+                    incident: 'Sacrilegious Murder',
+                    culprit: 'Class Rep',
+                },
+                {
+                    day: 4,
+                    incident: 'Evangelium of the Dead',
+                    culprit: 'School',
+                },
+            ],
+            specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        },
+
+        {
+            titel: 'Vamp',
+            creator: 'ENTEI',
+            set: {
+                name: 'Cosmic Evil',
+                number: 3,
+            },
+            tragedySet: 'Prime Evil',
+            mainPlot: ['The Noble Bloodline'],
+            subPlots: ['Those with Habits', 'Witch’s Curse'],
+            difficultySets: [
+                {
+                    numberOfLoops: 5,
+                    difficulty: 5
+                },
+                {
+                    numberOfLoops: 4,
+                    difficulty: 6
+                },
+            ],
+            daysPerLoop: 5,
+            cast: {
+                'Boy Student': 'Person',
+                'Girl Student': 'Key Person',
+                'Class Rep': 'Person',
+                'Shrine Maiden': 'Loved One',
+                'Alien': 'Conspiracy Theorist',
+                'Police Officer': 'Ghost',
+                'Office Worker': 'Vampire',
+                'Pop Idol': 'Witch',
+                'Patient': 'Serial Killer',
+            },
+            incidents: [
+                {
+                    day: 3,
+                    incident: 'Fountain of Filth',
+                    culprit: 'Hospital',
+                },
+                {
+                    day: 4,
+                    incident: 'Night of Madness',
+                    culprit: 'City',
+                },
+                {
+                    day: 5,
+                    incident: 'Sacrilegious Murder',
+                    culprit: 'Boy Student',
+                },
+            ],
+            specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        },
+
+        {
+            titel: 'Zombi Hero',
+            creator: 'GEnd',
+            set: {
+                name: 'Cosmic Evil',
+                number: 4,
+            },
+            tragedySet: 'Prime Evil',
+            mainPlot: ['The Ones from the Grave'],
+            subPlots: ['A Love Affair', 'People Who Don’t Listen'],
+            difficultySets: [
+                {
+                    numberOfLoops: 5,
+                    difficulty: 5
+                },
+                {
+                    numberOfLoops: 4,
+                    difficulty: 6
+                },
+            ],
+            daysPerLoop: 6,
+            cast: {
+                'Girl Student': 'Person',
+                'Mystery Boy': 'Zombie',
+                'Transfer Student': ['Lover',
+                    { "enters on day": 5 }],
+
+                'Shrine Maiden': 'Person',
+                'Office Worker': 'Person',
+                'Informer': 'Show-Off',
+                'Journalist': 'Person',
+                'Patient': 'Loved One',
+                'Nurse': 'Conspiracy Theorist',
+                'Henchman': 'Coward',
+            },
+            incidents: [
+                {
+                    day: 2,
+                    incident: 'Evil Contamination',
+                    culprit: 'Henchman',
+                },
+                {
+                    day: 3,
+                    incident: 'Missing Person',
+                    culprit: 'Journalist',
+                },
+                {
+                    day: 4,
+                    incident: 'Night of Madness',
+                    culprit: 'Shirne',
+                },
+                {
+                    day: 5,
+                    incident: 'Sacrilegious Murder',
+                    culprit: 'Patient',
+                },
+            ],
+            specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        },
+        {
+            titel: 'Ultimate Halloween',
+            creator: 'BakaFire',
+            set: {
+                name: 'Cosmic Evil',
+                number: 5,
+            },
+            tragedySet: 'Prime Evil',
+            mainPlot: ['Moonlight Beast'],
+            subPlots: ['Monster Intrigue', 'People Who Don’t Listen'],
+            difficultySets: [
+                {
+                    numberOfLoops: 5,
+                    difficulty: 6
+                },
+                {
+                    numberOfLoops: 4,
+                    difficulty: 7
+                },
+            ],
+            daysPerLoop: 6,
+            cast: {
+                'Girl Student': 'Person',
+                'Mystery Boy': 'Nightmare',
+                'Teacher': 'Person',
+                'Transfer Student': ['Coward', { "enters on day": 5 }],
+                'Alien': 'Person',
+                'Godly Being': ['Person', { "enters on loop": 2 }],
+                'Pop Idol': 'Person',
+                'Forensic Specialist': 'Conspiracy Theorist',
+                'Soldier': 'Show-Off',
+                'Patient': 'Werwolf',
+            },
+            incidents: [
+                {
+                    day: 1,
+                    incident: 'Awakened Curse',
+                    culprit: 'School',
+                },
+                {
+                    day: 2,
+                    incident: 'Increasing Unease',
+                    culprit: 'Pop Idol',
+                },
+                {
+                    day: 3,
+                    incident: 'The Executioner',
+                    culprit: 'Girl Student',
+                },
+                {
+                    day: 4,
+                    incident: 'Sacrilegious Murder',
+                    culprit: 'Soldier',
+                },
+                {
+                    day: 5,
+                    incident: 'Night of Madness',
+                    culprit: 'Hospital',
+                },
+                {
+                    day: 6,
+                    incident: 'Missing Person',
+                    culprit: 'Mystery Boy',
+                },
+            ],
+            specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        },
+        {
+            titel: 'Banquet School Life',
+            creator: 'BakaFire',
+            set: {
+                name: 'Cosmic Evil',
+                number: 6,
+            },
+            tragedySet: 'Cosmic Mythology',
+            mainPlot: ['Giant Time Bomb Again'],
+            subPlots: ['The Resistacne', 'An Unsettling Rumor'],
+            difficultySets: [
+                {
+                    numberOfLoops: 4,
+                    difficulty: 3
+                },
+                {
+                    numberOfLoops: 3,
+                    difficulty: 5
+                },
+            ],
+            daysPerLoop: 4,
+            cast: {
+                'Boy Student': 'Conspiracy Theorist',
+                'Girl Student': 'Witch',
+                'Rich Man’s Daughter': 'Serial Killer',
+                'Shrine Maiden': 'Person',
+                'Police Officer': 'Person',
+                'Office Worker': 'Wizard',
+                'Doctor': 'Deep One',
+            },
+            incidents: [
+                {
+                    day: 2,
+                    incident: 'Missing Person',
+                    culprit: 'Rich Man’s Daughter',
+                },
+                {
+                    day: 3,
+                    incident: 'Evil Contamination',
+                    culprit: 'Shrine Maiden',
+                },
+                {
+                    day: 4,
+                    incident: 'Insane Murder',
+                    culprit: 'Boy Student',
+                },
+            ],
+            specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        },
+
+        {
+            titel: 'Eyes Without Vision',
+            creator: 'Nightly Moonfire Group',
+            set: {
+                name: 'Cosmic Evil',
+                number: 7,
+            },
+            tragedySet: 'Cosmic Mythology',
+            mainPlot: ['Bloody Rites'],
+            subPlots: ['People Who Saw', 'The Profound Race'],
+            difficultySets: [
+                {
+                    numberOfLoops: 4,
+                    difficulty: 5
+                },
+            ],
+            daysPerLoop: 5,
+            cast: {
+                'Girl Student': 'Witness',
+                'Rich Man’s Daughter': 'Person',
+                'Class Rep': 'Witch',
+                'Shrine Maiden': 'Person',
+                'Alien': 'Person',
+                'Office Worker': 'Conspiracy Theorist',
+                'Informer': 'Time Traveler',
+                'Doctor': 'Serial Killer',
+                'Patient': 'Immortal',
+            },
+            incidents: [
+                {
+                    day: 2,
+                    incident: 'Missing Person',
+                    culprit: 'Doctor',
+                },
+                {
+                    day: 3,
+                    incident: 'Hound Dog Scent',
+                    culprit: 'Alien',
+                },
+                {
+                    day: 4,
+                    incident: 'The Executioner',
+                    culprit: 'Girl Student',
+                },
+                {
+                    day: 5,
+                    incident: 'Insane Murder',
+                    culprit: 'Office Worker',
+                },
+            ],
+            specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+            mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        },
+
 
     ] as const satisfies readonly ScriptInternal[];
 }

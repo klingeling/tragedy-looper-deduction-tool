@@ -8,7 +8,7 @@ export type LocationName = 'Hospital' | 'Shirne' | 'City' | 'School';
 
 export const locations = ['Hospital', 'Shirne', 'City', 'School'] as const;
 
-export type Tag = 'boy' | 'girl' | 'student' | "man" | "woman" | "adult" | 'construct' | 'fabrication' | 'animal';
+export type Tag = 'boy' | 'girl' | 'student' | "man" | "woman" | "adult" | 'construct' | 'animal';
 
 export type Character = CharacterIntern & { name: CharacterName };
 type CharacterIntern = {
@@ -18,7 +18,7 @@ type CharacterIntern = {
     abilitys: readonly Ability[],
     startLocation: LocationName;
     forbiddenLocation?: readonly LocationName[],
-    comesInLaterLoop?: true,
+    comesInLater?: true,
     scriptSpecified?: readonly { name: string, type: 'location' | 'incident' | 'role' | 'character' | 'plot' | 'number' | 'text' }[],
 };
 
@@ -38,8 +38,8 @@ export type Ability = {
 export type CharacterName = Characters['characters'][never]['name'];
 
 
-type CharactersComesInLaterLoopHelper<T> = T extends { 'comesInLaterLoop': true } ? T : never;
-export type CharactersComesInLaterLoop = CharactersComesInLaterLoopHelper<Characters['characters'][never]>['name'];
+type CharacterscomesInLaterHelper<T> = T extends { 'comesInLater': true } ? T : never;
+export type CharacterscomesInLater = CharacterscomesInLaterHelper<Characters['characters'][never]>['name'];
 
 
 // type CharactersScriptSpecifiedLocationHelper<T> = T extends { 'scriptSpecifiedLocation': true } ? T : never;
@@ -214,7 +214,11 @@ class Characters {
             paranoiaLimit: 3,
             tags: ["man", "woman"],
             startLocation: 'Shirne',
-            comesInLaterLoop: true,
+            comesInLater: true,
+            scriptSpecified: [{
+                name: 'enters on loop',
+                type: 'number',
+            }],
             abilitys: [
                 {
                     type: 'passive',
@@ -455,7 +459,7 @@ class Characters {
         {
             name: 'Illusion',
             paranoiaLimit: 3,
-            tags: ["fabrication", "woman"],
+            tags: ["construct", "woman"],
             startLocation: 'City',
             abilitys: [
                 {
@@ -499,6 +503,11 @@ class Characters {
             name: 'Transfer Student',
             paranoiaLimit: 2,
             tags: ["student", "girl"],
+            comesInLater: true,
+            scriptSpecified: [{
+                name: 'enters on day',
+                type: 'number'
+            }],
             startLocation: 'School',
             abilitys: [
                 {
@@ -555,7 +564,7 @@ class Characters {
 
 const c = new Characters();
 
-export const charactersComesInLaterLoop = c.characters.filter(x => (x as { comesInLaterLoop?: true })['comesInLaterLoop']).map(x => x.name) as readonly CharactersComesInLaterLoop[];
+export const characterscomesInLater = c.characters.filter(x => (x as { comesInLater?: true })['comesInLater']).map(x => x.name) as readonly CharacterscomesInLater[];
 export function isCharacterName(name: string): name is CharacterName {
     return c.characters.some(x => x.name == name);
 }

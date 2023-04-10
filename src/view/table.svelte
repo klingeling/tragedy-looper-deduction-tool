@@ -3,7 +3,7 @@
 	import { cssesc, distinct, join, keys } from '../misc';
 	import {
 		type CharacterName,
-		charactersComesInLaterLoop,
+		characterscomesInLater,
 		characters as characterLookup
 	} from '../model/characters';
 	import { incidents as incidentsLookup } from '../model/incidents';
@@ -442,7 +442,7 @@
 		{#each chars as ci}
 			<div class="character" style="grid-area: char-header-{cssesc(ci.name)}; ">
 				{ci.name}
-				{#if charactersComesInLaterLoop.includes(ci.name)} <i>(?)</i>{/if}
+				{#if characterscomesInLater.includes(ci.name)} <i>(?)</i>{/if}
 			</div>
 
 			{#each r as ri}

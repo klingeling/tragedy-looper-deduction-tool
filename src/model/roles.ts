@@ -189,7 +189,7 @@ class Roles {
                 {
                     type: 'mandatory',
                     timing: ['Day End'],
-                    description: 'If the Extra Gauge is on 2 or more, this character and any other charcters in sem same location dies. (Onec per loop)'
+                    description: 'If the Extra Gauge is on 2 or more, one charcters in the same location dies. (Onec per loop)'
                 },
                 {
                     type: 'mandatory',

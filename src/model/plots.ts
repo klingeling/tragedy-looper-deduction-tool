@@ -1,7 +1,8 @@
-import { toRecord } from "../misc";
+import { toRecord, toRecord2, type Union } from "../misc";
 import type { RoleName, timing } from "./roles";
 
-export type Plot = PlotInternal & { name: PlotName, };
+export type Plot = Plots[keyof Plots];
+export type Plots = PlotsIntenlaHelperClass['plots'];
 type PlotInternal = {
     name: string,
     roles: Readonly<Partial<Record<RoleName, number | readonly [number, number]>>>,
@@ -15,10 +16,11 @@ export type PlotRule = {
     description: string,
 }
 
-export type PlotName = Plots['plots'][never]['name'];
+export type PlotName = keyof PlotsIntenlaHelperClass['plots'];
 
-export class Plots {
-    public readonly plots = [
+
+class PlotsIntenlaHelperClass {
+    public readonly plots = toRecord2([
         {
             name: 'Light of the Avenger',
             roles: {
@@ -559,6 +561,7 @@ export class Plots {
             name: 'Dance of Fools',
             roles: {
 
+                Frind: 1,
                 Fool: 1,
             },
             rules: [
@@ -570,6 +573,7 @@ export class Plots {
 
                 "Conspiracy Theorist": 1,
                 "Therapist": 1,
+                "Paranoiac": 1,
             },
             rules: [
                 {
@@ -592,6 +596,7 @@ export class Plots {
             name: 'Tricky Twins',
             roles: {
                 "Twin": 1,
+                "Paranoiac": 1,
             },
             rules: [
             ],
@@ -772,13 +777,14 @@ export class Plots {
         },
 
 
-    ] as const satisfies readonly PlotInternal[];
+    ] as const satisfies readonly PlotInternal[], 'name');
 }
 
-const p = new Plots();
+const p = new PlotsIntenlaHelperClass();
 
 export function isPlotName(name: string): name is PlotName {
-    return p.plots.some(x => x.name == name);
+    return p.plots[name as PlotName] != undefined;;
 }
 
-export const plots = toRecord<Plot, PlotName>(p.plots.map(x => [x.name, x] as const));
+export const plots = p.plots;
+

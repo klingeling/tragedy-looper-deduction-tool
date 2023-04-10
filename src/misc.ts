@@ -1,6 +1,46 @@
 
 
 
+
+// export type Intersection<T> =
+//     T extends readonly [infer a]
+//     ? a
+//     : T extends readonly [infer a, ...infer b]
+//     ? a & Intersection<b>
+//     : never;
+
+export type Intersection<T> = UnionToIntersection<Union<T>>;
+
+
+
+
+export type Union<T> =
+
+    T extends readonly any[]
+    ? T[never]
+    : T extends Array<any>
+    ? T[never]
+    : T[keyof T];
+
+type UnionToIntersection<U> = (U extends any
+    ? (k: U) => void
+    : never) extends (k: infer I) => void
+    ? I
+    : never;
+
+
+
+
+type SRecord<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]> = {
+    [i in keyof ELEMENT]: {
+        [k in ELEMENT[i][Key]]: ELEMENT[i]
+    }
+};
+
+
+export function toRecord2<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]>(entries: ELEMENT, key: Key): Intersection<SRecord<ELEMENT, Key>> {
+    return Object.fromEntries((entries.map(x => [x['name'], x]))) as any;
+}
 export function toRecord<ELEMENT = any, Key extends string = string>(entries: Iterable<readonly [Key, ELEMENT]>): Record<Key, ELEMENT> {
     return Object.fromEntries(entries) as any;
 }
@@ -23,7 +63,10 @@ export function distinct<T>(t: readonly T[], keyFunction?: (a: T) => string) {
     }
 }
 
-type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type KeysOfUnion<T> = T extends T ? keyof T : never;
+
+export type SetIntersection<A, B> = A extends B ? A : never;
+export type OptionalProp<A, T extends string> = A extends { [x in T]: any } ? A[T] : never;
 
 export function keys<T>(o: T): (KeysOfUnion<T>)[] {
     if (typeof o !== 'object' || o == null) {
