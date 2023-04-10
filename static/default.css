@@ -42,7 +42,7 @@
     }
 
     body {
-        background-color: var(--background);
+        /* background-color: var(--background); */
         margin: 0 auto 0 auto;
     }
 }

@@ -72,7 +72,7 @@ export function isScriptIncident(obj: unknown, omitCulprit?: true): obj is Scrip
     return true;
 }
 
-export function isScriptIncidentWithoutCulprit(obj: unknown): obj is Omit<ScriptIncident, 'culprit'> {
+export function isScriptIncidentWithoutCulprit(obj: unknown): obj is ScriptIncidentPlayer {
     return isScriptIncident(obj, true);
 }
 

@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { stringifySearchForPlayerAid } from '../../serilezer';
-	import {} from '@picocss/pico/css/pico.css';
+	import  '@picocss/pico/css/pico.css';
 
 	$: scripts = Object.values(scriptLookup);
 
@@ -39,7 +39,7 @@
 	}
 </script>
 
-<main class="container">
+<!-- <main class="container"> -->
 	{#if selectedScript}
 		<article>
 			<ScriptDetails script={selectedScript} />
@@ -72,7 +72,7 @@
 			{/each}
 		</article>
 	{/each}
-</main>
+<!-- </main> -->
 
 <style>
 </style>

@@ -18,7 +18,7 @@
 	export let incidents: readonly ScriptIncidentPlayer[];
 	export let specialRules: readonly string[];
 
-	export let tablet = false;
+	export let tablet = true;
 
 	onMount(() => {
 		const incidentTemplate = document.getElementById('incidences') as HTMLTemplateElement;
@@ -47,11 +47,11 @@
 						let rect = container.getBoundingClientRect();
 						if (isInsilde(container2IncedentRect, rect)) {
 							incident.remove();
-							
+
 							rect = container.getBoundingClientRect();
 							if (rect.bottom < currntDepth) {
-								currntDepth=rect.bottom;
-								currentContainer = container; 
+								currntDepth = rect.bottom;
+								currentContainer = container;
 								continue;
 							}
 						}
@@ -229,7 +229,7 @@
 					...r.map((role) => `role-header-${cssesc(role.name, { isIdentifier: true })}`),
 					'.',
 					'incident-header',
-					...ince.map((role) => `incident-header-${cssesc(role.name, { isIdentifier: true })}`),
+					...ince.map((incident) => `incident-header-${incident.day}`),
 					'rest-2',
 					'rest-3'
 				];
@@ -240,7 +240,7 @@
 					...r.map((role) => `role-header-${cssesc(role.name, { isIdentifier: true })}`),
 					'.',
 					'incident-header-day',
-					...ince.map((role) => `incident-day-${cssesc(role.name, { isIdentifier: true })}`),
+					...ince.map((incident) => `incident-day-${incident.day}`),
 					'rest-2',
 					'rest-3'
 				];
@@ -256,10 +256,7 @@
 				` char-header-${cssesc(char.name, { isIdentifier: true })} `,
 				` char-header-${cssesc(char.name, { isIdentifier: true })} `,
 				...ince.map(
-					(role) =>
-						` incdent-char-${cssesc(role.name, {
-							isIdentifier: true
-						})}-${cssesc(char.name, { isIdentifier: true })} `
+					(incident) => ` incdent-char-${incident.day}-${cssesc(char.name, { isIdentifier: true })} `
 				),
 				'rest-2',
 				'rest-3'
@@ -269,7 +266,7 @@
 				...r.map((role) => `goodwillrefusal-${cssesc(role.name, { isIdentifier: true })}`),
 				'.',
 				'.',
-				...ince.map((role) => `incident-rule-${cssesc(role.name, { isIdentifier: true })}`),
+				...ince.map((incident) => `incident-rule-${incident.day}`),
 				'rest-2',
 				'rest-3'
 			],
@@ -367,10 +364,10 @@
 		<div class="header vertical-header incident" style="grid-area: incident-header-day;">Day</div>
 		<div class="header vertical-header incident" style="grid-area: incident-header;">Incidents</div>
 		{#each ince as i}
-			<div class="vertical-header incident" style="grid-area: incident-header-{cssesc(i.name)};">
+			<div class="vertical-header incident" style="grid-area: incident-header-{i.day};">
 				{i.name}<br />
 			</div>
-			<div class="vertical-header incident" style="grid-area: incident-day-{cssesc(i.name)};">
+			<div class="vertical-header incident" style="grid-area: incident-day-{i.day};">
 				{i.day}
 			</div>
 		{/each}
@@ -390,10 +387,7 @@
 				</div>
 			{/each}
 			{#each ince as ri}
-				<div
-					class="incident-char"
-					style="grid-area: incdent-char-{cssesc(ri.name)}-{cssesc(ci.name)};"
-				>
+				<div class="incident-char" style="grid-area: incdent-char-{ri.day}-{cssesc(ci.name)};">
 					<Selection />
 				</div>
 			{/each}

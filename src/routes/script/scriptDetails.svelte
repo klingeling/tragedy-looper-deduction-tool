@@ -166,7 +166,7 @@
 				{/each}
 			</ul>
 
-			<a href={`${base}/?${parameter}`} target="_blank">Link to Script specific Player Aid</a>
+			<a href={`${base}/player/?${parameter}`} target="_blank">Link to Script specific Player Aid</a>
 		{/if}
 	</div>
 {/if}
