@@ -3,7 +3,7 @@
 		type scripts,
 		type Script,
 		type isScriptName,
-		type ScriptParameter,
+		
 		toPlayerIncident
 	} from '../../model/script';
 

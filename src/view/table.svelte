@@ -19,6 +19,7 @@
 	export let specialRules: readonly string[];
 
 	export let tablet = true;
+	export let touchTarget = false;
 
 	onMount(() => {
 		const incidentTemplate = document.getElementById('incidences') as HTMLTemplateElement;
@@ -34,28 +35,80 @@
 
 			containers.forEach((c) => c.replaceChildren());
 
+			let containerHeight = containers.map((x) => x.getBoundingClientRect().height);
+
+			const elementWidth = containers.map((container) => {
+				const width = container.getBoundingClientRect().width;
+				container.style.width = `${width}px`;
+
+				const randomElement = Array.from(tragedyRulesTemplate.content.children)
+					.concat(Array.from(incidentTemplate.content.children))
+					.concat(Array.from(roleTemplate.content.children))
+					.map((x) => x.cloneNode(true) as HTMLDivElement)[0];
+
+				container.appendChild(randomElement);
+				const elementWidth = randomElement.getBoundingClientRect().width;
+				randomElement.remove();
+				const exactNumberOfColumns = width / elementWidth;
+				const min = Math.floor(exactNumberOfColumns);
+				const max = Math.ceil(exactNumberOfColumns);
+				const border = 1;
+				const newElementWidth =
+					Math.abs((width - min * border) / min - elementWidth) <
+					Math.abs((width - max * border) / max - elementWidth)
+						? (width - min * border) / min
+						: (width - max * border) / max;
+
+				return newElementWidth;
+			});
+
+			const updateHeight = () => {
+				for (let i = 0; i < containerHeight.length; i++) {
+					const height = containerHeight[i];
+					const container = containers[i];
+					container.style.height = `${height}px`;
+					container.style.overflowY = 'visible';
+				}
+			};
+			updateHeight();
+
 			Array.from(tragedyRulesTemplate.content.children)
 				.concat(Array.from(incidentTemplate.content.children))
 				.concat(Array.from(roleTemplate.content.children))
 				.map((x) => x.cloneNode(true) as HTMLDivElement)
 				.forEach((incident) => {
-					let currentContainer: HTMLElement;
+					let currentContainer: HTMLElement | undefined = undefined;
 					let currntDepth: number = Infinity;
-					for (const [container, i] of containers.map((x, i) => [x, i] as const)) {
-						container.appendChild(incident);
-						const container2IncedentRect = incident.getBoundingClientRect();
-						let rect = container.getBoundingClientRect();
-						if (isInsilde(container2IncedentRect, rect)) {
-							incident.remove();
-
-							rect = container.getBoundingClientRect();
-							if (rect.bottom < currntDepth) {
-								currntDepth = rect.bottom;
-								currentContainer = container;
-								continue;
+					let currntWidth: number = Infinity;
+					while (currentContainer == undefined) {
+						let minHeight: number = Infinity;
+						for (const [container, i] of containers.map((x, i) => [x, i] as const)) {
+							container.appendChild(incident);
+							incident.style.width = `${elementWidth[i]}px`;
+							const container2IncedentRect = incident.getBoundingClientRect();
+							const placmenetBottom = container2IncedentRect.bottom;
+							minHeight = Math.min(minHeight, container2IncedentRect.height);
+							let rect = container.getBoundingClientRect();
+							if (isInsilde(container2IncedentRect, rect)) {
+								incident.remove();
+								rect = container.getBoundingClientRect();
+								if (placmenetBottom < currntDepth) {
+									currntDepth = placmenetBottom;
+									currentContainer = container;
+									currntWidth = elementWidth[i];
+									continue;
+								}
+							} else {
+								incident.remove();
 							}
 						}
+						if (currentContainer == undefined) {
+							containerHeight = containerHeight.map((x) => x + minHeight / 10);
+
+							updateHeight();
+						}
 					}
+					incident.style.width = `${currntWidth}px`;
 					currentContainer.appendChild(incident);
 
 					// // add page
@@ -256,7 +309,8 @@
 				` char-header-${cssesc(char.name, { isIdentifier: true })} `,
 				` char-header-${cssesc(char.name, { isIdentifier: true })} `,
 				...ince.map(
-					(incident) => ` incdent-char-${incident.day}-${cssesc(char.name, { isIdentifier: true })} `
+					(incident) =>
+						` incdent-char-${incident.day}-${cssesc(char.name, { isIdentifier: true })} `
 				),
 				'rest-2',
 				'rest-3'
@@ -288,7 +342,13 @@
 	}
 </script>
 
-<div class="root" class:tablet id="root" style=" scrollbar-gutter: stable both-edges;">
+<div
+	class="root"
+	class:touchTarget
+	class:tablet
+	id="root"
+	style=" scrollbar-gutter: stable both-edges;"
+>
 	<div
 		class="table page"
 		style="grid-template-columns: {gird_template_column} ;grid-template-rows: {gird_template_row} ; grid-template-areas: {gird_template_area ??
@@ -314,11 +374,13 @@
 					class="plot-main role-counter"
 					style="grid-area: main-role-plot-{cssesc(ri.name)}-{cssesc(p.name)};"
 				>
-					{#if Array.isArray(amount)}
-						{amount[0]} - {amount[1]}
-					{:else if typeof amount == 'number'}
-						{amount}
-					{/if}
+					<div style="text-align: center;">
+						{#if Array.isArray(amount)}
+							{amount[0]} - {amount[1]}
+						{:else if typeof amount == 'number'}
+							{amount}
+						{/if}
+					</div>
 				</div>
 			{/each}
 		{/each}
@@ -341,11 +403,13 @@
 					class="plot-sub role-counter"
 					style="grid-area: sub-role-plot-{cssesc(ri.name)}-{cssesc(p.name)};"
 				>
-					{#if Array.isArray(amount)}
-						{amount[0]} - {amount[1]}
-					{:else if typeof amount == 'number'}
-						{amount}
-					{/if}
+					<div style="text-align: center;">
+						{#if Array.isArray(amount)}
+							{amount[0]} - {amount[1]}
+						{:else if typeof amount == 'number'}
+							{amount}
+						{/if}
+					</div>
 				</div>
 			{/each}
 		{/each}
@@ -517,6 +581,12 @@
 		display: grid;
 		padding: 0px !important;
 	}
+
+	:global(.touchTarget) .role-char,
+	:global(.touchTarget) .incident-char {
+		margin: 0.5em !important;
+	}
+
 	:global(.overflow) {
 		display: flex;
 		flex-wrap: wrap;
@@ -531,6 +601,7 @@
 
 	article {
 		width: 5cm; //calc(var(--page-width) / 5 - 2px * 6);
+		min-width: 3cm; //calc(var(--page-width) / 5 - 2px * 6);
 		// margin: 2px;
 		padding: 4px;
 		break-inside: avoid-page;
@@ -657,7 +728,7 @@
 			height: min-content;
 		}
 		.overflow {
-			flex-direction: row;
+			// flex-direction: row;
 		}
 	}
 </style>

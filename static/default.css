@@ -45,6 +45,9 @@
         /* background-color: var(--background); */
         margin: 0 auto 0 auto;
     }
+    main{
+        margin-top: 0px;
+    }
 }
 
 @media print {

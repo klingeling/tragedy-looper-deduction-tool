@@ -6,12 +6,6 @@ import type { RoleName } from "./roles";
 import type { TragedySetName } from "./tragedySets";
 
 
-export type ScriptParameter = {
-    tragedy: TragedySetName;
-    characters: CharacterName[];
-    incident: Omit<ScriptIncident, 'culprit'>[];
-    spectalRules?: string[];
-};
 
 
 export type ScriptIncident = {

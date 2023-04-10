@@ -15,13 +15,18 @@
 </div>
 
 <style>
-	
-
 	.click {
+		font-size: 100%;
 		display: grid;
 		justify-items: center;
 		align-items: center;
 		width: 100%;
 		height: 100%;
+	}
+
+	:global(.touchTarget) .click {
+		font-size: large;
+		min-width: 2rem;
+		min-height: 2rem;
 	}
 </style>
