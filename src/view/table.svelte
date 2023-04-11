@@ -124,13 +124,38 @@
 
 			containers.forEach((c) => c.replaceChildren());
 
+			const elementWidth = containers.map((container) => {
+				const width = container.getBoundingClientRect().width;
+
+				const randomElement = Array.from(tragedyRulesTemplate.content.children)
+					.concat(Array.from(incidentTemplate.content.children))
+					.concat(Array.from(roleTemplate.content.children))
+					.map((x) => x.cloneNode(true) as HTMLDivElement)[0];
+
+				container.appendChild(randomElement);
+				const elementWidth = randomElement.getBoundingClientRect().width;
+				randomElement.remove();
+				const exactNumberOfColumns = width / elementWidth;
+				const min = Math.floor(exactNumberOfColumns);
+				const max = Math.ceil(exactNumberOfColumns);
+				const border = 1;
+				const newElementWidth =
+					Math.abs((width - min * border) / min - elementWidth) <
+					Math.abs((width - max * border) / max - elementWidth)
+						? (width - min * border) / min
+						: (width - max * border) / max;
+
+				return newElementWidth;
+			});
+
 			Array.from(tragedyRulesTemplate.content.children)
 				.concat(Array.from(incidentTemplate.content.children))
 				.concat(Array.from(roleTemplate.content.children))
 				.map((x) => x.cloneNode(true) as HTMLDivElement)
 				.forEach((incident) => {
-					for (const container of containers) {
+					for (const [container, i] of containers.map((x, i) => [x, i] as const)) {
 						container.appendChild(incident);
+						incident.style.width = `${elementWidth[i]}px`;
 						const rect = container.getBoundingClientRect();
 						const container2IncedentRect = incident.getBoundingClientRect();
 						if (isInsilde(container2IncedentRect, rect)) {
