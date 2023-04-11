@@ -45,6 +45,13 @@ export function toRecord<ELEMENT = any, Key extends string = string>(entries: It
     return Object.fromEntries(entries) as any;
 }
 
+export function hasProp<T extends object>(
+    obj: T, prop: PropertyKey
+): prop is keyof T {
+    return prop in obj;
+}
+
+
 export function distinct<T>(t: readonly T[], keyFunction?: (a: T) => string) {
     if (keyFunction) {
         const result = [];

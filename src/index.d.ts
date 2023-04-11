@@ -2,6 +2,15 @@
 // for information about these interfaces
 
 
+type Intersect<A, B> = A extends B ? true | false : false;
+declare interface ReadonlyArray<T> {
+
+
+	includes<U>(el: U): Intersect<T, U>;
+
+}
+
+
 declare module 'pagedjs' {
 
 	export class Chunker { }

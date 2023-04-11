@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { cssesc, distinct, join, keys } from '../misc';
+	import { cssesc, distinct, hasProp, join, keys } from '../misc';
 	import {
 		type CharacterName,
 		characterscomesInLater,
@@ -369,16 +369,18 @@
 			</div>
 
 			{#each r as ri}
-				{@const amount = p.roles[ri.name]}
 				<div
 					class="plot-main role-counter"
 					style="grid-area: main-role-plot-{cssesc(ri.name)}-{cssesc(p.name)};"
 				>
 					<div style="text-align: center;">
-						{#if Array.isArray(amount)}
-							{amount[0]} - {amount[1]}
-						{:else if typeof amount == 'number'}
-							{amount}
+						{#if hasProp(p.roles, ri.name)}
+							{@const amount = p.roles[ri.name]}
+							{#if Array.isArray(amount)}
+								{amount[0]} - {amount[1]}
+							{:else if typeof amount == 'number'}
+								{amount}
+							{/if}
 						{/if}
 					</div>
 				</div>
@@ -398,16 +400,20 @@
 			</div>
 
 			{#each r as ri}
-				{@const amount = p.roles[ri.name]}
+				{@const roles = p.roles}
+				{@const name = ri.name}
 				<div
 					class="plot-sub role-counter"
 					style="grid-area: sub-role-plot-{cssesc(ri.name)}-{cssesc(p.name)};"
 				>
 					<div style="text-align: center;">
-						{#if Array.isArray(amount)}
-							{amount[0]} - {amount[1]}
-						{:else if typeof amount == 'number'}
-							{amount}
+						{#if hasProp(roles, name)}
+							{@const amount = roles[name]}
+							{#if Array.isArray(amount)}
+								{amount[0]} - {amount[1]}
+							{:else if typeof amount == 'number'}
+								{amount}
+							{/if}
 						{/if}
 					</div>
 				</div>

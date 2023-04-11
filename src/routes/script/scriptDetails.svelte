@@ -3,24 +3,37 @@
 		type scripts,
 		type Script,
 		type isScriptName,
-		
 		toPlayerIncident
 	} from '../../model/script';
 
 	import { onMount } from 'svelte';
 
-	import { charactersComesInLaterLoop, type CharacterName } from '../../model/characters';
+	import { characterscomesInLater, type CharacterName } from '../../model/characters';
 	import { stringifySearchForPlayerAid } from '../../serilezer';
 	import { distinct, keys } from '../../misc';
 	import { base } from '$app/paths';
 	export let script: Script;
 
-	let alwaysTransmitCharacters: boolean[] = charactersComesInLaterLoop.map(()=>true) ;
+	let alwaysTransmitCharacters: boolean[] = characterscomesInLater.map(() => true);
+	$: allAdditionamCharacters = alwaysTransmitCharacters.every((x) => x == true)
+		? true
+		: alwaysTransmitCharacters.every((x) => x == false)
+		? false
+		: undefined;
 
-	$: additionalCharacters = alwaysTransmitCharacters.map((b,i)=>[b,charactersComesInLaterLoop[i]]as const).filter(([x])=>x)
-	.map(([,x])=>x);
+	function swtchAllCharacters() {
+		const target = allAdditionamCharacters !== true;
+		for (let i = 0; i < alwaysTransmitCharacters.length; i++) {
+			alwaysTransmitCharacters[i] = target;
+		}
+	}
 
-	function getParams(script: Script,additionalCharacters:CharacterName[]) {
+	$: additionalCharacters = alwaysTransmitCharacters
+		.map((b, i) => [b, characterscomesInLater[i]] as const)
+		.filter(([x]) => x)
+		.map(([, x]) => x);
+
+	function getParams(script: Script, additionalCharacters: CharacterName[]) {
 		return stringifySearchForPlayerAid(
 			script.tragedySet,
 			distinct(keys(script.cast).concat(additionalCharacters)),
@@ -29,7 +42,7 @@
 		).toString();
 	}
 
-	$: parameter = script ? getParams(script,additionalCharacters) : undefined;
+	$: parameter = script ? getParams(script, additionalCharacters) : undefined;
 	let host = '';
 	let protocoll = '';
 
@@ -155,8 +168,17 @@
 	<div>
 		{#if host}
 			<strong>Always include suprise characters</strong>
+			<input
+				type="checkbox"
+				on:click={(e) => {
+					// e.preventDefault();
+					swtchAllCharacters();
+				}}
+				bind:checked={allAdditionamCharacters}
+				indeterminate={allAdditionamCharacters === undefined}
+			/>
 			<ul>
-				{#each charactersComesInLaterLoop as a, i}
+				{#each characterscomesInLater as a, i}
 					<li>
 						<lable>
 							<input type="checkbox" role="switch" bind:checked={alwaysTransmitCharacters[i]} />
@@ -166,7 +188,8 @@
 				{/each}
 			</ul>
 
-			<a href={`${base}/player/?${parameter}`} target="_blank">Link to Script specific Player Aid</a>
+			<a href={`${base}/player/?${parameter}`} target="_blank">Link to Script specific Player Aid</a
+			>
 		{/if}
 	</div>
 {/if}
