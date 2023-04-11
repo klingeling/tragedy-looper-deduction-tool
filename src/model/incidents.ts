@@ -1,4 +1,5 @@
 import { toRecord, toRecord2, type Union } from "../misc";
+import type { ScriptSpecified } from "./core";
 
 
 // export type Incident = IncidentInternal & {
@@ -14,7 +15,7 @@ type IncidentInternal = {
     effect: string,
     faked?: true,
     mob?: number,
-}
+}& ScriptSpecified;
 
 export type IncidentName = keyof IncidentsHelper['incidents'];
 

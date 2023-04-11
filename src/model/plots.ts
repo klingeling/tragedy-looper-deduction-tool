@@ -1,4 +1,5 @@
 import { toRecord, toRecord2, type Union } from "../misc";
+import type { ScriptSpecified } from "./core";
 import type { RoleName, timing } from "./roles";
 
 export type Plot = Plots[keyof Plots];
@@ -14,7 +15,7 @@ export type PlotRule = {
     timesPerLoop?: number,
     timesPerDay?: number,
     description: string,
-}
+}& ScriptSpecified;
 
 export type PlotName = keyof PlotsIntenlaHelperClass['plots'];
 

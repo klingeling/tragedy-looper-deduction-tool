@@ -39,7 +39,7 @@ type SRecord<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]> =
 
 
 export function toRecord2<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]>(entries: ELEMENT, key: Key): Intersection<SRecord<ELEMENT, Key>> {
-    return Object.fromEntries((entries.map(x => [x['name'], x]))) as any;
+    return Object.fromEntries((entries.map(x => [x[key], x]))) as any;
 }
 export function toRecord<ELEMENT = any, Key extends string = string>(entries: Iterable<readonly [Key, ELEMENT]>): Record<Key, ELEMENT> {
     return Object.fromEntries(entries) as any;
