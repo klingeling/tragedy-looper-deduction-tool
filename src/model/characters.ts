@@ -1,4 +1,4 @@
-import { toRecord2 } from "../misc";
+import { toRecord } from "../misc";
 import type { ScriptSpecified } from "./core";
 
 
@@ -46,7 +46,7 @@ export type Ability = {
 
 
 
-export const characters = toRecord2([
+export const characters = toRecord([
     {
         name: 'Boy Student',
         paranoiaLimit: 2,
@@ -518,8 +518,4 @@ export function isCharacterName(name: string): name is CharacterName {
 export function isLocationName(name: string): name is LocationName {
     return locations.some(x => x == name);
 }
-
-
-
-// export const characters = toRecord<Character, CharacterName>(c.characters.map(x => [x.name, x] as const));
 

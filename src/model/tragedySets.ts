@@ -1,4 +1,5 @@
-import { toRecord, toRecord2, type Union } from "../misc"
+import { toRecord, type Union } from "../misc"
+import type { Options } from "./core";
 import type { IncidentName } from "./incidents"
 import type { PlotName } from "./plots"
 import type { RoleName } from "./roles";
@@ -16,11 +17,12 @@ type TragedySetInternal = {
         name: string,
         description: string
     }[],
-}
+} & CastOptions
 
 export type TragedySetName = TragedySets1['tragedySets'][never]['name'];
 
 
+export type CastOptions = { castOptions?: Options };
 
 
 class TragedySets1 {
@@ -194,6 +196,13 @@ class TragedySets1 {
                 'The Silver Bullet',
             ],
             numberOfSubPlots: 2,
+            castOptions: [
+                {
+                    name: 'Start Location',
+                    type: 'location',
+                    optional: true,
+                }
+            ],
             extraRules: [
                 {
                     name: 'Extra Gauge: Number of Incidents',
@@ -239,6 +248,13 @@ class TragedySets1 {
 
             ],
             numberOfSubPlots: 2,
+            castOptions: [
+                {
+                    name: 'Start Location',
+                    type: 'location',
+                    optional: true,
+                }
+            ],
             extraRules: [
                 {
                     name: 'Extra Cads',
@@ -256,10 +272,8 @@ export function isTragedySetName(name: string): name is TragedySetName {
     return t.tragedySets.some(x => x.name == name);
 }
 class TragedySets2 {
-    public readonly tragedySets = toRecord2(t.tragedySets, 'name');
+    public readonly tragedySets = toRecord(t.tragedySets, 'name');
 
 }
 
 export const tragedySets = new TragedySets2().tragedySets;
-
-// export const tragedySets = toRecord<TragedySet, TragedySetName>(t.tragedySets.map(x => [x.name, x] as const));

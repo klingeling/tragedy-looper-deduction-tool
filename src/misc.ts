@@ -1,4 +1,4 @@
-
+import type { UnionToIntersection } from 'utility-types'
 
 
 
@@ -22,12 +22,6 @@ export type Union<T> =
     ? T[never]
     : T[keyof T];
 
-type UnionToIntersection<U> = (U extends any
-    ? (k: U) => void
-    : never) extends (k: infer I) => void
-    ? I
-    : never;
-
 
 
 
@@ -37,12 +31,15 @@ type SRecord<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]> =
     }
 };
 
+export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
+    Pick<T, Exclude<keyof T, Keys>>
+    & {
+        [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
+    }[Keys]
 
-export function toRecord2<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]>(entries: ELEMENT, key: Key): Intersection<SRecord<ELEMENT, Key>> {
+
+export function toRecord<ELEMENT extends readonly any[], Key extends keyof ELEMENT[number]>(entries: ELEMENT, key: Key): Intersection<SRecord<ELEMENT, Key>> {
     return Object.fromEntries((entries.map(x => [x[key], x]))) as any;
-}
-export function toRecord<ELEMENT = any, Key extends string = string>(entries: Iterable<readonly [Key, ELEMENT]>): Record<Key, ELEMENT> {
-    return Object.fromEntries(entries) as any;
 }
 
 export function hasProp<T extends object>(
@@ -72,7 +69,7 @@ export function distinct<T>(t: readonly T[], keyFunction?: (a: T) => string) {
 
 export type KeysOfUnion<T> = T extends T ? keyof T : never;
 
-export type SetIntersection<A, B> = A extends B ? A : never;
+
 export type OptionalProp<A, T extends string> = A extends { [x in T]: any } ? A[T] : never;
 
 export function keys<T>(o: T): (KeysOfUnion<T>)[] {

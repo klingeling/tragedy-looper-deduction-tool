@@ -1,10 +1,11 @@
-import { type KeysOfUnion, type Union, type SetIntersection, toRecord2 } from "../misc";
+import type { SetIntersection } from "utility-types";
+import { type KeysOfUnion, type Union, toRecord } from "../misc";
 import { isCharacterName, type CharacterName, type LocationName, isLocationName } from "./characters";
-import type { DefinitionRecord } from "./core";
+import type { DefinitionRecord, Options, WithScriptSpecification } from "./core";
 import { isIncidentName, type IncidentName, type FakedIncident, type MobIncident } from "./incidents";
 import type { Plots } from "./plots";
 import type { RoleName } from "./roles";
-import type { TragedySets } from "./tragedySets";
+import type { CastOptions, TragedySets } from "./tragedySets";
 
 
 
@@ -82,6 +83,10 @@ export type Scripts = typeof scripts;
 
 
 
+
+type getCastOptions<T extends keyof TragedySets> = getCastOptions2<TragedySets[T]>
+type getCastOptions2<t> = t extends Required<CastOptions> ? t['castOptions'] : readonly []
+    ;
 type getAdditionalRoles<t> = t extends { aditionalRoles: readonly RoleName[] } ? t['aditionalRoles'] : never
     ;
 
@@ -103,10 +108,11 @@ type ScriptInternal = Union<{
             difficulty: number,
         }[],
         tragedySet: TragedySets[k]['name'],
-        mainPlot: readonly Union<TragedySets[k]['mainPlots']>[],
-        subPlots: readonly Union<TragedySets[k]['subPlots']>[],
+        mainPlot: readonly WithScriptSpecification<'plot', TragedySets[k]['mainPlots'][number]>[],
+        subPlots: readonly WithScriptSpecification<'plot', TragedySets[k]['subPlots'][number]>[],
         daysPerLoop: number,
-        cast: DefinitionRecord<'character', 'role', CharacterName, roleToTragedySet<k>>
+        cast: DefinitionRecord<'character', 'role', CharacterName, roleToTragedySet<k>, true, getCastOptions<k>>,
+        castOptions?: Options,
 
         incidents: readonly ScriptIncident<k>[],
         specialRules?: string,
@@ -120,7 +126,7 @@ type ScriptInternal = Union<{
 
 export type ScriptName = keyof Scripts;
 
-export const scripts = toRecord2([
+export const scripts = toRecord([
 
     {
         titel: 'The frist Script',
@@ -1794,6 +1800,187 @@ export const scripts = toRecord2([
                 day: 5,
                 incident: 'Insane Murder',
                 culprit: 'Office Worker',
+            },
+        ],
+        specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+    },
+
+
+    {
+        titel: 'Bella Stellarum',
+        creator: 'Gaijin',
+        set: {
+            name: 'Cosmic Evil',
+            number: 8,
+        },
+        tragedySet: 'Cosmic Mythology',
+        mainPlot: ['The King in Yellow'],
+        subPlots: [['Twisted Truth', { "Extra Plot": 'Bloody Rites' }], 'Whispers from the Deep'],
+        difficultySets: [
+            {
+                numberOfLoops: 5,
+                difficulty: 4
+            },
+            {
+                numberOfLoops: 4,
+                difficulty: 6
+            },
+        ],
+        daysPerLoop: 5,
+        cast: {
+            'Class Rep': 'Sacrifice',
+            'Mystery Boy': 'Serial Killer',
+            'Godly Being': ['Paranoiac', { 'enters on loop': 2 }],
+            'Office Worker': 'Cultist',
+            'Informer': 'Person',
+            'Journalist': 'Person',
+            'Pop Idol': 'Person',
+            'Patient': 'Immortal',
+            'Nurse': 'Paranoiac',
+        },
+        incidents: [
+            {
+                day: 1,
+                incident: 'The Executioner',
+                culprit: 'Patient',
+            },
+            {
+                day: 2,
+                incident: 'Discovery',
+                culprit: 'Office Worker',
+            },
+            {
+                day: 4,
+                incident: 'Insane Murder',
+                culprit: 'Class Rep',
+            },
+            {
+                day: 5,
+                incident: 'Uproar',
+                culprit: 'Godly Being',
+            },
+        ],
+        specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+    },
+
+    {
+        titel: 'An Ordinary Day In Misuka City',
+        creator: 'Rokirusu',
+        set: {
+            name: 'Cosmic Evil',
+            number: 9,
+        },
+        tragedySet: 'Cosmic Mythology',
+        mainPlot: ['The Sacred Wrods of Dagon'],
+        subPlots: ['The Faceless God', ['Twisted Truth', { "Extra Plot": 'Giant Time Bomb Again' }]],
+        difficultySets: [
+            {
+                numberOfLoops: 4,
+                difficulty: 7
+            },
+        ],
+        daysPerLoop: 6,
+        cast: {
+            'Girl Student': 'Person',
+            'Rich Man’s Daughter': 'Faceless',
+            'Mystery Boy': 'Witch',
+            'Alien': 'Wizard',
+            'Office Worker': 'Cultist',
+            'Informer': 'Deep One',
+            'Journalist': 'Key Person',
+            'Patient': 'Paranoiac',
+        },
+        incidents: [
+            {
+                day: 1,
+                incident: 'Insane Murder',
+                culprit: 'Rich Man’s Daughter',
+            },
+            {
+                day: 3,
+                incident: 'Fire of Demise',
+                culprit: 'Alien',
+            },
+            {
+                day: 4,
+                incident: 'Uproar',
+                culprit: 'Shrine Maiden', // TODO lookup Shrine Patient
+            },
+            {
+                day: 6,
+                incident: 'Evil Contamination',
+                culprit: 'Informer',
+            },
+        ],
+        specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+        mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
+    },
+
+
+    {
+        titel: 'Cosmic Insignificance',
+        creator: 'M. Hydromel and her automatons',
+        set: {
+            name: 'Cosmic Evil',
+            number: 10,
+        },
+        tragedySet: 'Cosmic Mythology',
+        mainPlot: ['The King in Yellow'],
+        subPlots: ['The Faceless God', 'The Resistacne'],
+        difficultySets: [
+            {
+                numberOfLoops: 5,
+                difficulty: 8
+            },
+        ],
+        daysPerLoop: 6,
+        cast: {
+            'Class Rep': 'Person',
+            'Mystery Boy': 'Immortal',
+            'Alien': 'Person',
+            'Godly Being': ['Sacrifice', { "enters on loop": 5 }],
+            'Illusion': 'Serial Killer',
+            'Black Cat': 'Cultist',
+            'Office Worker': 'Person',
+            'Journalist': 'Wizard',
+            'Nurse': 'Faceless',
+            'Henchman': 'Conspiracy Theorist',
+        },
+        incidents: [
+            {
+                day: 1,
+                incident: 'Discovery',
+                culprit: 'Henchman',
+            },
+            {
+                day: 2,
+                incident: 'Insane Murder',
+                culprit: 'Black Cat',
+            },
+            {
+                day: 3,
+                incident: 'Increasing Unease',
+                culprit: 'Office Worker',
+            },
+            {
+                day: 4,
+                incident: 'Increasing Unease',
+                culprit: 'Journalist',
+            },
+            {
+                day: 5,
+                incident: 'Evil Contamination',
+                culprit: 'Class Rep',
+            },
+            {
+                day: 6,
+                incident: 'The Executioner',
+                culprit: 'Godly Being',
             },
         ],
         specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',

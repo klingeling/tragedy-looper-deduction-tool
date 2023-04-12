@@ -1,4 +1,4 @@
-import { toRecord, toRecord2 } from "../misc";
+import {  toRecord } from "../misc";
 import type { ScriptSpecified } from "./core";
 
 export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start'
@@ -26,7 +26,7 @@ export type RoleName = Role['name'];
 
 
 
-export const roles = toRecord2([
+export const roles = toRecord([
 
     {
         name: 'Person',

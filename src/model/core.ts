@@ -1,3 +1,5 @@
+import type { RequiredKeys } from "utility-types";
+import type { RequireAtLeastOne } from "../misc";
 import type { CharacterName, Characters, LocationName } from "./characters";
 import type { IncidentName, Incidents } from "./incidents";
 import type { PlotName, Plots } from "./plots";
@@ -6,7 +8,15 @@ import type { RoleName, Roles } from "./roles";
 
 type SpecificationType = 'location' | 'incident' | 'role' | 'character' | 'plot' | 'number' | 'text';
 
-export type ScriptSpecified = { scriptSpecified?: readonly { name: string, type: SpecificationType }[] };
+type Option = {
+    name: string;
+    type: SpecificationType;
+    optional?: true;
+};
+
+export type Options = readonly Option[];
+
+export type ScriptSpecified = { scriptSpecified?: Options };
 
 type NameDefinition<Type extends 'role' | 'character' | 'incident' | 'plot' | void> =
     Type extends 'role'
@@ -100,12 +110,12 @@ type typeLookup<x extends string> =
     : x extends 'text'
     ? string : never;
 
-export type DefinitionRecord<Key extends 'role' | 'character' | 'incident' | 'plot', Value extends 'role' | 'character' | 'incident' | 'plot', KeysKeys extends NameDefinition<Key> = NameDefinition<Key>, ValueKeys extends NameDefinition<Value> = NameDefinition<Value>, optional extends boolean = true> =
+export type DefinitionRecord<Key extends 'role' | 'character' | 'incident' | 'plot', Value extends 'role' | 'character' | 'incident' | 'plot', KeysKeys extends NameDefinition<Key> = NameDefinition<Key>, ValueKeys extends NameDefinition<Value> = NameDefinition<Value>, optional extends boolean = true, AlwaysOptions extends Options = []> =
     optional extends true
     ? {
-        [k in KeysKeys]?: Def<Value, ValueKeys, Key, k>
+        [k in KeysKeys]?: Def<Value, ValueKeys, Key, k, AlwaysOptions>
     } : {
-        [k in KeysKeys]: Def<Value, ValueKeys, Key, k>
+        [k in KeysKeys]: Def<Value, ValueKeys, Key, k, AlwaysOptions>
     };
 
 
@@ -121,34 +131,52 @@ type ToSpecification<Type extends 'role' | 'character' | 'incident' | 'plot', T>
 
 
 
-type ToSpecificationTuple<Type extends 'role' | 'character' | 'incident' | 'plot', T, AdditionalArguments = object> =
+type ToSpecificationTuple<Type extends 'role' | 'character' | 'incident' | 'plot', T, AdditionalArguments extends object> =
     T extends keyof InstancesDefinition<Type>
     ? InstancesDefinition<Type>[T] extends Required<ScriptSpecified>
-    ? readonly [T, ToSpecificationObject<InstancesDefinition<Type>[T]['scriptSpecified'][number]> & AdditionalArguments]
-    : readonly [T, AdditionalArguments]
-    : string
+    ? readonly [T, ToSpecificationObject<InstancesDefinition<Type>[T]['scriptSpecified'][number]> & (AdditionalArguments extends Record<string, never> ? object : AdditionalArguments)]
+    : AdditionalArguments extends Record<string, never> ? never : readonly [T, AdditionalArguments]
+    : never
     ;
 
 
 
-type Def<Type extends 'role' | 'character' | 'incident' | 'plot', Key extends NameDefinition<Type>, OtherType extends 'role' | 'character' | 'incident' | 'plot', OtherKey extends NameDefinition<OtherType>> =
+export type WithScriptSpecification<Type extends 'role' | 'character' | 'incident' | 'plot', Key extends NameDefinition<Type> = NameDefinition<Type>, AlwaysOptions extends Options = []> =
+    ToSpecificationTuple<Type, Extended<Type, Key>, ToSpecificationObject<AlwaysOptions>>
+    | (RequiredKeys<ToSpecificationObject<AlwaysOptions>> extends never ? NotExtended<Type, Key> : never)
+    | (ToSpecificationObject<AlwaysOptions> extends Record<string, never> ? never : ToSpecificationTuple<Type, NotExtended<Type, Key>, RequireAtLeastOne<ToSpecificationObject<AlwaysOptions>>>)
+    ;
+;
+
+type Def<Type extends 'role' | 'character' | 'incident' | 'plot', Key extends NameDefinition<Type>, OtherType extends 'role' | 'character' | 'incident' | 'plot', OtherKey extends NameDefinition<OtherType>, AlwaysOptions extends Options = []> =
     isSpecified<OtherType, OtherKey> extends true
-    ? ToSpecificationTuple<Type, Key, ToSpecification<OtherType, OtherKey> & { 'Start Location'?: LocationName }>
-    : ToSpecificationTuple<Type, Extended<Type, Key>, { 'Start Location'?: LocationName }> | NotExtended<Type, Key>
-    | ToSpecificationTuple<Type, NotExtended<Type, Key>, { 'Start Location': LocationName }>
-    ;
-
+    ? ToSpecificationTuple<Type, Key, ToSpecification<OtherType, OtherKey> & (ToSpecificationObject<AlwaysOptions> extends Record<string, never> ? object : ToSpecificationObject<AlwaysOptions>)>
+    : WithScriptSpecification<Type, Key, AlwaysOptions>;
 ;
 
 type ToSpecificationObject<T> =
-    T extends { name: infer TName, type: infer type }
+    T extends readonly [] ? Record<string, never>
+    : T extends readonly any[] ? ToSpecificationObject<T[number]>
+
+    : T extends { name: infer TName, type: infer type, optional: true }
+    ? TName extends string
+    ? type extends SpecificationType
+    // ? T extends { 'scriptSpecified': infer K } ? mapArray<K>
+    ? { [z in TName]?: typeLookup<type> }
+    : Record<string, never>
+    : Record<string, never>
+
+
+    : T extends { name: infer TName, type: infer type }
     ? TName extends string
     ? type extends SpecificationType
     // ? T extends { 'scriptSpecified': infer K } ? mapArray<K>
     ? { [z in TName]: typeLookup<type> }
-    : object
-    : object
-    : object;
+    : Record<string, never>
+    : Record<string, never>
+    : Record<string, never>
+
+    ;
 
 
 
@@ -167,3 +195,159 @@ type isSpecified<Type extends 'role' | 'character' | 'incident' | 'plot', Id ext
     ;
 
 // const xx: isSpecifiedAny<[['character','Boy Student'], ['role', "Person"]]>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Alien'> =
+//         'Brain';
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Godly Being'> =
+//         ['Brain', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Godly Being'> =
+//         ['Boy Student', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boy Student'> =
+//         ['Godly Being', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boss'> =
+//         ['Godly Being', { "enters on loop": 3, 'Turf': 'City' }] as const;
+//     xxx124.toString();
+// }
+
+
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Alien', [{ name: 'testName', type: 'location', optional: true }]> =
+//         'Brain';
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Brain', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Boy Student', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boy Student', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Godly Being', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boss', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Godly Being', { "enters on loop": 3, 'Turf': 'City' }] as const;
+//     xxx124.toString();
+// }
+
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Alien', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Brain', { testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Brain', { "enters on loop": 3, testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Boy Student', { "enters on loop": 3, testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boy Student', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Godly Being', { "enters on loop": 3, testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boss', [{ name: 'testName', type: 'location', optional: true }]> =
+//         ['Godly Being', { "enters on loop": 3, 'Turf': 'City', testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Alien', [{ name: 'testName', type: 'location' }]> =
+//         ['Brain', { testName: 'School' }];
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location' }]> =
+//         ['Brain', { "enters on loop": 3, testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location' }]> =
+//         ['Boy Student', { "enters on loop": 3, testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boy Student', [{ name: 'testName', type: 'location' }]> =
+//         ['Godly Being', { "enters on loop": 3, testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boss', [{ name: 'testName', type: 'location' }]> =
+//         ['Godly Being', { "enters on loop": 3, 'Turf': 'City', testName: 'School' }] as const;
+//     xxx124.toString();
+// }
+
+
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Alien', [{ name: 'testName', type: 'location' }]> =
+//         'Brain';
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'role', NameDefinition<'role'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location' }]> =
+//         ['Brain', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Godly Being', [{ name: 'testName', type: 'location' }]> =
+//         ['Boy Student', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boy Student', [{ name: 'testName', type: 'location' }]> =
+//         ['Godly Being', { "enters on loop": 3 }] as const;
+//     xxx124.toString();
+// }
+// {
+//     const xxx124: Def<'character', NameDefinition<'character'>, 'character', 'Boss', [{ name: 'testName', type: 'location' }]> =
+//         ['Godly Being', { "enters on loop": 3, 'Turf': 'City' }] as const;
+//     xxx124.toString();
+// }
+

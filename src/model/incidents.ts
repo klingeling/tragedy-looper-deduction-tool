@@ -1,4 +1,4 @@
-import { toRecord, toRecord2, type Union } from "../misc";
+import { toRecord, type Union } from "../misc";
 import type { ScriptSpecified } from "./core";
 
 
@@ -15,7 +15,7 @@ type IncidentInternal = {
     effect: string,
     faked?: true,
     mob?: number,
-}& ScriptSpecified;
+} & ScriptSpecified;
 
 export type IncidentName = keyof IncidentsHelper['incidents'];
 
@@ -26,7 +26,7 @@ export type FakedIncident = FakedIncidentHelper<Incident>['name'];
 
 
 class IncidentsHelper {
-    public readonly incidents = toRecord2([
+    public readonly incidents = toRecord([
         {
             name: 'Murder',
             effect: 'One (1) other character in culprit’s Location dies',

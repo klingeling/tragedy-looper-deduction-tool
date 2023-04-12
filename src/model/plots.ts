@@ -1,4 +1,4 @@
-import { toRecord, toRecord2, type Union } from "../misc";
+import { toRecord } from "../misc";
 import type { ScriptSpecified } from "./core";
 import type { RoleName, timing } from "./roles";
 
@@ -8,20 +8,20 @@ type PlotInternal = {
     name: string,
     roles: Readonly<Partial<Record<RoleName, number | readonly [number, number]>>>,
     rules: readonly PlotRule[]
-}
+} & ScriptSpecified;
 export type PlotRule = {
     type: 'optional' | 'mandatory' | 'loss condition',
     timing: readonly timing[],
     timesPerLoop?: number,
     timesPerDay?: number,
     description: string,
-}& ScriptSpecified;
+};
 
 export type PlotName = keyof PlotsIntenlaHelperClass['plots'];
 
 
 class PlotsIntenlaHelperClass {
-    public readonly plots = toRecord2([
+    public readonly plots = toRecord([
         {
             name: 'Light of the Avenger',
             roles: {
@@ -487,6 +487,12 @@ class PlotsIntenlaHelperClass {
                 "Paranoiac": 1,
 
             },
+            scriptSpecified: [
+                {
+                    name: 'Extra Plot',
+                    type: 'plot'
+                }
+            ],
             rules: [
                 {
                     type: 'mandatory',
