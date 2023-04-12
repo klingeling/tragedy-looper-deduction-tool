@@ -1696,6 +1696,7 @@ export const scripts = toRecord([
                 culprit: 'Mystery Boy',
             },
         ],
+        specialRules: 'Mastermind removes "Forbid Goodwill" from his hand. It cannot be used in any loop.',
         specifics: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
         story: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',
         mastermindHints: 'See Tragedy Looper: Cosmic Evil Mastermind Handbook',

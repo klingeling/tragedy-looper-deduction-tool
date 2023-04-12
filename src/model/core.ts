@@ -8,7 +8,7 @@ import type { RoleName, Roles } from "./roles";
 
 type SpecificationType = 'location' | 'incident' | 'role' | 'character' | 'plot' | 'number' | 'text';
 
-type Option = {
+export type Option = {
     name: string;
     type: SpecificationType;
     optional?: true;
@@ -17,6 +17,26 @@ type Option = {
 export type Options = readonly Option[];
 
 export type ScriptSpecified = { scriptSpecified?: Options };
+
+
+
+export type WithScriptSpecification<Type extends 'role' | 'character' | 'incident' | 'plot', Key extends NameDefinition<Type> = NameDefinition<Type>, AlwaysOptions extends Options = []> =
+    ToSpecificationTuple<Type, Extended<Type, Key>, ToSpecificationObject<AlwaysOptions>>
+    | (RequiredKeys<ToSpecificationObject<AlwaysOptions>> extends never ? NotExtended<Type, Key> : never)
+    | (ToSpecificationObject<AlwaysOptions> extends Record<string, never> ? never : ToSpecificationTuple<Type, NotExtended<Type, Key>, RequireAtLeastOne<ToSpecificationObject<AlwaysOptions>>>)
+    ;
+;
+
+
+export type DefinitionRecord<Key extends 'role' | 'character' | 'incident' | 'plot', Value extends 'role' | 'character' | 'incident' | 'plot', KeysKeys extends NameDefinition<Key> = NameDefinition<Key>, ValueKeys extends NameDefinition<Value> = NameDefinition<Value>, optional extends boolean = true, AlwaysOptions extends Options = []> =
+    optional extends true
+    ? {
+        [k in KeysKeys]?: Def<Value, ValueKeys, Key, k, AlwaysOptions>
+    } : {
+        [k in KeysKeys]: Def<Value, ValueKeys, Key, k, AlwaysOptions>
+    };
+
+
 
 type NameDefinition<Type extends 'role' | 'character' | 'incident' | 'plot' | void> =
     Type extends 'role'
@@ -110,13 +130,6 @@ type typeLookup<x extends string> =
     : x extends 'text'
     ? string : never;
 
-export type DefinitionRecord<Key extends 'role' | 'character' | 'incident' | 'plot', Value extends 'role' | 'character' | 'incident' | 'plot', KeysKeys extends NameDefinition<Key> = NameDefinition<Key>, ValueKeys extends NameDefinition<Value> = NameDefinition<Value>, optional extends boolean = true, AlwaysOptions extends Options = []> =
-    optional extends true
-    ? {
-        [k in KeysKeys]?: Def<Value, ValueKeys, Key, k, AlwaysOptions>
-    } : {
-        [k in KeysKeys]: Def<Value, ValueKeys, Key, k, AlwaysOptions>
-    };
 
 
 
@@ -139,14 +152,6 @@ type ToSpecificationTuple<Type extends 'role' | 'character' | 'incident' | 'plot
     : never
     ;
 
-
-
-export type WithScriptSpecification<Type extends 'role' | 'character' | 'incident' | 'plot', Key extends NameDefinition<Type> = NameDefinition<Type>, AlwaysOptions extends Options = []> =
-    ToSpecificationTuple<Type, Extended<Type, Key>, ToSpecificationObject<AlwaysOptions>>
-    | (RequiredKeys<ToSpecificationObject<AlwaysOptions>> extends never ? NotExtended<Type, Key> : never)
-    | (ToSpecificationObject<AlwaysOptions> extends Record<string, never> ? never : ToSpecificationTuple<Type, NotExtended<Type, Key>, RequireAtLeastOne<ToSpecificationObject<AlwaysOptions>>>)
-    ;
-;
 
 type Def<Type extends 'role' | 'character' | 'incident' | 'plot', Key extends NameDefinition<Type>, OtherType extends 'role' | 'character' | 'incident' | 'plot', OtherKey extends NameDefinition<OtherType>, AlwaysOptions extends Options = []> =
     isSpecified<OtherType, OtherKey> extends true
