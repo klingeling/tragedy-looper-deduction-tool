@@ -88,7 +88,9 @@
 
 {#if script}
 	<header style="display: grid;  justify-content: space-between;">
-		<div style=" width: fit-content; display: grid; gap:0.5em; grid-row: 1 / span 2 ; grid-column: 2; justify-self: end  ;">
+		<div
+			style=" width: fit-content; display: grid; gap:0.5em; grid-row: 1 / span 2 ; grid-column: 2; justify-self: end  ;"
+		>
 			<a
 				aria-disabled={script == undefined}
 				href={`${base}/script/customScript/?script=${encodeURIComponent(JSON.stringify(script))}`}
@@ -111,6 +113,7 @@
 				style="grid-row: 1; grid-column: 1;"
 				>Share Script
 			</span>
+			<!-- svelte-ignore a11y-interactive-supports-focus -->
 			<span
 				role="button"
 				aria-disabled={script == undefined}
@@ -138,9 +141,11 @@
 			<h4>{script.creator}</h4>
 			<h1>{script.titel}</h1>
 
-			{#if script.set}
-				<h2>({script.set.number}) {script.set.name}</h2>
-			{/if}
+			<h2>
+				{#if script.set}
+					({script.set.number}) {script.set.name}
+				{/if}
+			</h2>
 		</hgroup>
 
 		{#each script.difficultySets as e}
