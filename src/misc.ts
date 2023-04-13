@@ -79,6 +79,10 @@ export function keys<T>(o: T): (KeysOfUnion<T>)[] {
     return Object.keys(o) as any;
 }
 
+export function fromEntries<K extends PropertyKey, T>(...o: readonly (readonly [K, T])[]): Record<K, T> {
+    return Object.fromEntries(o) as any;
+
+}
 
 
 

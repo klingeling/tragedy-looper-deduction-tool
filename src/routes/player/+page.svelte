@@ -51,13 +51,13 @@
 		<ul>
 			<li>
 				<a href="?{reversedTablet?.toString()}" data-sveltekit-reload>
-					{#if tablet}Druck ansicht{:else}Tablet Ansicht{/if}</a
+					{#if tablet}Print View{:else}Tablet View{/if}</a
 				>
 			</li>
 			{#if tablet}
 				<li>
 					<a href="?{reversedTouchTarget?.toString()}" data-sveltekit-reload>
-						{#if touchTarget}Compakte Ansicht{:else}Touch optimirte Ansicht{/if}</a
+						{#if touchTarget}Compakt View{:else}Touch optimized View{/if}</a
 					>
 				</li>
 			{/if}

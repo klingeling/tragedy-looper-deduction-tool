@@ -16,8 +16,14 @@ export type Option = {
 
 export type Options = readonly Option[];
 
+export function isOption(params: unknown): params is Required<Option> {
+    return params !== undefined && params !== null && typeof params == 'object' && 'name' in params && 'type' in params;
+}
 export type ScriptSpecified = { scriptSpecified?: Options };
 
+export function isScriptSpecified<T>(params: T): params is T & Required<ScriptSpecified> {
+    return (params as { scriptSpecified?: true })?.scriptSpecified ?? false;
+}
 
 
 export type WithScriptSpecification<Type extends 'role' | 'character' | 'incident' | 'plot', Key extends NameDefinition<Type> = NameDefinition<Type>, AlwaysOptions extends Options = []> =

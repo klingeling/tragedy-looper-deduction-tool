@@ -93,7 +93,6 @@ type getAdditionalRoles<t> = t extends { aditionalRoles: readonly RoleName[] } ?
 type roleToTragedySet<T extends keyof TragedySets> = 'Person' | getAdditionalRoles<TragedySets[T]>[never] | KeysOfUnion<Plots[TragedySets[T]['subPlots'][never]]['roles'] | Plots[TragedySets[T]['mainPlots'][never]]['roles']>;
 
 
-
 type ScriptInternal = Union<{
     [k in keyof TragedySets]:
     {

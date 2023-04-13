@@ -9,11 +9,35 @@ import type { ScriptSpecified } from "./core";
 export type Incident = Union<IncidentsHelper['incidents']>;
 export type Incidents = IncidentsHelper['incidents'];
 
+export function isMobIncident(name: string): name is MobIncident {
+    if (!isIncidentName(name)) {
+        return false;
+    }
+    const incident = incidents[name];
+    return 'mob' in incident && typeof incident.mob === 'number';
+}
+
+export function isFakeIncident(name: string): name is MobIncident {
+    if (!isIncidentName(name)) {
+        return false;
+    }
+    const incident = incidents[name];
+    return 'faked' in incident && incident.faked === true;
+}
+
+export function isRepeatedCulpritIncident(name: string): name is MobIncident {
+    if (!isIncidentName(name)) {
+        return false;
+    }
+    const incident = incidents[name];
+    return 'repeatedCulprit' in incident && incident.repeatedCulprit === true;
+}
 
 type IncidentInternal = {
     name: string,
     effect: string,
     faked?: true,
+    repeatedCulprit?: true,
     mob?: number,
 } & ScriptSpecified;
 
@@ -65,7 +89,8 @@ class IncidentsHelper {
         },
         {
             name: 'Serial Murder',
-            effect: 'One other character in the culprit’s location dies. The same character may be the culprit of teveral Serial Murder Incidents.',
+            repeatedCulprit: true,
+            effect: 'One other character in the culprit’s location dies. The same character may be the culprit of several Serial Murder Incidents.',
         },
         {
             name: 'Portent',
