@@ -4,10 +4,10 @@
 
 type Intersect<A, B> = A extends B ? true | false : false;
 declare interface ReadonlyArray<T> {
-
-
 	includes<U>(el: U): Intersect<T, U>;
-
+}
+declare interface ObjectConstructor {
+	entries<T, U>(o: Record<T, U>): [T, U][];
 }
 
 

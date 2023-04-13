@@ -3,8 +3,8 @@ import { tragedySets, type TragedySetName, type TragedySet, getTragedySetRoles, 
 import { keys } from "../misc";
 import { plots, type PlotName } from "./plots";
 import { init, noop } from "svelte/internal";
-import { roles, type RoleName } from "./roles";
-import { characters, isCharacterPlotless, type CharacterName, locations, type LocationName } from "./characters";
+import { roles, type RoleName, isRoleName } from "./roles";
+import { characters, isCharacterPlotless, type CharacterName, locations, type LocationName, isCharacterName } from "./characters";
 import { isScriptSpecified, type Option } from "./core";
 import { incidents, type IncidentName, isFakeIncident, isMobIncident, isRepeatedCulpritIncident } from "./incidents";
 import type { Script } from "./script";
@@ -102,13 +102,23 @@ class CustomScriptIncidentSelection<TCharacters extends CharacterName> implement
         this.availableCharacters = storeStore(this._availableCharacters);
         this.availableDays = storeStore(this._availableDays);
 
+        let lastOptions: AdditionalOptions[] = [];
         this.options = derived(this.selectedIncident, p => {
             const incident = incidents[p];
 
-            return [
+            const newOptions = [
                 ...(isScriptSpecified(incident) ? incident.scriptSpecified.map((s) => new AdditionalOptions(script, s)) : []),
                 ...(isFakeIncident(p) ? [new AdditionalOptions(script, { name: 'Faked as', type: 'incident' })] : []),
             ];
+            lastOptions.forEach(e => {
+                const target = newOptions.filter(x => x.option.name == e.option.name && x.option.type == e.option.type)[0];
+                if (target) {
+                    target.value.set(get(e.value));
+                }
+            });
+
+            lastOptions = newOptions;
+            return newOptions;
 
         })
     }
@@ -390,6 +400,8 @@ class CustomScriptRoleExclusiveSelection<T extends CharacterName> implements Cus
         this._availableCharacters = writable(writable([]));
         this.availableCharacters = storeStore(this._availableCharacters);
 
+        let lastOptions: AdditionalOptions[] = [];
+
         this.options = derived(this.selectedCharacter, p => {
             const char = characters[p];
 
@@ -399,12 +411,22 @@ class CustomScriptRoleExclusiveSelection<T extends CharacterName> implements Cus
             const tg = get(script.tragedySet);
 
 
-            return [
+            const newOptions = [
                 ...(isScriptSpecified(char) ? char.scriptSpecified.map((s) => new AdditionalOptions(script, s)) : []),
                 ...(isCharacterPlotless(p) ? [new AdditionalOptions(script, { name: 'Role', type: 'role' })] : []),
                 ...(isScriptSpecified(role) ? role.scriptSpecified.map((s) => new AdditionalOptions(script, s)) : []),
                 ...(hasCastOption(tg) ? tg.castOptions.map((s) => new AdditionalOptions(script, s)) : []),
             ];
+
+            lastOptions.forEach(e => {
+                const target = newOptions.filter(x => x.option.name == e.option.name && x.option.type == e.option.type)[0];
+                if (target) {
+                    target.value.set(get(e.value));
+                }
+            });
+
+            lastOptions = newOptions;
+            return newOptions;
 
         })
     }
@@ -474,10 +496,21 @@ class CustomScriptPlotMutalExclusiveSelection<T extends PlotName> implements ICu
         this._availablePlots = writable(writable([]));
         this.availablePlots = storeStore(this._availablePlots);
 
+        let lastOptions: AdditionalOptions[] = [];
+
         this.options = derived(this.selectedPlot, p => {
             const plot = plots[p];
             if (isScriptSpecified(plot)) {
-                return plot.scriptSpecified.map((s) => new AdditionalOptions(script, s));
+                const newOptions = plot.scriptSpecified.map((s) => new AdditionalOptions(script, s));
+                lastOptions.forEach(e => {
+                    const target = newOptions.filter(x => x.option.name == e.option.name && x.option.type == e.option.type)[0];
+                    if (target) {
+                        target.value.set(get(e.value));
+                    }
+                });
+
+                lastOptions = newOptions;
+                return newOptions;
             }
             return [];
         })
@@ -574,10 +607,136 @@ export class CustomScript {
 
     }
 
+    /**
+     * import
+     */
+    public import(script: Script) {
+        this.title.set(script.titel);
+        this.creator.set(script.creator);
+        this.difficultySets.subscribe(x =>
+            console.log('d', x));
+        this.difficultySets.set(script.difficultySets);
+        this.tragedySetName.set(script.tragedySet);
+
+        get(this.mainPlots).forEach((p, i) => {
+            const sp = script.mainPlot[i];
+            if (Array.isArray(sp)) {
+                const name = sp[0];
+                const opt = sp[1];
+                p.selectedPlot.set(name);
+                const optionsToSet = get(p.options);
+                optionsToSet.forEach(os => {
+                    const value = opt[os.option.name];
+                    if (value) {
+                        os.value.set(value);
+                    }
+                });
+            } else {
+                p.selectedPlot.set(sp as unknown as any);
+            }
+        });
+        get(this.subPlots).forEach((p, i) => {
+            const sp = script.subPlots[i];
+            if (Array.isArray(sp)) {
+                const name = sp[0];
+                const opt = sp[1];
+                p.selectedPlot.set(name);
+                const optionsToSet = get(p.options);
+                optionsToSet.forEach(os => {
+                    const value = opt[os.option.name];
+                    if (value) {
+                        os.value.set(value);
+                    }
+                });
+            } else {
+                p.selectedPlot.set(sp as unknown as any);
+            }
+        });
+        this.daysPerLoop.set(script.daysPerLoop);
+
+        Object.entries(Object.entries<CharacterName, RoleName | readonly [RoleName, Record<string, any>]>(script.cast as any).reduce((p, [key, value]) => {
+            if (isCharacterName(key))
+                if (typeof value == 'string' && isRoleName(value)) {
+                    const name = value;
+                    if (name in p) {
+                        p[name].push(key);
+                    } else {
+                        p[name] = [];
+                        p[name].push(key);
+                    }
+                } else if (isRoleName(value[0])) {
+                    const name = value[0]
+                    if (name in p) {
+                        p[name].push(key);
+                    } else {
+                        p[name] = [];
+                        p[name].push([key, value[1]]);
+                    }
+
+
+
+                }
+
+            return p;
+        }, {} as Record<RoleName, (CharacterName | readonly [CharacterName, Record<string, any>])[]>)).map(([key, value]) => {
+            const roleWraper = get(this.roles).filter(x => x.role == key)[0];
+            if (roleWraper === undefined) {
+                return;
+            }
+            roleWraper.selectedNumber.set(value.length);
+
+            const selectors = get(roleWraper.selectors);
+            value.forEach((v, i) => {
+                if (typeof v == 'string') {
+                    selectors[i].selectedCharacter.set(v);
+                } else {
+                    selectors[i].selectedCharacter.set(v[0]);
+                    const optToSet = v[1];
+                    const opt = get(selectors[i].options);
+                    opt.forEach(o => {
+                        if (o.option.name in optToSet) {
+                            o.value.set(optToSet[o.option.name]);
+                        }
+                    });
+                }
+            });
+        });
+
+        this.incidentGroup.selectedNumber.set(script.incidents.length);
+
+        const incedents = get(this.incidentGroup.selectors)
+
+        script.incidents.forEach((ince, i) => {
+            incedents[i].selectedDay.set(ince.day);
+            incedents[i].selectedCharacter.set(ince.culprit as any); // Its not correct typed for mob incedents…
+
+            if (typeof ince.incident == 'string') {
+                const name = ince.incident;
+                incedents[i].selectedIncident.set(name);
+            } else {
+                const name = ince.incident[0];
+                incedents[i].selectedIncident.set(name);
+
+                const opt = get(incedents[i].options);
+                opt.forEach(o => {
+                    if (o.option.name == 'Faked as') {
+                        o.value.set(ince.incident[1]);
+                    }
+                });
+
+            }
+
+
+
+
+        });
+
+
+    }
 
     /**
      * export
-  :    */
+    */
     public export(): Script {
 
         const result = {

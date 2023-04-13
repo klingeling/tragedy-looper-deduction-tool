@@ -12,6 +12,7 @@
 	import { stringifySearchForPlayerAid } from '../../serilezer';
 	import { distinct, keys } from '../../misc';
 	import { base } from '$app/paths';
+	import Option from './customScript/option.svelte';
 	export let script: Script;
 
 	let alwaysTransmitCharacters: boolean[] = characterscomesInLater.map(() => true);
@@ -50,17 +51,84 @@
 		host = document.location.host;
 		protocoll = document.location.protocol;
 	});
+	async function share(shareLink: string, titel: string, text: string) {
+		const shareData = {
+			title: titel,
+			text: text,
+			url: shareLink
+		};
+
+		const isSharable = navigator.canShare(shareData);
+		if (isSharable) {
+			try {
+				await navigator.share(shareData);
+				return;
+			} catch (error) {
+				console.error(error);
+			}
+		}
+		try {
+			await navigator.clipboard.writeText(shareLink);
+			message = `Copied <a href='${shareLink}' target='_blank' >Link</a> to Clipboard.`;
+			return;
+		} catch (error) {
+			console.error(error);
+		}
+		message = `Please copy the <a href='${shareLink}' target='_blank' >Link</a> and share it.`;
+	}
+	let message: string | undefined;
 </script>
 
-{#if script}
-	<hgroup>
-		<h4>{script.creator}</h4>
-		<h1>{script.titel}</h1>
+<dialog open={message !== undefined}>
+	<div>
+		{@html message}
+		<button on:click={() => (message = undefined)}>Close</button>
+	</div>
+</dialog>
 
-		{#if script.set}
-			<h2>({script.set.number}) {script.set.name}</h2>
-		{/if}
-	</hgroup>
+{#if script}
+	<a
+		aria-disabled={script == undefined}
+		href={`${base}/script/customScript/?script=${encodeURIComponent(JSON.stringify(script))}`}
+		class="outline"
+		style="float: right; width: fit-content;"
+		role="button">Edit</a
+	>
+	<button
+		disabled={script == undefined}
+		class="outline"
+		on:click={() =>
+			share(
+				`${base}/script/?script=${encodeURIComponent(JSON.stringify(script))}`,
+				script.titel,
+				'A Tragedy Looper Script'
+			)}
+		style="float: right; width: fit-content; margin-right: 1em;"
+		>Share Script
+	</button>
+	<button
+		disabled={script == undefined}
+		class="outline"
+		on:click={() =>
+			share(`${base}/player/?${parameter}`, 'Player Aid', 'A Tragedy Looper Player Aid')}
+		style="float: right; width: fit-content;  clear: right;"
+		>Share Player Aid
+	</button>
+	<!-- <span style="clear: right;"></span> -->
+	<!-- <a style="float: right; clear: right;" href={`${base}/player/?${parameter}`} target="_blank"
+		>Link to Script specific Player Aid</a
+	> -->
+	<!-- <button class="outline" style="float: right; width: fit-content;">Edit</button> -->
+	<header>
+		<hgroup>
+			<h4>{script.creator}</h4>
+			<h1>{script.titel}</h1>
+
+			{#if script.set}
+				<h2>({script.set.number}) {script.set.name}</h2>
+			{/if}
+		</hgroup>
+	</header>
 
 	{#each script.difficultySets as e}
 		<div>
@@ -81,7 +149,17 @@
 		<strong style="grid-column: 1; grid-row: 2;">Sub Plot :</strong>
 		{#each script.subPlots as s, i}
 			<span style="grid-column: 2; grid-row: {i + 2};">
-				{s}
+				{#if typeof s == 'string'}
+					{s}
+				{:else}
+					{s[0]}
+					<small>
+						{#each Object.entries(s[1]) as [key, value]}
+							<br />
+							({key}: {value})
+						{/each}
+					</small>
+				{/if}
 			</span>
 		{/each}
 	</div>
@@ -187,9 +265,6 @@
 					</li>
 				{/each}
 			</ul>
-
-			<a href={`${base}/player/?${parameter}`} target="_blank">Link to Script specific Player Aid</a
-			>
 		{/if}
 	</div>
 {/if}

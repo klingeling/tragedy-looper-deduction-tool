@@ -1908,7 +1908,7 @@ export const scripts = toRecord([
             {
                 day: 4,
                 incident: 'Uproar',
-                culprit: 'Shrine Maiden', // TODO lookup Shrine Patient
+                culprit: 'Patient', // TODO lookup Shrine Patient
             },
             {
                 day: 6,

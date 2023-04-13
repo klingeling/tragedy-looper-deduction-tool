@@ -14,6 +14,7 @@
 
 	let searchParams: URLSearchParams | undefined;
 
+	let ownScripts: Script[] = [];
 	onMount(() => {
 		searchParams = new URLSearchParams(document.location.search);
 		const pushState = history.pushState;
@@ -21,6 +22,21 @@
 			pushState.apply(history, [data, unused, url]);
 			searchParams = new URLSearchParams(document.location.search);
 		};
+
+		const localStorage = window.localStorage;
+		if (localStorage)
+			ownScripts = Array.from(localStorage)
+				.map((_, i) => {
+					const key = localStorage.key(i);
+					if (key) {
+						const data = localStorage.getItem(key);
+						if (data) {
+							const json = JSON.parse(data);
+							return json;
+						}
+					}
+				})
+				.filter((x) => x && 'titel' in x);
 	});
 
 	$: setNumber = parseInt(searchParams?.get('setNumber') ?? '-1');
@@ -48,14 +64,29 @@
 	<article>
 		<ScriptDetails script={selectedScript} />
 	</article>
+{/if}
 
-	{/if}
-	
-	<!-- <article> -->
-		
-		<a role="button" href={`${base}/script/customScript/`}>Create your own</a>
-		<h1>…or use other Scripts</h1>
-<!-- </article> -->
+<a role="button" href={`${base}/script/customScript/`}>Create your own</a>
+<h1>…or use other Scripts</h1>
+
+{#if ownScripts.length > 0}
+	<article>
+		<header>
+			<h2>Your Creations</h2>
+		</header>
+		{#each ownScripts as s}
+			<div>
+				<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
+					>{s.set?.number ?? ''}
+					{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
+						s.difficultySets.map((x) => x.difficulty.toString()),
+						' / '
+					)}</a
+				>
+			</div>
+		{/each}
+	</article>
+{/if}
 
 {#each distinct(scripts
 		.map((key) => key.set?.name)

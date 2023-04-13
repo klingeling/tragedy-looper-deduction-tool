@@ -14,17 +14,18 @@
 	$: unusedRoles = option.script.unusedRoles;
 
 	let viewOptional = false;
-	$: {
-		if (!viewOptional) {
-			$selection = undefined;
-		}
-	}
+
 </script>
 
 <div>
 	{#if option.option.type == 'text' || option.option.type == 'number'}
 		{#if option.option.optional === true}
-			<input type="checkbox" role="switch" bind:checked={viewOptional} />
+			<input
+				type="checkbox"
+				role="switch"
+				on:change={(e) => ($selection = undefined)}
+				bind:checked={viewOptional}
+			/>
 		{/if}
 		{option.option.name}
 		{#if option.option.optional !== true || viewOptional}

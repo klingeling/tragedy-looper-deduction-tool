@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { noop } from 'svelte/internal';
 	import type { Writable } from 'svelte/store';
 
 	export let difSet: Writable<readonly { numberOfLoops: number; difficulty: number }[]>;
@@ -23,9 +24,44 @@
 			}
 		}
 	}
+	function updateFromStor(data: readonly { numberOfLoops: number; difficulty: number }[]) {
+		const size = data.length;
+		selectedNumber = size;
+		update(size);
+		for (let i = 0; i < size; i++) {
+			const element = data[i];
+			difficulty[i] = element.difficulty;
+			loops[i] = element.numberOfLoops;
+		}
+		difficulty.splice(size);
+		loops.splice(size);
+		for (let i = 0; i < size; i++) {
+			if (difficulty[i] == undefined) {
+				difficulty[i] = 1;
+			}
 
+			if (loops[i] == undefined) {
+				loops[i] = 1;
+			}
+		}
+	}
+
+	let unsubscribe = noop;
+	$: {
+		unsubscribe();
+		unsubscribe = difSet.subscribe((run) => {
+			const current = dataObjet();
+			if (JSON.stringify(current) !== JSON.stringify(run)) {
+				updateFromStor(run);
+			}
+		});
+	}
 	$: {
 		difSet.set(difficulty.map((e, i) => ({ numberOfLoops: loops[i], difficulty: e })));
+	}
+
+	function dataObjet() {
+		return difficulty.map((e, i) => ({ numberOfLoops: loops[i], difficulty: e }));
 	}
 
 	function remove(index: number) {
