@@ -87,40 +87,54 @@
 </dialog>
 
 {#if script}
-	<a
-		aria-disabled={script == undefined}
-		href={`${base}/script/customScript/?script=${encodeURIComponent(JSON.stringify(script))}`}
-		class="outline"
-		style="float: right; width: fit-content;"
-		role="button">Edit</a
-	>
-	<button
-		disabled={script == undefined}
-		class="outline"
-		on:click={() =>
-			share(
-				`${base}/script/?script=${encodeURIComponent(JSON.stringify(script))}`,
-				script.titel,
-				'A Tragedy Looper Script'
-			)}
-		style="float: right; width: fit-content; margin-right: 1em;"
-		>Share Script
-	</button>
-	<button
-		disabled={script == undefined}
-		class="outline"
-		on:click={() =>
-			share(`${base}/player/?${parameter}`, 'Player Aid', 'A Tragedy Looper Player Aid')}
-		style="float: right; width: fit-content;  clear: right;"
-		>Share Player Aid
-	</button>
-	<!-- <span style="clear: right;"></span> -->
-	<!-- <a style="float: right; clear: right;" href={`${base}/player/?${parameter}`} target="_blank"
+	<header style="display: grid;  justify-content: space-between;">
+		<div style=" width: fit-content; display: grid; gap:0.5em; grid-row: 1 / span 2 ; grid-column: 2; justify-self: end  ;">
+			<a
+				aria-disabled={script == undefined}
+				href={`${base}/script/customScript/?script=${encodeURIComponent(JSON.stringify(script))}`}
+				class="outline"
+				style="grid-row: 1; grid-column: 2"
+				role="button">Edit</a
+			>
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<span
+				role="button"
+				tabindex="0"
+				aria-disabled={script == undefined}
+				class="outline"
+				on:click={() =>
+					share(
+						`${base}/script/?script=${encodeURIComponent(JSON.stringify(script))}`,
+						script.titel,
+						'A Tragedy Looper Script'
+					)}
+				style="grid-row: 1; grid-column: 1;"
+				>Share Script
+			</span>
+			<span
+				role="button"
+				aria-disabled={script == undefined}
+				class="outline"
+				on:click={() =>
+					share(`${base}/player/?${parameter}`, 'Player Aid', 'A Tragedy Looper Player Aid')}
+				style=" grid-row: 2; grid-column: 1 / span 2"
+				>Share Player Aid
+			</span>
+			<a
+				aria-disabled={script == undefined}
+				href={`${base}/gm/?script=${encodeURIComponent(JSON.stringify(script))}`}
+				class="outline"
+				style="grid-row: 3; grid-column: 1 / span 2"
+				role="button">Open Mastermind Aid</a
+			>
+		</div>
+		<!-- <span style="clear: right;"></span> -->
+		<!-- <a style="float: right; clear: right;" href={`${base}/player/?${parameter}`} target="_blank"
 		>Link to Script specific Player Aid</a
 	> -->
-	<!-- <button class="outline" style="float: right; width: fit-content;">Edit</button> -->
-	<header>
-		<hgroup>
+		<!-- <button class="outline" style="float: right; width: fit-content;">Edit</button> -->
+
+		<hgroup style="align-self: start; justify-self: start;">
 			<h4>{script.creator}</h4>
 			<h1>{script.titel}</h1>
 
@@ -128,18 +142,18 @@
 				<h2>({script.set.number}) {script.set.name}</h2>
 			{/if}
 		</hgroup>
-	</header>
 
-	{#each script.difficultySets as e}
-		<div>
-			Loops: {e.numberOfLoops} / difficulty:
-			{#each Array.from({ length: e.difficulty }) as d}<div
-					style="width: 1em; height: 1em; background-color: var(--primary); display: inline-block; border-radius: 1em; border: 1px solid var(--secondary)"
-				/>{/each}{#each Array.from({ length: 8 - e.difficulty }) as d}<div
-					style="width: 1em; height: 1em; background-color: transparent; border: 1px solid var(--secondary); display: inline-block; border-radius: 1em;"
-				/>{/each} ({e.difficulty})
-		</div>
-	{/each}
+		{#each script.difficultySets as e}
+			<div style="align-self: end; justify-self: start;">
+				Loops: {e.numberOfLoops} / difficulty:
+				{#each Array.from({ length: e.difficulty }) as d}<div
+						style="width: 1em; height: 1em; background-color: var(--primary); display: inline-block; border-radius: 1em; border: 1px solid var(--secondary)"
+					/>{/each}{#each Array.from({ length: 8 - e.difficulty }) as d}<div
+						style="width: 1em; height: 1em; background-color: transparent; border: 1px solid var(--secondary); display: inline-block; border-radius: 1em;"
+					/>{/each} ({e.difficulty})
+			</div>
+		{/each}
+	</header>
 	<div>
 		<strong>{script.tragedySet}</strong>
 	</div>
