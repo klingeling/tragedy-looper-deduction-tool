@@ -144,9 +144,9 @@ class CustomScriptIncidentSelection<TCharacters extends CharacterName> implement
         });
         const currentChar = get(derivideChars);
         this._availableCharacters.set(derivideChars);
-        // if (!currentChar.includes(get(this.selectedCharacter))) {
-        //     this.selectedCharacter.set(currentChar[0]);
-        // }
+        if (get(this.selectedCharacter) == undefined) {
+            this.selectedCharacter.set(currentChar[0]);
+        }
 
         const derivideDays = derived([this.maxDays, storeStores(others, x => x.selectedDay, x => x !== this)], ([maxDays, otherSelections]) => {
             const available = Array.from({ length: maxDays }).map((_, i) => i + 1);
@@ -156,9 +156,9 @@ class CustomScriptIncidentSelection<TCharacters extends CharacterName> implement
         });
         const currentDays = get(derivideDays);
         this._availableDays.set(derivideDays);
-        // if (!currentDays.includes(get(this.selectedDay))) {
-        //     this.selectedDay.set(currentDays[0]);
-        // }
+        if (get(this.selectedDay) == 0) {
+            this.selectedDay.set(currentDays[0]);
+        }
     }
 }
 
@@ -443,9 +443,9 @@ class CustomScriptRoleExclusiveSelection<T extends CharacterName> implements Cus
         const current = get(dervid);
         this._availableCharacters.set(dervid);
         const currentSelection = get(this.selectedCharacter);
-        // if (!current.includes(currentSelection)) {
-        //     this.selectedCharacter.set(current[0]);
-        // }
+        if (currentSelection == undefined) {
+            this.selectedCharacter.set(current[0]);
+        }
     }
 }
 
@@ -528,7 +528,8 @@ class CustomScriptPlotMutalExclusiveSelection<T extends PlotName> implements ICu
         });
         this._availablePlots.set(dervid);
 
-        // this.selectedPlot.set(get(dervid)[0])
+        if (get(this.selectedPlot) == undefined)
+            this.selectedPlot.set(get(dervid)[0])
 
 
     }
@@ -689,10 +690,6 @@ export class CustomScript {
             value.forEach((v, i) => {
                 if (typeof v == 'string') {
                     selectors[i].selectedCharacter.set(v);
-                    selectors[i].selectedCharacter.subscribe(v2=>{
-                        console.log(v,i,v2)
-                    });
-                    console.log(v,i);
                 } else {
                     selectors[i].selectedCharacter.set(v[0]);
                     const optToSet = v[1];
