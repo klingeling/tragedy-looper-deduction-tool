@@ -1,4 +1,4 @@
-import type { UnionToIntersection } from 'utility-types'
+import type { DeepRequired, UnionToIntersection } from 'utility-types'
 
 
 
@@ -30,6 +30,31 @@ type SRecord<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]> =
         [k in ELEMENT[i][Key]]: ELEMENT[i]
     }
 };
+
+
+export function includes<T>(a: readonly T[]|undefined, el: ArrayOfUnion<T>): Intersect<T, ArrayOfUnion<T>> {
+    if(a==undefined){
+        return false;
+    }
+    return a.includes(el);
+}
+
+// export type ShowOptional<T> = T extends { [x in KeysOfUnion<T> ]: T[x] } ? { [x in KeysOfUnion<T> ]: T[x] } : { [x in KeysOfUnion<T> ]: undefined };
+export type ShowOptional<T> = {
+    [x in KeysOfUnion<T>]: T[x] extends string | object | number ? T[x] : OptionalProp<T, x> | undefined
+};
+
+
+// export function showAll<T>(a: T): ShowOptional<T>;
+export function require<T>(a:  T): ShowOptional<T>{
+    return a as any;
+}
+
+export function showAll<T>(a: readonly T[]): ShowOptional<T>[];
+export function showAll<T>(a: readonly T[]): ShowOptional<T>[] {
+    return a as any;
+}
+
 
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
     Pick<T, Exclude<keyof T, Keys>>
@@ -70,7 +95,7 @@ export function distinct<T>(t: readonly T[], keyFunction?: (a: T) => string) {
 export type KeysOfUnion<T> = T extends T ? keyof T : never;
 
 
-export type OptionalProp<A, T extends string> = A extends { [x in T]: any } ? A[T] : never;
+export type OptionalProp<A, T extends PropertyKey> = A extends { [x in T]: any } ? A[T] : never;
 
 export function keys<T>(o: T): (KeysOfUnion<T>)[] {
     if (typeof o !== 'object' || o == null) {

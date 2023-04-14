@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import '@picocss/pico/css/pico.css';
+	import GmHelper from './gmHelper.svelte';
 
 	$: scripts = Object.values(scriptLookup);
 
@@ -12,7 +13,6 @@
 
 	let searchParams: URLSearchParams | undefined;
 
-	let ownScripts: Script[] = [];
 	onMount(() => {
 		searchParams = new URLSearchParams(document.location.search);
 		const pushState = history.pushState;
@@ -20,21 +20,6 @@
 			pushState.apply(history, [data, unused, url]);
 			searchParams = new URLSearchParams(document.location.search);
 		};
-
-		const localStorage = window.localStorage;
-		if (localStorage)
-			ownScripts = Array.from(localStorage)
-				.map((_, i) => {
-					const key = localStorage.key(i);
-					if (key) {
-						const data = localStorage.getItem(key);
-						if (data) {
-							const json = JSON.parse(data);
-							return json;
-						}
-					}
-				})
-				.filter((x) => x && 'titel' in x);
 	});
 
 	$: setNumber = parseInt(searchParams?.get('setNumber') ?? '-1');
@@ -61,6 +46,7 @@
 <h1>Mastermind Aid</h1>
 
 {#if selectedScript}
-	{selectedScript.titel}
+	<GmHelper {selectedScript} />
+{:else}
+	No Script
 {/if}
-

@@ -5,7 +5,7 @@
 	import type { CharacterName } from '../../model/characters';
 	import type { TragedySetName } from '../../model/tragedySets';
 	import { parseSearchForPlayerAid } from '../../serilezer';
-	import { base } from '$app/paths';
+	import './page.css';
 
 	let searchParams: URLSearchParams | undefined;
 	onMount(() => {
@@ -64,14 +64,13 @@
 		</ul>
 	</nav>
 	<Table
-	{tragedySet}
-	{cast}
-	{incidents}
-	{specialRules}
-	{tablet}
-	touchTarget={touchTarget && tablet}
-/>
-
+		{tragedySet}
+		{cast}
+		{incidents}
+		{specialRules}
+		{tablet}
+		touchTarget={touchTarget && tablet}
+	/>
 {:else}
 	<div
 		style="display: grid; justify-items: center; align-items: center; grid-template-rows: auto 1fr; height: 100vh;"
@@ -101,7 +100,7 @@
 		border-bottom: 1px solid lightgray;
 		padding: 1em;
 		border-bottom-right-radius: var(--border-radius);
-				
+
 		--primary: hsl(195, 85%, 41%);
 		--primary-hover: hsl(195, 90%, 32%);
 		--primary-focus: rgba(16, 149, 193, 0.125);

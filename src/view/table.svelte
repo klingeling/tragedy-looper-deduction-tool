@@ -4,14 +4,16 @@
 	import {
 		type CharacterName,
 		characterscomesInLater,
-		characters as characterLookup
+		characters as characterLookup,
+		isCharacterLate
 	} from '../model/characters';
 	import { incidents as incidentsLookup } from '../model/incidents';
 	import { plots } from '../model/plots';
-	import { roles, type Abilities } from '../model/roles';
+	import { roles, type Abilitie } from '../model/roles';
 	import type { Script, ScriptIncident, ScriptIncidentPlayer } from '../model/script';
 	import { tragedySets, type TragedySet, type TragedySetName } from '../model/tragedySets';
 	import Selection from './selection.svelte';
+	import Ability from './Ability.svelte';
 
 	export let tragedySet: TragedySetName;
 	export let cast: readonly CharacterName[];
@@ -124,6 +126,8 @@
 
 			containers.forEach((c) => c.replaceChildren());
 
+			let originalWidth: number;
+
 			const elementWidth = containers.map((container) => {
 				const width = container.getBoundingClientRect().width;
 
@@ -134,6 +138,7 @@
 
 				container.appendChild(randomElement);
 				const elementWidth = randomElement.getBoundingClientRect().width;
+				if (!originalWidth) originalWidth = elementWidth;
 				randomElement.remove();
 				const exactNumberOfColumns = width / elementWidth;
 				const min = Math.floor(exactNumberOfColumns);
@@ -155,7 +160,12 @@
 				.forEach((incident) => {
 					for (const [container, i] of containers.map((x, i) => [x, i] as const)) {
 						container.appendChild(incident);
-						incident.style.width = `${elementWidth[i]}px`;
+						if (i < elementWidth.length) {
+							incident.style.width = `${elementWidth[i]}px`;
+						} else {
+							incident.style.width = `${originalWidth}px`;
+						}
+
 						const rect = container.getBoundingClientRect();
 						const container2IncedentRect = incident.getBoundingClientRect();
 						if (isInsilde(container2IncedentRect, rect)) {
@@ -167,6 +177,7 @@
 					const newPage = newPageTemplate.content.firstChild?.cloneNode(true) as HTMLDivElement;
 					root.appendChild(newPage);
 					containers.push(newPage);
+					incident.style.width = `${originalWidth}px`;
 					newPage.appendChild(incident);
 				});
 		}
@@ -361,10 +372,6 @@
 			]
 		]);
 	}
-
-	function renderAbilitys(a: Abilities) {
-		return `<p><span>[<b>${a.type}</b> <i>${join(a.timing, ', ')}</i>]</span> ${a.description}</p>`;
-	}
 </script>
 
 <div
@@ -387,10 +394,9 @@
 				{p.name}
 			</div>
 			<div class="plot-main rules" style="grid-area: main-role-plot-rule-{cssesc(p.name)};">
-				{@html join(
-					p.rules.map((a) => renderAbilitys(a)),
-					' '
-				)}
+				{#each p.rules as a}
+					<Ability {a} />
+				{/each}
 			</div>
 
 			{#each r as ri}
@@ -418,10 +424,9 @@
 				{p.name}
 			</div>
 			<div class="plot-sub rules" style="grid-area: sub-role-plot-rule-{cssesc(p.name)};">
-				{@html join(
-					p.rules.map((a) => renderAbilitys(a)),
-					' '
-				)}
+				{#each p.rules as a}
+					<Ability {a} />
+				{/each}
 			</div>
 
 			{#each r as ri}
@@ -473,7 +478,7 @@
 		{#each chars as ci}
 			<div class="character" style="grid-area: char-header-{cssesc(ci.name)}; ">
 				{ci.name}
-				{#if characterscomesInLater.includes(ci.name)} <i>(?)</i>{/if}
+				{#if isCharacterLate(ci.name)} <i>(?)</i>{/if}
 			</div>
 
 			{#each r as ri}
@@ -550,10 +555,9 @@
 			{#if ri.unkillable}
 				<h2>Immortal</h2>
 			{/if}
-			{@html join(
-				ri.abilities.map((a) => renderAbilitys(a)),
-				' '
-			)}
+			{#each ri.abilities as a}
+				<Ability {a} />
+			{/each}
 		</article>
 	{/each}
 </template>

@@ -1,13 +1,42 @@
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 
+// import type { KeysOfUnion } from "./misc";
 
-type Intersect<A, B> = A extends B ? true | false : false;
+// import type { UnionToIntersection } from "utility-types";
+
+
+declare type Intersect<A, B> = A extends B ? true | false : false;
 declare interface ReadonlyArray<T> {
-	includes<U>(el: U): Intersect<T, U>;
+	includes2(el: ArrayOfUnion<T>): Intersect<T, OfUnion<T>>;
 }
+
+
+declare type ArrayOfUnion<T> = T extends readonly T ? T : never;
+
+
+declare type KeysOfUnion<T> = T extends T ? keyof T : never;
+declare type ValuesOfUnion<T> = T extends T ? T[keyof T] : never;
+declare type TupleOfUnion<T> = T extends T ? readonly [KeysOfUnion<T>, ValuesOfUnion<T>] : never;
+
+declare type Value<T, K> = T extends { [k in K]: infer u } ? u : never;
+declare type x<T> = {
+	[k in KeysOfUnion<T>]: readonly [k, Value<T, k>]
+}
+declare type x2<T> = {
+	[k in KeysOfUnion<T>]: readonly [k, Value<T, KeysOfUnion<T>>]
+}
+//  {
+// 	[k in keyof UnionToIntersection<T>] : readonly[k, T[k]]
+// };
+
+
+
 declare interface ObjectConstructor {
-	entries<T, U>(o: Record<T, U>): [T, U][];
+	entries<TKey, TValue>(o: Record<TKey, TValue>): [TKey, TValue][];
+
+	entries<T>(o: T): TupleOfUnion<T>[];
+
 }
 
 

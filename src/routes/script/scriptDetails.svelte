@@ -95,12 +95,11 @@
 				aria-disabled={script == undefined}
 				href={`${base}/script/customScript/?script=${encodeURIComponent(JSON.stringify(script))}`}
 				class="outline"
-				style="grid-row: 1; grid-column: 2"
+				style="grid-row: 1; grid-column: 2; margin-bottom: var(--spacing);"
 				role="button">Edit</a
 			>
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<span
-				role="button"
+			<button
 				tabindex="0"
 				aria-disabled={script == undefined}
 				class="outline"
@@ -112,21 +111,21 @@
 					)}
 				style="grid-row: 1; grid-column: 1;"
 				>Share Script
-			</span>
+			</button>
 			<!-- svelte-ignore a11y-interactive-supports-focus -->
-			<span
-				role="button"
+			<button
 				aria-disabled={script == undefined}
 				class="outline"
 				on:click={() =>
 					share(`${base}/player/?${parameter}`, 'Player Aid', 'A Tragedy Looper Player Aid')}
 				style=" grid-row: 2; grid-column: 1 / span 2"
 				>Share Player Aid
-			</span>
+			</button>
 			<a
 				aria-disabled={script == undefined}
 				href={`${base}/gm/?script=${encodeURIComponent(JSON.stringify(script))}`}
 				class="outline"
+				target="_blank"
 				style="grid-row: 3; grid-column: 1 / span 2"
 				role="button">Open Mastermind Aid</a
 			>

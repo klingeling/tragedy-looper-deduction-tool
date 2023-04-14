@@ -1,0 +1,692 @@
+<script lang="ts">
+	import { element, xlink_attr } from 'svelte/internal';
+	import type { Script } from '../../model/script';
+	import '@picocss/pico/css/pico.css';
+	import { roles, type RoleName, type AbilityType } from '../../model/roles';
+	import { characters, type CharacterName } from '../../model/characters';
+	import { fromEntries, hasProp, includes, keys, require, showAll } from '../../misc';
+	import { plots } from '../../model/plots';
+
+	export let selectedScript: Script;
+
+	$: usedCharacters = Object.entries(selectedScript.cast).map(([key, value]) => {
+		if (typeof value === 'string') {
+			return { character: key, role: value };
+		} else {
+			return { character: key, role: value[0], ...value[1] };
+		}
+	});
+
+	$: plotAbilitys = [...selectedScript.mainPlot, ...selectedScript.subPlots]
+		.map((x) => {
+			if (typeof x == 'string') {
+				return { plot: x };
+			}
+			return { plot: x[0], ...x[1] };
+		})
+		.flatMap((x) => {
+			const plot = require(plots[x.plot]);
+			return plot.rules.map((y) => ({ ...x, ...plot, ...y }));
+		})
+		.map((x) => {
+			const { name, ...rest } = x;
+			return { ...rest, plot: name };
+		});
+	$: scriptRoles = Object.entries(selectedScript.cast)
+		.map(([character, x]) => {
+			if (typeof x == 'string') return { ...roles[x], character };
+			else return { ...roles[x[0]], character, ...x[1] };
+		})
+		.map((x) => {
+			const { name, ...rest } = x;
+			return { role: name, ...rest };
+		});
+	$: roleAbilitys = scriptRoles.flatMap((x) => x.abilities.map((a) => ({ ...a, ...x })));
+
+	$: abilitys = [...plotAbilitys, ...roleAbilitys];
+
+	// $: abilityMapping = selectedRoles.flatMap((x) =>
+	// 	x.abilities.map((y) => ({ ...y, name: x.name }))
+	// );
+
+	function sortAbilitys(a: { type: AbilityType }, b: { type: AbilityType }) {
+		const ordering = (t: AbilityType) => {
+			if (t == 'Mandatory Loss condition: Character Death') return 5;
+			if (t == 'Loss condition: Tragedy') return 4;
+			if (t == 'Mandatory') return 3;
+			if (t == 'Optional Loss condition: Character Death') return 2;
+			if (t == 'Optional') return 1;
+			return 0;
+		};
+
+		return ordering(b.type) - ordering(a.type);
+	}
+</script>
+
+{selectedScript.titel}
+{selectedScript.creator}
+
+<table>
+	<thead>
+		<th>Type</th>
+		<th>Character</th>
+		<th>Prerequiste</th>
+		<th>Description</th>
+		<th>Role</th>
+		<th>Plot</th>
+	</thead>
+	<tbody>
+		{#if showAll(scriptRoles).filter((x) => x.unkillable === true).length > 0}
+			<tr>
+				<td colspan="6">Always </td>
+			</tr>
+			{#each showAll(scriptRoles).filter((x) => x.unkillable === true) as map}
+				<tr>
+					<td> mandatory </td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td />
+					<td> This Character can't die </td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td />
+				</tr>
+			{/each}
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Always'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'On character death')).length > 0}
+			<tr>
+				<td colspan="6">On Character Death</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'On character death'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'When this role is to be reveald') ).length > 0}
+			<tr>
+				<td colspan="6">On Role reveal</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'When this role is to be reveald'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'Loop Start') ).length + showAll(usedCharacters).filter((x) => x['enters on loop'] !== undefined).length > 0}
+			<tr>
+				<td colspan="6">Loop Start</td>
+			</tr>
+			{#each showAll(usedCharacters).filter((x) => x['enters on loop'] !== undefined) as map}
+				<tr>
+					<td> mandatory </td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						On Loop {map['enters on loop']}
+					</td>
+
+					<td> Enters Play </td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td />
+				</tr>
+			{/each}
+
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Loop Start'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(usedCharacters).filter((x) => x['enters on day'] !== undefined).length > 0}
+			<tr>
+				<td colspan="6">Day Start</td>
+			</tr>
+			{#each showAll(usedCharacters).filter((x) => x['enters on day'] !== undefined) as map}
+				<tr>
+					<td> mandatory </td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						On Day {map['enters on day']}
+					</td>
+
+					<td> Enters Play </td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td />
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'Mastermind Action step') ).length > 0}
+			<tr>
+				<td colspan="6">Placing Cards</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Mastermind Action step'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Card resolve')).length > 0}
+			<tr>
+				<td colspan="6">Resolving Cards</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Card resolve'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Mastermind Ability')).length > 0}
+			<tr>
+				<td colspan="6">Abilities Mastermind</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Mastermind Ability'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if scriptRoles.filter((x) => x['goodwillRefusel'] !== undefined).length + showAll(abilitys).filter( (x) => includes(x['timing'], 'Goodwill ablility step') ).length > 0}
+			<tr>
+				<td colspan="6">Abilities Protagonists</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Goodwill ablility step'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+			{#each scriptRoles
+				.filter((x) => x['goodwillRefusel'] !== undefined)
+				.sort( (a, b) => sortAbilitys({ type: a.goodwillRefusel ?? 'Optional' }, { type: b.goodwillRefusel ?? 'Optional' }) ) as map}
+				<tr>
+					<td>
+						{map.goodwillRefusel}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td />
+					<td> Refuse Goodwill Ability </td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td />
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'Incident trigger') ).length + showAll(abilitys).filter( (x) => includes(x['timing'], 'Incident step') ).length > 0}
+			<tr>
+				<td colspan="6">Incidents</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Incident trigger'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Incident step'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Day End')).length > 0}
+			<tr>
+				<td colspan="6">Night: Day End</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Day End'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Loop End')).length > 0}
+			<tr>
+				<td colspan="6">Night: Loop End</td>
+			</tr>
+			{#each showAll(abilitys)
+				.filter((x) => includes(x['timing'], 'Loop End'))
+				.sort(sortAbilitys) as map}
+				<tr>
+					<td>
+						{map.type}
+					</td>
+					<td>
+						{map.character ?? ''}
+					</td>
+					<td>
+						{includes(map.timing, 'Last Day') ? 'Last Day' : ''}
+						{map.prerequisite ?? ''}
+					</td>
+
+					<td>
+						{map.description ?? ''}
+						{#if map.timesPerLoop === 1}
+							(Once per ∞)
+						{:else if map.timesPerLoop == 2}
+							(Twice per ∞)
+						{:else if map.timesPerLoop ?? 0 > 0}
+							({map.timesPerLoop} per ∞)
+						{/if}
+						{#if map.timesPerDay === 1}
+							(Once per Day)
+						{:else if map.timesPerDay === 2}
+							(Twice per Day)
+						{:else if map.timesPerDay ?? 0 > 0}
+							({map.timesPerLoop} Per Day)
+						{/if}
+					</td>
+					<td>
+						{map.role ?? ''}
+					</td>
+					<td>
+						{map.plot ?? ''}
+					</td>
+				</tr>
+			{/each}
+		{/if}
+	</tbody>
+</table>
+
+<style lang="scss">
+	td[colspan] {
+		padding-top: calc(2 * var(--spacing));
+		border-color: var(--primary);
+		--border-width: 3px;
+	}
+</style>

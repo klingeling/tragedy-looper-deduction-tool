@@ -1,8 +1,13 @@
 import { toRecord } from "../misc";
 import type { ScriptSpecified } from "./core";
 
+export type AbilityType = AbilityTypeLose | AbilityTypeCreation | AbilityTypeDefault;
+export type AbilityTypeLose = 'Mandatory Loss condition: Character Death' | 'Optional Loss condition: Character Death' | 'Loss condition: Tragedy';
+export type AbilityTypeCreation = 'Script creation';
+export type AbilityTypeDefault = 'Optional' | 'Mandatory';
+
 export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start'
-    | 'Last Day' | 'Script creation' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald'
+    | 'Last Day' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald'
     | 'Mastermind Action step' | 'Goodwill ablility step';
 
 
@@ -10,24 +15,38 @@ type RoleInternal = {
     name: string,
     max?: number,
     unkillable?: true,
-    goodwillRefusel?: 'optional' | 'mandatory',
-    abilities: readonly Abilities[]
+    goodwillRefusel?: 'Optional' | 'Mandatory',
+    abilities: readonly Abilitie[]
 } & ScriptSpecified;
-export type Abilities = {
+
+export type Abilitie = {
     description: string,
-    type: 'optional' | 'mandatory' | 'loss condition',
+    prerequisite?: string,
+    type: AbilityTypeDefault,
+    timesPerLoop?: number,
+    timesPerDay?: number,
     timing: readonly (timing)[]
+} | {
+    description?: string,
+    prerequisite: string,
+    type: AbilityTypeLose,
+    timesPerLoop?: number,
+    timesPerDay?: number,
+    timing: readonly (timing)[]
+} | {
+    description: string,
+    type: AbilityTypeCreation,
 }
 
-export type Role = Roles[keyof Roles];
-export type Roles = typeof roles;
+export type Role = rolesInternal[keyof rolesInternal];
+export type rolesInternal = typeof rolesInternal;
 export type RoleName = Role['name'];
 
 
 
 
-export const roles = toRecord([
 
+export const rolesInternal = toRecord([
     {
         name: 'Person',
         abilities: []
@@ -37,39 +56,41 @@ export const roles = toRecord([
         name: 'Key Person',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Loss condition: Tragedy',
                 timing: ['Always'],
-                description: 'When this character dies the Protagonists lose and the loop ends immediately.'
+                prerequisite: 'This character dies.',
+                description: 'The loop ends immediately.'
             }
         ]
     },
     {
         name: 'Curmudgeon',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         abilities: [],
     },
     {
         name: 'Killer',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Day End'],
-                description: 'If the Key Person has at least 2 Intrigue and is in this char acter‘s location: You may kill the Key Person'
+                prerequisite: 'The Key Person has at least 2 Intrigue and is in this char acter‘s location',
+                description: 'Kill the Key Person'
             },
             {
-                type: 'optional',
+                type: 'Optional Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If this character has at least 4 Intrigue: You may kill the Protagonists'
+                prerequisite: 'This character has at least 4 Intrigue'
             }
         ]
     },
     {
         name: 'Brain',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Mastermind Ability'],
                 description: 'You may place 1 Intrigue on this location or on any character in this location.'
             }
@@ -77,10 +98,10 @@ export const roles = toRecord([
     },
     {
         name: 'Cultist',
-        goodwillRefusel: 'mandatory',
+        goodwillRefusel: 'Mandatory',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Card resolve'],
                 description: 'You may ignore all Forbid Intrigue effects on this location and on all characters in this location.'
             }
@@ -91,20 +112,21 @@ export const roles = toRecord([
         unkillable: true,
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Card resolve'],
                 description: 'Ignore Forbid Goodwill on this character.'
             },
             {
-                type: 'optional',
+                type: 'Loss condition: Tragedy',
                 timing: ['Day End', 'Last Day'],
-                description: 'If there is 2 or less Goodwill on this character: Protagonists lose, loop ends.'
+                prerequisite: 'There is 2 or less Goodwill on this character.',
+                description: 'Loop ends'
             },
         ]
     },
     {
         name: 'Witch',
-        goodwillRefusel: 'mandatory',
+        goodwillRefusel: 'Mandatory',
         abilities: [],
     },
     {
@@ -112,14 +134,17 @@ export const roles = toRecord([
         max: 2,
         abilities: [
             {
-                type: 'loss condition',
+                type: 'Loss condition: Tragedy',
                 timing: ['Loop End'],
-                description: 'If this character is dead, reveal its role: The Protagonists lose.'
+
+                prerequisite: 'This character is dead.',
+                description: 'Reveal its role.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Loop Start'],
-                description: 'If this role has been revealed, this char acter gets 1 Goodwill.'
+                prerequisite: 'This role has been revealed',
+                description: 'This character gets 1 Goodwill.'
             },
         ],
     },
@@ -128,7 +153,7 @@ export const roles = toRecord([
         max: 1,
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Mastermind Ability'],
                 description: 'You may place 1 Paranoia on any character in this location.'
             },
@@ -138,9 +163,10 @@ export const roles = toRecord([
         name: 'Lover',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
-                description: 'If the Loved One dies, this character gets 6 Paranoia.'
+                prerequisite: 'The Loved One dies',
+                description: 'This character gets 6 Paranoia.'
             },
         ],
     },
@@ -148,14 +174,15 @@ export const roles = toRecord([
         name: 'Loved One',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
-                description: 'If the Lover dies, this character gets 6 Paranoia.'
+                prerequisite: 'The Lover dies',
+                description: 'This character gets 6 Paranoia.'
             },
             {
-                type: 'optional',
+                type: 'Optional Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If this character has at least 3 Paranoia and at least 1 Intrigue: You may kill the Protagonists.'
+                prerequisite: 'This character has at least 3 Paranoia and at least 1 Intrigue.',
             },
         ],
     },
@@ -163,41 +190,46 @@ export const roles = toRecord([
         name: 'Serial Killer',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Day End'],
-                description: 'If there is exactly 1 other char acter in this location: That char acter dies (corpses are not characters).'
+                prerequisite: 'There is exactly 1 other (living) character in this location',
+                description: 'That character dies.'
             },
         ],
     },
     {
         name: 'Factor',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
-                description: 'If there is at least 2 Intrigue on the School: This character gains the Conspiracy Theorist‘s ability, but not its role.'
+                prerequisite: 'There is at least 2 Intrigue on the School',
+                description: 'This character gains the Conspiracy Theorist‘s ability, but not its role.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
-                description: 'If there is at least 2 Intrigue on the City: This character gains the Key Person’s ability, but not its role.'
+                prerequisite: 'There is at least 2 Intrigue on the City',
+                description: 'This character gains the Key Person’s ability, but not its role.'
             },
         ],
     },
     {
         name: 'Poisoner',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Day End'],
-                description: 'If the Extra Gauge is on 2 or more, one charcters in the same location dies. (Onec per loop)'
+                prerequisite: 'the Extra Gauge is on 2 or more',
+                timesPerLoop: 1,
+                description: 'One charcters in the same location dies.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If the Extra Gauge is on 4 or more, the Protagonists die.'
+                prerequisite: 'The Extra Gauge is on 4 or more.'
             },
         ],
     },
@@ -206,12 +238,11 @@ export const roles = toRecord([
         max: 1,
         abilities: [
             {
-                type: 'mandatory',
-                timing: ['Script creation'],
+                type: 'Script creation',
                 description: 'This character must be the culprit of an Incident'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Incident step'],
                 description: 'After this character has triggered an Incident, remove all Paranoia counters from this card.'
             },
@@ -222,23 +253,24 @@ export const roles = toRecord([
         unkillable: true,
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
                 description: 'This character can never be a culprit.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Incident step'],
-                description: 'If the Extra Gauge is 0, and the culprit is in this location, the Incident triggers regardless of the number of Paranoia counters on the culprit.'
+                prerequisite: 'the Extra Gauge is 0, and the culprit is in this location',
+                description: 'The Incident triggers regardless of the number of Paranoia counters on the culprit.'
             },
         ],
     },
     {
         name: 'Paranoiac',
-        goodwillRefusel: 'mandatory',
+        goodwillRefusel: 'Mandatory',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Mastermind Ability'],
                 description: 'You may place 1 Intrigue counter on this location or an any character in this location.'
             },
@@ -248,12 +280,11 @@ export const roles = toRecord([
         name: 'Twin',
         abilities: [
             {
-                type: 'mandatory',
-                timing: ['Script creation'],
+                type: 'Script creation',
                 description: 'This character must be the culprit of an Incident.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Incident trigger'],
                 description: 'When this character triggers an Incident, it is considered as being on the diagonally opposit location.'
             },
@@ -261,15 +292,14 @@ export const roles = toRecord([
     },
     {
         name: 'Obstinate',
-        goodwillRefusel: 'mandatory',
+        goodwillRefusel: 'Mandatory',
         abilities: [
             {
-                type: 'mandatory',
-                timing: ['Script creation'],
+                type: 'Script creation',
                 description: 'This character must be the culprit of an Incident.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Incident step'],
                 description: 'This character amways triggers its Incidents (if alive), regardless of the amount of Paranoia counters on it.'
             },
@@ -279,9 +309,10 @@ export const roles = toRecord([
         name: 'Therapist',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Mastermind Ability'],
-                description: 'If the Extra Gauge is 1 or above, remove 1 Paranoia counter from any other character in this location.'
+                prerequisite: 'The Extra Gauge is 1 or above',
+                description: 'Remove 1 Paranoia counter from any other character in this location.'
             },
         ],
     },
@@ -289,30 +320,31 @@ export const roles = toRecord([
         name: 'Magician',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Mastermind Ability'],
-                description: 'You may move one character with at least one Paranoia counter frmo this location to an adjacent location (not diagonal). (Only once per loop, for all magicians combined.)'
+                timesPerLoop: 1,
+                description: 'You may move one character with at least one Paranoia counter from this location to an adjacent location (not diagonal). (Only once per loop, for all magicians combined.)'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['On character death'],
-                description: 'When this character dies, remove all Paranoia counters from its corpse'
+                description: 'Remove all Paranoia counters from its corpse.'
             },
         ],
     },
     {
         name: 'Ninja',
-        goodwillRefusel: "optional",
+        goodwillRefusel: 'Optional',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['When this role is to be reveald'],
                 description: 'You may, insead of saying the truth, state any other non-Person role that is in this script'
             },
             {
-                type: 'optional',
+                type: 'Optional Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If there is any charcter with at least 2 Intrigue Counters in this location, you may kill that character.'
+                prerequisite: 'There is any charcter with at least 2 Intrigue Counters in this location',
             },
         ],
     },
@@ -320,14 +352,15 @@ export const roles = toRecord([
         name: 'Prophet',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Mastermind Action step'],
                 description: 'The Mastermind cannot place cards on this character.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Incident step'],
-                description: 'When determing whether an Incident triggers, and the culprit is in another location, that incident does not trigger, regardless of the number of Paranoia conters on the culprit.'
+                prerequisite: 'The culprit of an incident that would trigger is in another location',
+                description: 'That incident does not trigger, regardless of the number of Paranoia conters on the culprit.'
             },
         ],
     },
@@ -343,18 +376,18 @@ export const roles = toRecord([
         unkillable: true,
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If this character has at least 2 Intrigue and at least 2 Paranoia, you may kill all characters and the Protagonists.'
+                prerequisite: 'This character has at least 2 Intrigue and at least 2 Paranoia',
+                description: 'You may kill all characters and the Protagonists.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Incident step'],
                 description: 'When determining whether an Incident, for which this character is the culprit, will occour or not, also treat Intrigue as Paranoia.'
             },
             {
-                type: 'mandatory',
-                timing: ['Script creation'],
+                type: 'Script creation',
                 description: 'This character must be the culprit of an incident.'
             },
         ],
@@ -362,15 +395,15 @@ export const roles = toRecord([
     {
         name: 'Deep One',
         max: 1,
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Mastermind Ability'],
                 description: 'You may place 1 Intruge on this location or on any character in this location.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
                 description: 'When this charcter dies, reveal the role and increast the Extra Gauge 1 step.'
             },
@@ -381,12 +414,12 @@ export const roles = toRecord([
         max: 1,
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Loss condition: Tragedy',
                 timing: ['Loop End'],
-                description: 'If this character is dead, the Protagonists lose.'
+                prerequisite: 'This character is dead'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Goodwill ablility step'],
                 description: 'When this character’s Goodwill ability is used, reveal this role after resolution. Then, the leader may increase the Extra Gauge one step.'
             },
@@ -396,57 +429,61 @@ export const roles = toRecord([
         name: 'Witness',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Day End'],
-                description: 'If this character has 4 or more Paranoia, this charcter dies, and the Extra Gauge increases with 1 step.'
+                prerequisite: 'This character has 4 or more Paranoia',
+                description: 'This charcter dies, and the Extra Gauge increases with 1 step.'
             },
         ],
     },
     {
         name: 'Faceless',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         unkillable: true,
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
-                description: 'If the Extra Gauge is 1 or less, this character gains the abilities of a Conspiracy Theorist.'
+                prerequisite: 'The Extra Gauge is 1 or less',
+                description: 'This character gains the abilities of a Conspiracy Theorist.'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
-                description: 'If the Extra Gauge is 2 or more, this character gains the abilities of a Deep One.'
+                prerequisite: 'the Extra Gauge is 2 or more',
+                description: 'This character gains the abilities of a Deep One.'
             },
         ],
     },
     {
         name: 'Vampire',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         unkillable: true,
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Day End'],
-                description: 'If the Key Person has at least 2 Intrigue and is in this character’s location, you may kill the Key Person.'
+                prerequisite: 'The Key Person has at least 2 Intrigue and is in this character’s location',
+                description: 'You may kill the Key Person.'
             },
             {
-                type: 'optional',
+                type: 'Optional Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If there are at least 2 corpses in this character’s starting location, you may kill the Protagonists.'
+                prerequisite: 'If there are at least 2 corpses in this character’s starting location.'
             },
         ],
     },
     {
         name: 'Werwolf',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If Night of Madness occurred this day, you may kill the Protagonists.'
+                prerequisite: 'Night of Madness occurred this day'
             },
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Mastermind Action step'],
                 description: 'The Mastermind cannot place cards on this character.'
             },
@@ -454,18 +491,18 @@ export const roles = toRecord([
     },
     {
         name: 'Nightmare',
-        goodwillRefusel: 'optional',
+        goodwillRefusel: 'Optional',
         unkillable: true,
         abilities: [
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Day End'],
                 description: 'You may kill one character who is in this location.'
             },
             {
-                type: 'optional',
+                type: 'Optional Loss condition: Character Death',
                 timing: ['Day End'],
-                description: 'If there are 3 ore more Intrigue on all corpses in total, you may kill the Protagonists.'
+                prerequisite: 'There are 3 ore more Intrigue on all corpses in total'
             },
         ],
     },
@@ -474,9 +511,10 @@ export const roles = toRecord([
         max: 1,
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Mastermind Ability'],
-                description: 'Ifh this card is a corpse, palce 1 Paranoia on any character in this location, or any character in the Ghost’s starting location.'
+                prerequisite: 'This card is a corpse',
+                description: 'Palce 1 Paranoia on any character in this location, or any character in the Ghost’s starting location.'
             },
         ],
     },
@@ -485,9 +523,16 @@ export const roles = toRecord([
         unkillable: true,
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Always'],
-                description: 'If this charcter has more then 2 Paranoia, (s)he hoses the Unkillable aspect and gains Mandatory Goodwill Refusal.'
+                prerequisite: 'This charcter has more then 2 Paranoia',
+                description: 'This Character loses the Unkillable aspect.'
+            },
+            {
+                type: 'Mandatory',
+                timing: ['Goodwill ablility step'],
+                prerequisite: 'This charcter has more then 2 Paranoia',
+                description: 'This Character gains Mandatory Goodwill Refusal.'
             },
         ],
     },
@@ -495,9 +540,10 @@ export const roles = toRecord([
         name: 'Coward',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Mastermind Ability'],
-                description: 'If this charcter has 2 or more Paranoia, pick a neigboring location, and move the charcter there.'
+                prerequisite: 'this charcter has 2 or more Paranoia',
+                description: 'Pick a neigboring location, and move the charcter there.'
             },
         ],
     },
@@ -505,12 +551,13 @@ export const roles = toRecord([
         name: 'Zombie',
         abilities: [
             {
-                type: 'mandatory',
+                type: 'Mandatory',
                 timing: ['Day End'],
+                timesPerDay: 1,
                 description: 'If there is a location where there are more zombies than non-zombies, kill one character in that location (only once per day, for all zombies)(reminder: a corpse is no longer considered as a character).'
             },
             {
-                type: 'optional',
+                type: 'Optional',
                 timing: ['Day End'],
                 description: 'You may move one zombie corpse to a neighboring location (only once per day, for all zombies).'
             }
@@ -518,12 +565,12 @@ export const roles = toRecord([
     },
 ] as const satisfies readonly RoleInternal[], 'name');
 
-
+export const roles = rolesInternal as Record<RoleName, RoleInternal>;
 
 
 
 export function isRoleName(name: string): name is RoleName {
-    return name in roles;
+    return name in rolesInternal;
 }
 
 

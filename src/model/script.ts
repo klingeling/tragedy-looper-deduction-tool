@@ -337,7 +337,7 @@ export const scripts = toRecord([
     },
 
     {
-        titel: 'Ihe Secret that was keept',
+        titel: 'The Secret that was keept',
         creator: 'BakaFire',
         set: {
             name: 'Tragedy Looper',
