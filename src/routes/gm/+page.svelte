@@ -42,7 +42,6 @@
 	}
 </script>
 
-<div>Work in Progre🏗️</div>
 <h1>Mastermind Aid</h1>
 
 {#if selectedScript}
