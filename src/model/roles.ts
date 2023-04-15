@@ -1,4 +1,4 @@
-import { toRecord } from "../misc";
+import { toRecord, type RequireAtLeastOne } from "../misc";
 import type { ScriptSpecified } from "./core";
 
 export type AbilityType = AbilityTypeLose | AbilityTypeCreation | AbilityTypeDefault;
@@ -16,24 +16,29 @@ type RoleInternal = {
     max?: number,
     unkillable?: true,
     goodwillRefusel?: 'Optional' | 'Mandatory',
-    abilities: readonly Abilitie[]
+    abilities: readonly Abilitie<{ 'Over all Roles'?: true }>[]
 } & ScriptSpecified;
 
-export type Abilitie = {
+export type OncePer<Text extends string, Constraints extends Object | void = void, T = object> = T &
+    {
+        [k in `timesPer${Capitalize<Text>}`]?: Constraints extends void ? number : number | readonly [number, RequireAtLeastOne<Constraints>]
+    };
+
+export type Abilitie<Constraints extends Object | void = void> = OncePer<'Loop' | 'day', Constraints, {
     description: string,
     prerequisite?: string,
     type: AbilityTypeDefault,
-    timesPerLoop?: number,
-    timesPerDay?: number,
+    // timesPerLoop?: Constraints extends void ? number : number | readonly [number, RequireAtLeastOne<Constraints>],
+    // timesPerDay?: Constraints extends void ? number : number | readonly [number, RequireAtLeastOne<Constraints>],
     timing: readonly (timing)[]
 } | {
     description?: string,
     prerequisite: string,
     type: AbilityTypeLose,
-    timesPerLoop?: number,
-    timesPerDay?: number,
+    // timesPerLoop?: Constraints extends void ? number : number | readonly [number, RequireAtLeastOne<Constraints>],
+    // timesPerDay?: Constraints extends void ? number : number | readonly [number, RequireAtLeastOne<Constraints>],
     timing: readonly (timing)[]
-} | {
+}> | {
     description: string,
     type: AbilityTypeCreation,
 }
@@ -58,6 +63,7 @@ export const rolesInternal = toRecord([
             {
                 type: 'Loss condition: Tragedy',
                 timing: ['Always'],
+
                 prerequisite: 'This character dies.',
                 description: 'The loop ends immediately.'
             }
@@ -322,8 +328,8 @@ export const rolesInternal = toRecord([
             {
                 type: 'Optional',
                 timing: ['Mastermind Ability'],
-                timesPerLoop: 1,
-                description: 'You may move one character with at least one Paranoia counter from this location to an adjacent location (not diagonal). (Only once per loop, for all magicians combined.)'
+                timesPerLoop: [1, { 'Over all Roles': true }],
+                description: 'You may move one character with at least one Paranoia counter from this location to an adjacent location (not diagonal).'
             },
             {
                 type: 'Mandatory',
@@ -553,19 +559,20 @@ export const rolesInternal = toRecord([
             {
                 type: 'Mandatory',
                 timing: ['Day End'],
-                timesPerDay: 1,
-                description: 'If there is a location where there are more zombies than non-zombies, kill one character in that location (only once per day, for all zombies)(reminder: a corpse is no longer considered as a character).'
+                timesPerDay: [1, { "Over all Roles": true }],
+                description: 'If there is a location where there are more zombies than non-zombies, kill one character in that location (reminder: a corpse is no longer considered as a character).'
             },
             {
                 type: 'Optional',
                 timing: ['Day End'],
-                description: 'You may move one zombie corpse to a neighboring location (only once per day, for all zombies).'
+                timesPerDay: [1, { "Over all Roles": true }],
+                description: 'You may move one zombie corpse to a neighboring location.'
             }
         ],
     },
 ] as const satisfies readonly RoleInternal[], 'name');
 
-export const roles = rolesInternal as Record<RoleName, RoleInternal>;
+export const roles = rolesInternal as Record<RoleName, RoleInternal & { name: RoleName }>;
 
 
 

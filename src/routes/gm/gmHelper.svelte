@@ -6,6 +6,7 @@
 	import { characters, type CharacterName } from '../../model/characters';
 	import { fromEntries, hasProp, includes, keys, require, showAll } from '../../misc';
 	import { plots } from '../../model/plots';
+	import OncePer from './oncePer.svelte';
 
 	export let selectedScript: Script;
 
@@ -63,9 +64,16 @@
 	}
 </script>
 
-{selectedScript.titel}
-{selectedScript.creator}
+<hgroup style="align-self: start; justify-self: start;">
+	<h4>{selectedScript.creator}</h4>
+	<h1>{selectedScript.titel}</h1>
 
+	<h2>
+		{#if selectedScript.set}
+			({selectedScript.set.number}) {selectedScript.set.name}
+		{/if}
+	</h2>
+</hgroup>
 <table>
 	<thead>
 		<th>Type</th>
@@ -110,20 +118,7 @@
 					</td>
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -154,20 +149,7 @@
 					</td>
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -198,20 +180,7 @@
 					</td>
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -261,20 +230,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -328,20 +284,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -373,20 +316,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -418,20 +348,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -463,20 +380,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -526,20 +430,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -566,20 +457,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -611,20 +489,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -656,20 +521,7 @@
 
 					<td>
 						{map.description ?? ''}
-						{#if map.timesPerLoop === 1}
-							(Once per ∞)
-						{:else if map.timesPerLoop == 2}
-							(Twice per ∞)
-						{:else if map.timesPerLoop ?? 0 > 0}
-							({map.timesPerLoop} per ∞)
-						{/if}
-						{#if map.timesPerDay === 1}
-							(Once per Day)
-						{:else if map.timesPerDay === 2}
-							(Twice per Day)
-						{:else if map.timesPerDay ?? 0 > 0}
-							({map.timesPerLoop} Per Day)
-						{/if}
+						<OncePer texts={['Loop', 'Day']} ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
