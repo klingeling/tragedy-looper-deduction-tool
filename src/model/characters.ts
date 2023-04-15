@@ -515,6 +515,27 @@ export const characters = toRecord([
     },
 
 
+    {
+        name: 'Young Girl',
+        paranoiaLimit: 1,
+        tags: ['student', 'girl'],
+        startLocation: 'School',
+        forbiddenLocation: ['City', 'Hospital', 'Shirne'],
+        abilitys: [
+            {
+                type: 'active',
+                goodwillRank: 1,
+                description: 'This Character‘s location restriction is removed',
+            },
+            {
+                type: 'active',
+                goodwillRank: 3,
+                description: 'Move this character t an adjacent location',
+                timesPerLoop: 1,
+            },
+        ]
+    }
+
 ] as const satisfies readonly CharacterIntern[], 'name');
 
 export const characterscomesInLater = Object.values(characters).filter(x => (x as { comesInLater?: true })['comesInLater']).map(x => x.name) as readonly CharacterscomesInLater[];
