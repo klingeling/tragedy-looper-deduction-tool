@@ -1,8 +1,8 @@
 <script lang="ts">
-	type Text = $$Generic<string | string[]>;
 	type Obj = $$Generic<OncePer<Text, any>>;
+        export let compact: boolean = false;
 
-	export let texts: Text;
+	const texts = ['Day', 'Loop', 'Game'] as const;
 	export let ability: Obj;
 
 	$: element = [texts].flat().map((text) => ({
@@ -28,11 +28,11 @@
 			text = '∞';
 		}
 		if (days === 1) {
-			return `Once per ${text}`;
+			return `Once per ${text}`;
 		} else if (days === 2) {
-			return `Twice per ${text}`;
+			return `Twice per ${text}`;
 		} else if (days ?? 0 > 0) {
-			return `${days} times per ${text}`;
+			return `${days} times per ${text}`;
 		}
 		return undefined;
 	}
@@ -41,7 +41,7 @@
 {#each element as { days, constraints, text }}
 	{@const str = format(text, days)}
 	{#if str}
-		<em
+		<em class:normal={!compact} class:compact
 			>{str}{#each constraints.filter(([key, value]) => value) as [key, value]}
 				{' '} | {key}{#if value !== true}: {value}{/if}
 			{/each}</em
@@ -50,12 +50,18 @@
 {/each}
 
 <style>
-	em {
+	em.normal {
 		border: 1px solid var(--primary);
 		border-radius: 1em;
 		color: var(--primary);
 		padding: 0px 1em;
 		margin: 0px 0.1em;
 		white-space: nowrap;
+	}
+	em.compact::before {
+        content: '[';
+	}
+	em.compact::after {
+        content: ']';
 	}
 </style>

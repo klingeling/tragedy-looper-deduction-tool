@@ -2,9 +2,17 @@ import { toRecord, type RequireAtLeastOne } from "../misc";
 import type { ScriptSpecified } from "./core";
 
 export type AbilityType = AbilityTypeLose | AbilityTypeCreation | AbilityTypeDefault;
-export type AbilityTypeLose = 'Mandatory Loss condition: Character Death' | 'Optional Loss condition: Character Death' | 'Loss condition: Tragedy';
+export type AbilityTypeLose = typeof loseTypes[number];
 export type AbilityTypeCreation = 'Script creation';
 export type AbilityTypeDefault = 'Optional' | 'Mandatory';
+
+export const loseTypes = [
+    'Mandatory Loss condition: Character Death',
+    'Mandatory Loss condition: Character Death',
+    'Optional Loss condition: Character Death',
+    'Delayed Loss condition: Character Death',
+    'Loss condition: Tragedy'
+] as const;
 
 export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start'
     | 'Last Day' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald'

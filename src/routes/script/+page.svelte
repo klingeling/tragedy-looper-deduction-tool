@@ -59,46 +59,23 @@
 	}
 </script>
 
-<!-- <main class="container"> -->
-{#if selectedScript}
-	<article>
-		<ScriptDetails script={selectedScript} />
-	</article>
-{/if}
+<main class="container">
+	<!-- <main class="container"> -->
+	{#if selectedScript}
+		<article>
+			<ScriptDetails script={selectedScript} />
+		</article>
+	{/if}
 
-<a role="button" href={`${base}/script/customScript/`}>Create your own</a>
-<h1>…or use other Scripts</h1>
+	<a role="button" href={`${base}/script/customScript/`}>Create your own</a>
+	<h1>…or use other Scripts</h1>
 
-{#if ownScripts.length > 0}
-	<article>
-		<header>
-			<h2>Your Creations</h2>
-		</header>
-		{#each ownScripts as s}
-			<div>
-				<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
-					>{s.set?.number ?? ''}
-					{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
-						s.difficultySets.map((x) => x.difficulty.toString()),
-						' / '
-					)}</a
-				>
-			</div>
-		{/each}
-	</article>
-{/if}
-
-{#each distinct(scripts
-		.map((key) => key.set?.name)
-		.sort( (a, b) => (a == undefined ? (b == undefined ? 0 : -1) : b == undefined ? 1 : a.localeCompare(b)) )) as set}
-	<article>
-		<header>
-			<h2>{set ?? 'Independent'}</h2>
-		</header>
-		{#each scripts
-			.filter((x) => x.set?.name == set)
-			.sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
-			{#if s}
+	{#if ownScripts.length > 0}
+		<article>
+			<header>
+				<h2>Your Creations</h2>
+			</header>
+			{#each ownScripts as s}
 				<div>
 					<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
 						>{s.set?.number ?? ''}
@@ -108,12 +85,37 @@
 						)}</a
 					>
 				</div>
-			{/if}
-		{/each}
-	</article>
-{/each}
+			{/each}
+		</article>
+	{/if}
 
-<!-- </main> -->
+	{#each distinct(scripts
+			.map((key) => key.set?.name)
+			.sort( (a, b) => (a == undefined ? (b == undefined ? 0 : -1) : b == undefined ? 1 : a.localeCompare(b)) )) as set}
+		<article>
+			<header>
+				<h2>{set ?? 'Independent'}</h2>
+			</header>
+			{#each scripts
+				.filter((x) => x.set?.name == set)
+				.sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
+				{#if s}
+					<div>
+						<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
+							>{s.set?.number ?? ''}
+							{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
+								s.difficultySets.map((x) => x.difficulty.toString()),
+								' / '
+							)}</a
+						>
+					</div>
+				{/if}
+			{/each}
+		</article>
+	{/each}
+
+	<!-- </main> -->
+</main>
 
 <style>
 </style>

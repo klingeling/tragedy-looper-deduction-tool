@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { cssesc, distinct, hasProp, join, keys } from '../misc';
+	import { cssesc, distinct, hasProp, join, keys, require, showAll } from '../misc';
 	import {
 		type CharacterName,
 		characterscomesInLater,
@@ -9,7 +9,7 @@
 	} from '../model/characters';
 	import { incidents as incidentsLookup } from '../model/incidents';
 	import { plots } from '../model/plots';
-	import { roles, type Abilitie } from '../model/roles';
+	import { roles, type Abilitie, type RoleName } from '../model/roles';
 	import type { Script, ScriptIncident, ScriptIncidentPlayer } from '../model/script';
 	import { tragedySets, type TragedySet, type TragedySetName } from '../model/tragedySets';
 	import Selection from './selection.svelte';
@@ -201,7 +201,10 @@
 
 	$: tg = tragedySets[tragedySet];
 
-	$: r = distinct([...tg.mainPlots, ...tg.subPlots].flatMap((x) => keys(plots[x].roles)))
+	$: r = distinct(
+		[...tg.mainPlots, ...tg.subPlots].flatMap((x) => keys(plots[x].roles) as RoleName[])
+	)
+		.concat(require(tg).aditionalRoles ?? [])
 		.sort()
 		.map((x) => roles[x]);
 
@@ -395,7 +398,7 @@
 			</div>
 			<div class="plot-main rules" style="grid-area: main-role-plot-rule-{cssesc(p.name)};">
 				{#each p.rules as a}
-					<Ability {a} />
+					<Ability {a} compact />
 				{/each}
 			</div>
 
@@ -425,7 +428,7 @@
 			</div>
 			<div class="plot-sub rules" style="grid-area: sub-role-plot-rule-{cssesc(p.name)};">
 				{#each p.rules as a}
-					<Ability {a} />
+					<Ability {a} compact />
 				{/each}
 			</div>
 
@@ -539,9 +542,19 @@
 			</h1>
 			<h2>Day {i.day}</h2>
 
-			<p>
-				{i.effect}
-			</p>
+			{#each i.effect as e}
+				<p>
+					{#if require(e).type}
+						<b>[{require(e).type}]</b>
+					{/if}
+					{#if require(e).prerequisite}
+						[<i>{require(e).prerequisite}</i>]{#if require(e).description}⇒{/if}
+					{/if}
+					{#if require(e).description}
+						{require(e).description}
+					{/if}
+				</p>
+			{/each}
 		</article>
 	{/each}
 </template>
@@ -556,7 +569,7 @@
 				<h2>Immortal</h2>
 			{/if}
 			{#each ri.abilities as a}
-				<Ability {a} />
+				<Ability {a} compact />
 			{/each}
 		</article>
 	{/each}
@@ -671,29 +684,12 @@
 		margin-bottom: 0px;
 	}
 
-	.root {
-		// max-width: var(--page-width);
-		// overflow: hidden;
-		// overflow: auto;
-	}
 	.table {
 		display: grid;
-		// height: calc(100% + 0px);
-		// width: calc(100% + 0px);
-		//  overflow: auto;
 
-		// justify-content: start;
-		// justify-items: start;
-
-		// align-content: start;
-		// align-items: start;
-
-		// gap: 2px;
-		// background-color: var(--background);
 		font-size: 8pt;
 
 		font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-		// font-family: Verdana, Geneva, Tahoma, sans-serif;
 		& > *:not(.overflow) {
 			margin: 1px;
 		}
@@ -706,7 +702,6 @@
 
 	.rules {
 		max-width: var(--rule-width);
-		/* display: none; */
 	}
 	.vertical-header.rules {
 		max-width: unset;
@@ -723,8 +718,6 @@
 	.role {
 		background-color: var(--role-background-color);
 		color: var(--role-color);
-	}
-	.role-counter {
 	}
 	.plot-sub {
 		background-color: var(--plot-sub-background-color);
@@ -761,9 +754,6 @@
 			margin-bottom: 0px;
 			box-shadow: none;
 			height: min-content;
-		}
-		.overflow {
-			// flex-direction: row;
 		}
 	}
 </style>

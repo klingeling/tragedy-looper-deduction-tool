@@ -32,8 +32,8 @@ type SRecord<ELEMENT extends readonly any[], Key extends keyof ELEMENT[never]> =
 };
 
 
-export function includes<T>(a: readonly T[]|undefined, el: ArrayOfUnion<T>): Intersect<T, ArrayOfUnion<T>> {
-    if(a==undefined){
+export function includes<T>(a: readonly T[] | undefined, el: ArrayOfUnion<T>): Intersect<T, ArrayOfUnion<T>> {
+    if (a == undefined) {
         return false;
     }
     return a.includes(el);
@@ -44,9 +44,14 @@ export type ShowOptional<T> = {
     [x in KeysOfUnion<T>]: T[x] extends string | object | number ? T[x] : OptionalProp<T, x> | undefined
 };
 
+export type RenderCharacterDeath<T extends string> = T extends `${infer pre}Character Death${infer post}` ? `${pre}Character Death${post}` : T;
+export function renderCharacterDeath<T extends string>(t: T): RenderCharacterDeath<T> {
+    return t.replaceAll('Character Death', 'Character Death') as any;
+
+}
 
 // export function showAll<T>(a: T): ShowOptional<T>;
-export function require<T>(a:  T): ShowOptional<T>{
+export function require<T>(a: T): ShowOptional<T> {
     return a as any;
 }
 

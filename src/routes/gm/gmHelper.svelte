@@ -4,11 +4,35 @@
 	import '@picocss/pico/css/pico.css';
 	import { roles, type RoleName, type AbilityType } from '../../model/roles';
 	import { characters, type CharacterName } from '../../model/characters';
-	import { fromEntries, hasProp, includes, keys, require, showAll } from '../../misc';
+	import {
+		fromEntries,
+		hasProp,
+		includes,
+		keys,
+		renderCharacterDeath,
+		require,
+		showAll,
+		type RenderCharacterDeath
+	} from '../../misc';
 	import { plots } from '../../model/plots';
 	import OncePer from './oncePer.svelte';
+	import { incidents } from '../../model/incidents';
 
 	export let selectedScript: Script;
+
+	$: usedIncedents = showAll(
+		selectedScript.incidents.map(
+			(x) => [x, incidents[typeof x.incident === 'string' ? x.incident : x.incident[0]]] as const
+		)
+	).map(([scriptIncident, incidendtMeta]) => {
+		return {
+			...scriptIncident,
+			...incidendtMeta,
+			effect: incidendtMeta.effect
+				.map((x) => require(x))
+				.map((x) => ({ ...x, type: x.type?.replaceAll('Character Death', 'Character Death') }))
+		};
+	});
 
 	$: usedCharacters = Object.entries(selectedScript.cast).map(([key, value]) => {
 		if (typeof value === 'string') {
@@ -44,23 +68,30 @@
 		});
 	$: roleAbilitys = scriptRoles.flatMap((x) => x.abilities.map((a) => ({ ...a, ...x })));
 
-	$: abilitys = [...plotAbilitys, ...roleAbilitys];
+	$: abilitys = [...plotAbilitys, ...roleAbilitys].map((x) => ({
+		...x,
+		type: renderCharacterDeath(x.type)
+	}));
 
 	// $: abilityMapping = selectedRoles.flatMap((x) =>
 	// 	x.abilities.map((y) => ({ ...y, name: x.name }))
 	// );
 
-	function sortAbilitys(a: { type: AbilityType }, b: { type: AbilityType }) {
-		const ordering = (t: AbilityType) => {
-			if (t == 'Mandatory Loss condition: Character Death') return 5;
+	function sortAbilitys(
+		a: { type?: RenderCharacterDeath<AbilityType> },
+		b: { type?: RenderCharacterDeath<AbilityType> }
+	) {
+		const ordering = (t: RenderCharacterDeath<AbilityType> | undefined) => {
+			if (t == 'Delayed Loss condition: Character Death') return 5;
+			if (t == 'Mandatory Loss condition: Character Death') return 5;
 			if (t == 'Loss condition: Tragedy') return 4;
 			if (t == 'Mandatory') return 3;
-			if (t == 'Optional Loss condition: Character Death') return 2;
+			if (t == 'Optional Loss condition: Character Death') return 2;
 			if (t == 'Optional') return 1;
-			return 0;
+			return Infinity;
 		};
 
-		return ordering(b.type) - ordering(a.type);
+		return ordering(b?.type) - ordering(a?.type);
 	}
 </script>
 
@@ -82,11 +113,12 @@
 		<th>Description</th>
 		<th>Role</th>
 		<th>Plot</th>
+		<th>Incident</th>
 	</thead>
 	<tbody>
 		{#if showAll(scriptRoles).filter((x) => x.unkillable === true).length > 0}
 			<tr>
-				<td colspan="6">Always </td>
+				<td colspan="7">Always </td>
 			</tr>
 			{#each showAll(scriptRoles).filter((x) => x.unkillable === true) as map}
 				<tr>
@@ -99,6 +131,7 @@
 					<td>
 						{map.role ?? ''}
 					</td>
+					<td />
 					<td />
 				</tr>
 			{/each}
@@ -118,7 +151,7 @@
 					</td>
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -126,12 +159,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'On character death')).length > 0}
 			<tr>
-				<td colspan="6">On Character Death</td>
+				<td colspan="7">On Character Death</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'On character death'))
@@ -149,7 +183,7 @@
 					</td>
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -157,12 +191,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'When this role is to be reveald') ).length > 0}
 			<tr>
-				<td colspan="6">On Role reveal</td>
+				<td colspan="7">On Role reveal</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'When this role is to be reveald'))
@@ -180,7 +215,7 @@
 					</td>
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -188,12 +223,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'Loop Start') ).length + showAll(usedCharacters).filter((x) => x['enters on loop'] !== undefined).length > 0}
 			<tr>
-				<td colspan="6">Loop Start</td>
+				<td colspan="7">Loop Start</td>
 			</tr>
 			{#each showAll(usedCharacters).filter((x) => x['enters on loop'] !== undefined) as map}
 				<tr>
@@ -209,6 +245,7 @@
 					<td>
 						{map.role ?? ''}
 					</td>
+					<td />
 					<td />
 				</tr>
 			{/each}
@@ -230,7 +267,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -238,12 +275,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(usedCharacters).filter((x) => x['enters on day'] !== undefined).length > 0}
 			<tr>
-				<td colspan="6">Day Start</td>
+				<td colspan="7">Day Start</td>
 			</tr>
 			{#each showAll(usedCharacters).filter((x) => x['enters on day'] !== undefined) as map}
 				<tr>
@@ -260,12 +298,13 @@
 						{map.role ?? ''}
 					</td>
 					<td />
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'Mastermind Action step') ).length > 0}
 			<tr>
-				<td colspan="6">Placing Cards</td>
+				<td colspan="7">Placing Cards</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'Mastermind Action step'))
@@ -284,7 +323,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -292,12 +331,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Card resolve')).length > 0}
 			<tr>
-				<td colspan="6">Resolving Cards</td>
+				<td colspan="7">Resolving Cards</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'Card resolve'))
@@ -316,7 +356,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -324,12 +364,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Mastermind Ability')).length > 0}
 			<tr>
-				<td colspan="6">Abilities Mastermind</td>
+				<td colspan="7">Abilities Mastermind</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'Mastermind Ability'))
@@ -348,7 +389,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -356,12 +397,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if scriptRoles.filter((x) => x['goodwillRefusel'] !== undefined).length + showAll(abilitys).filter( (x) => includes(x['timing'], 'Goodwill ablility step') ).length > 0}
 			<tr>
-				<td colspan="6">Abilities Protagonists</td>
+				<td colspan="7">Abilities Protagonists</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'Goodwill ablility step'))
@@ -380,7 +422,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -388,6 +430,7 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 			{#each scriptRoles
@@ -406,12 +449,13 @@
 						{map.role ?? ''}
 					</td>
 					<td />
+					<td />
 				</tr>
 			{/each}
 		{/if}
-		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'Incident trigger') ).length + showAll(abilitys).filter( (x) => includes(x['timing'], 'Incident step') ).length > 0}
+		{#if showAll(abilitys).filter( (x) => includes(x['timing'], 'Incident trigger') ).length + usedIncedents.length + showAll(abilitys).filter( (x) => includes(x['timing'], 'Incident step') ).length > 0}
 			<tr>
-				<td colspan="6">Incidents</td>
+				<td colspan="7">Incidents</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'Incident trigger'))
@@ -430,7 +474,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -438,6 +482,7 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 			{#each showAll(abilitys)
@@ -457,7 +502,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -465,12 +510,39 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
+			{/each}
+			{#each usedIncedents as i}
+				{#each i.effect as e}
+					<tr>
+						<td>
+							{e.type ?? ''}
+						</td>
+						<td>
+							{i.culprit ?? ''}
+						</td>
+						<td>
+							{e.prerequisite ?? ''}
+						</td>
+
+						<td>
+							{e.description ?? ''}
+							<OncePer ability={e} />
+							<!-- <OncePer ability={i} /> -->
+						</td>
+						<td />
+						<td />
+						<td>
+							{i.incident ?? ''}
+						</td>
+					</tr>
+				{/each}
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Day End')).length > 0}
 			<tr>
-				<td colspan="6">Night: Day End</td>
+				<td colspan="7">Night: Day End</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'Day End'))
@@ -489,7 +561,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -497,12 +569,13 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
 		{#if showAll(abilitys).filter((x) => includes(x['timing'], 'Loop End')).length > 0}
 			<tr>
-				<td colspan="6">Night: Loop End</td>
+				<td colspan="7">Night: Loop End</td>
 			</tr>
 			{#each showAll(abilitys)
 				.filter((x) => includes(x['timing'], 'Loop End'))
@@ -521,7 +594,7 @@
 
 					<td>
 						{map.description ?? ''}
-						<OncePer texts={['Loop', 'Day']} ability={map} />
+						<OncePer ability={map} />
 					</td>
 					<td>
 						{map.role ?? ''}
@@ -529,6 +602,7 @@
 					<td>
 						{map.plot ?? ''}
 					</td>
+					<td />
 				</tr>
 			{/each}
 		{/if}
