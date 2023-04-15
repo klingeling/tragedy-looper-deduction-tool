@@ -105,7 +105,11 @@
 
 <label>
 	Title
-	<input type="text" bind:value={$title} />
+	<input
+		aria-invalid={$title === undefined || $title.length === 0}
+		type="text"
+		bind:value={$title}
+	/>
 </label>
 <label>
 	Creator
@@ -164,5 +168,7 @@
 		class="outline"
 		on:click={() => (exportJson = JSON.stringify(model.export(), undefined, 2))}>Export</button
 	>
-	<button on:click={() => save()}>Save</button>
+	<button disabled={$title === undefined || $title.length === 0} on:click={() => save()}
+		>Save</button
+	>
 </div>
