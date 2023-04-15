@@ -33,6 +33,10 @@
 	const creator = model.creator;
 	const difSet = model.difficultySets;
 
+	const story = model.story;
+	const specifics = model.specifics;
+	const mastermindHints = model.mastermindHints;
+
 	let exportJson: string | undefined;
 	let importJson: string | undefined;
 
@@ -50,6 +54,8 @@
 		const serilizedScript = searchParams?.get('script');
 		if (serilizedScript) {
 			model.import(JSON.parse(serilizedScript));
+		} else {
+			model.difficultySets.set([{ numberOfLoops: 4, difficulty: 3 }]);
 		}
 	});
 
@@ -143,6 +149,15 @@
 {/each}
 <h2>Incidents</h2>
 <Incedent incedentGroup={model.incidentGroup} />
+
+<h5>Specifics</h5>
+
+<textarea bind:value={$specifics} />
+
+<h5>Story</h5>
+<textarea bind:value={$story} />
+<h5>Hints for the Mastermind</h5>
+<textarea bind:value={$mastermindHints} />
 
 <div class="grid">
 	<button

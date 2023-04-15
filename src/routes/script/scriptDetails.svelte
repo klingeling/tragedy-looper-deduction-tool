@@ -251,12 +251,8 @@
 	<div>
 		<h5>Specifics</h5>
 		{script.specifics}
-	</div>
-	<div>
 		<h5>Story</h5>
 		{script.story}
-	</div>
-	<div>
 		<h5>Hints for the Mastermind</h5>
 		{script.mastermindHints}
 	</div>
