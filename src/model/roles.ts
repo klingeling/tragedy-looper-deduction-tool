@@ -16,7 +16,7 @@ export const loseTypes = [
 ] as const;
 
 export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start'
-    | 'Last Day' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald'
+    | 'Last Day' | 'First Day' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald'
     | 'Mastermind Action step' | 'Goodwill ablility step';
 
 
@@ -24,6 +24,7 @@ type RoleInternal = {
     name: string,
     max?: number,
     unkillable?: true,
+    afterDeath?: true,
     goodwillRefusel?: 'Optional' | 'Mandatory',
     abilities: readonly Abilitie<{ 'Over all Roles'?: true }>[]
 } & ScriptSpecified & DoseNotTriggerIncident;
@@ -579,6 +580,170 @@ export const rolesInternal = toRecord([
             }
         ],
     },
+
+    //Haunted Stage
+    {
+        name: 'Nightmare (Haunted Stage)',
+        goodwillRefusel: 'Mandatory',
+        abilities: [
+            {
+                type: 'Mandatory',
+                timing: ['Day End'],
+                description: 'Kill any other character in this location. If there is no other character, kill this character.'
+            },
+        ],
+    },
+    {
+        name: 'Curse God',
+        afterDeath: true,
+        abilities: [
+            {
+                type: 'Optional Loss condition: Character Death',
+                timing: ['Day End'],
+                prerequisite: 'Character is dead & At least 2 Intrigue on this corpse',
+            },
+        ],
+    },
+    {
+        name: 'Human Doll',
+        afterDeath: true,
+        abilities: [
+            {
+                type: 'Optional Loss condition: Character Death',
+                timing: ['Mastermind Ability'],
+                prerequisite: 'If there are at least 2 Intrigue in this location, and at least 1 Paranoia on this card',
+            },
+            {
+                type: 'Optional Loss condition: Character Death',
+                timing: ['On character death'],
+                prerequisite: 'When this character dies: Put 1 Intrigue in this location.',
+            },
+        ],
+    },
+    {
+        name: 'Werwolf (Haunted Stage)',
+        goodwillRefusel: 'Mandatory',
+        abilities: [
+            {
+                type: 'Optional Loss condition: Character Death',
+                timing: ['Day End'],
+                prerequisite: 'Day end on the fifth day',
+            },
+            {
+                type: 'Mandatory',
+                timing: ['Mastermind Action step'],
+                description: 'The Mastermind cannot set an action card on this card.',
+            },
+        ],
+    },
+    {
+        name: 'Vampire (Haunted Stage)',
+        afterDeath: true,
+        abilities: [
+            {
+                type: 'Optional',
+                timing: ['Day End'],
+                description: 'Kill one character of the opposite sex in this location who has at least 1 Paranoia and 1 Intrigue.',
+            },
+            {
+                type: 'Optional Loss condition: Character Death',
+                timing: ['Day End'],
+                prerequisite: 'If there are 3 or more corpses of the opposite sex in this location',
+            },
+        ],
+    },
+    {
+        name: 'Ghost (Haunted Stage)',
+        afterDeath: true,
+        max: 2,
+        abilities: [
+        ],
+    },
+    {
+        name: 'Monster',
+        unkillable: true,
+        abilities: [
+            {
+                type: 'Mandatory',
+                timing: ['When this role is to be reveald'],
+                description: 'Increase the Extra Gauge by 2.'
+            }
+        ],
+    },
+    {
+        name: 'Spellcaster',
+        goodwillRefusel: 'Optional',
+        abilities: [
+            {
+                type: 'Optional',
+                timing: ['Mastermind Ability'],
+                description: 'Place 1 Intrigue or Paranoia on one corpse in this location.'
+            }
+        ],
+    },
+    {
+        name: 'Spellcaster',
+        goodwillRefusel: 'Optional',
+        abilities: [
+            {
+                type: 'Optional',
+                timing: ['Mastermind Ability'],
+                description: 'Place 1 Intrigue or Paranoia on one corpse in this location.'
+            }
+        ],
+    },
+    {
+        name: 'Zombie (Haunted Stage)',
+        afterDeath: true,
+        goodwillRefusel: 'Mandatory',
+        abilities: [
+            {
+                type: 'Mandatory',
+                timing: ['Day End'],
+                timesPerDay: [1, { "Over all Roles": true }],
+                description: 'If there is a location where there are more zombies than non-zombies, kill one character in that location, then increase the Extra Gauge by 1 (reminder: a corpse is no longer considered as a character).'
+            },
+        ],
+    },
+    {
+        name: 'Poltergeist',
+        max: 1,
+        goodwillRefusel: 'Mandatory',
+        abilities: [
+            {
+                type: 'Optional',
+                timing: ['Mastermind Ability'],
+                timesPerDay: 1,
+                description: 'Move any card in this location to any location.'
+            },
+        ],
+    },
+    {
+        name: 'Horror',
+        max: 1,
+        afterDeath: true,
+        abilities: [
+            {
+                type: 'Optional',
+                timing: ['Mastermind Ability'],
+                description: 'You may place 1 Paranoia on any character in this location.'
+            },
+        ],
+    },
+    {
+        name: 'Overlorad',
+        afterDeath: true,
+        abilities: [
+            {
+                type: 'Optional',
+                timing: ['Mastermind Ability'],
+                prerequisite: 'This character is dead',
+                description: 'Choose any other card in this location. If it is a corpse, it will be revived, If it is a character, it will be killed.'
+            },
+        ],
+    },
+
+
 ] as const satisfies readonly RoleInternal[], 'name');
 
 export const roles = rolesInternal as Record<RoleName, RoleInternal & { name: RoleName }>;
