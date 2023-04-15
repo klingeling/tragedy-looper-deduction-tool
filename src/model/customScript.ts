@@ -1,6 +1,6 @@
 import { writable, type Readable, type Writable, derived, type Unsubscriber, type Subscriber, get } from "svelte/store";
 import { tragedySets, type TragedySetName, type TragedySet, getTragedySetRoles, hasCastOption } from "./tragedySets";
-import { keys } from "../misc";
+import { keys, require } from "../misc";
 import { plots, type PlotName } from "./plots";
 import { init, noop } from "svelte/internal";
 import { roles, type RoleName, isRoleName } from "./roles";
@@ -657,25 +657,28 @@ export class CustomScript {
 
         Object.entries(Object.entries<CharacterName, RoleName | readonly [RoleName, Record<string, any>]>(script.cast as any).reduce((p, [key, value]) => {
             if (isCharacterName(key))
-                if (typeof value == 'string' && isRoleName(value)) {
-                    const name = value;
-                    if (name in p) {
-                        p[name].push(key);
-                    } else {
-                        p[name] = [];
-                        p[name].push(key);
+
+                if (require(characters[key]).plotLessRole) {
+                    const name = 'Person'; // Plotless characters are sorted under Persons and there role is in options
+                    p[name].push([key, { 'Role': value }]);
+                } else {
+                    if (typeof value == 'string' && isRoleName(value)) {
+                        const name = value;
+                        if (name in p) {
+                            p[name].push(key);
+                        } else {
+                            p[name] = [];
+                            p[name].push(key);
+                        }
+                    } else if (isRoleName(value[0])) {
+                        const name = value[0]
+                        if (name in p) {
+                            p[name].push(key);
+                        } else {
+                            p[name] = [];
+                            p[name].push([key, value[1]]);
+                        }
                     }
-                } else if (isRoleName(value[0])) {
-                    const name = value[0]
-                    if (name in p) {
-                        p[name].push(key);
-                    } else {
-                        p[name] = [];
-                        p[name].push([key, value[1]]);
-                    }
-
-
-
                 }
 
             return p;
@@ -733,6 +736,12 @@ export class CustomScript {
         });
 
 
+        this.specialRules.set(script.specialRules);
+        this.specifics.set(script.specifics);
+        this.story.set(script.story);
+        this.mastermindHints.set(script.mastermindHints);
+
+
     }
 
     /**
@@ -766,8 +775,19 @@ export class CustomScript {
             cast: get(this.roles).reduce((p, rGroups) => {
                 const chars = get(rGroups.selectors).map(x => [get(x.selectedCharacter), get(x.options).filter(x => get(x.value) !== undefined || x.option.optional !== true).map(x => [x.option.name, get(x.value)] as const)] as const)
                 chars.forEach(([c, opt]) => {
+                    console.log('export')
                     if (opt.length > 0) {
-                        p[c] = [rGroups.role, Object.fromEntries(opt)] as const;
+                        const rol = opt.filter(([x]) => x === 'Role')[0];
+                        if (rol) {
+                            if (opt.length === 1) {
+                                p[c] = rol[1];
+                            } else {
+                                p[c] = [rGroups.role, Object.fromEntries(opt.filter(([x]) => x !== 'Role'))] as const;
+                            }
+
+                        } else {
+                            p[c] = [rGroups.role, Object.fromEntries(opt)] as const;
+                        }
 
                     } else {
                         p[c] = rGroups.role;

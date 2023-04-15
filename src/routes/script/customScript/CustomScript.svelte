@@ -36,6 +36,7 @@
 	const story = model.story;
 	const specifics = model.specifics;
 	const mastermindHints = model.mastermindHints;
+	const specialRules = model.specialRules;
 
 	let exportJson: string | undefined;
 	let importJson: string | undefined;
@@ -153,6 +154,9 @@
 {/each}
 <h2>Incidents</h2>
 <Incedent incedentGroup={model.incidentGroup} />
+
+<h5>Special Rules</h5>
+<textarea bind:value={$specialRules} />
 
 <h5>Specifics</h5>
 
