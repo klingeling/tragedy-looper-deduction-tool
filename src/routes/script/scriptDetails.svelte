@@ -10,7 +10,7 @@
 
 	import { characterscomesInLater, type CharacterName } from '../../model/characters';
 	import { stringifySearchForPlayerAid } from '../../serilezer';
-	import { distinct, keys } from '../../misc';
+	import { distinct, keys, require } from '../../misc';
 	import { base } from '$app/paths';
 	import Option from './customScript/option.svelte';
 	export let script: Script;
@@ -39,7 +39,7 @@
 			script.tragedySet,
 			distinct(keys(script.cast).concat(additionalCharacters)),
 			script.incidents.map(toPlayerIncident),
-			script.specialRules ? [script.specialRules] : []
+			require(script).specialRules ? [require(script)?.specialRules!] : []
 		).toString();
 	}
 
@@ -242,10 +242,10 @@
 			</tbody>
 		</table>
 	</div>
-	{#if script.specialRules}
+	{#if require(script).specialRules}
 		<h5>Special Rules</h5>
 		<div>
-			{script.specialRules}
+			{require(script).specialRules}
 		</div>
 	{/if}
 	<div>

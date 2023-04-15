@@ -591,15 +591,15 @@ export class CustomScript {
         const selectodMainPlots = storeStores(this.mainPlots, x => x.selectedPlot)
         const selectodSubplots = storeStores(this.subPlots, x => x.selectedPlot)
 
-        this.selectedPlots = derived([selectodMainPlots, selectodSubplots], ([...plots]) => plots.flat());
-        this.unusedRoles = derived([this.tragedySet, selectodMainPlots, selectodSubplots], ([tg, ...selectedPlots]) => {
+        this.selectedPlots = derived([selectodMainPlots, selectodSubplots], ([mainPlots, subPlots]) => [...mainPlots, ...subPlots]);
+        this.unusedRoles = derived([this.tragedySet, this.selectedPlots], ([tg, ...selectedPlots]) => {
 
 
             const allRoles = getTragedySetRoles(tg);
-            const used = selectedPlots.flat().flatMap(x => keys(plots[x].roles));
+            const used = selectedPlots.flatMap(x => x.flatMap(y => keys(plots[y].roles)));
             return allRoles.filter(x => !used.includes(x as any));
         });
-        this.roles = derived([selectodMainPlots, selectodSubplots], ([...selectiedPlots]) => generateRoleSelection(this, sumGroups(...selectiedPlots.flat().map(x => plots[x].roles)), keys(characters)));
+        this.roles = derived([this.selectedPlots], ([...selectiedPlots]) => generateRoleSelection(this, sumGroups(...selectiedPlots.flatMap(x => x.map(y => plots[y].roles))), keys(characters)));
 
 
         this.usedCharacters = storeStores(derived(storeStores(this.roles, x => x.selectors), r => r.flat().map(x => x.selectedCharacter)), x => x);
@@ -736,7 +736,7 @@ export class CustomScript {
         });
 
 
-        this.specialRules.set(script.specialRules);
+        this.specialRules.set(require(script).specialRules ?? '');
         this.specifics.set(script.specifics);
         this.story.set(script.story);
         this.mastermindHints.set(script.mastermindHints);
