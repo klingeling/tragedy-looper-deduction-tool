@@ -10,6 +10,8 @@ import type { AbilityTypeLose, OncePer } from "./roles";
 export type Incident = Union<IncidentsHelper['incidents']>;
 export type Incidents = IncidentsHelper['incidents'];
 
+export type DoseNotTriggerIncident = { doseNotTriggerIncidentEffect?: true }
+
 export function isMobIncident(name: string): name is MobIncident {
     if (!isIncidentName(name)) {
         return false;

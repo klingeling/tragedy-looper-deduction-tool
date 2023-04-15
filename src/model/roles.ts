@@ -1,5 +1,6 @@
 import { toRecord, type RequireAtLeastOne } from "../misc";
 import type { ScriptSpecified } from "./core";
+import type { DoseNotTriggerIncident } from "./incidents";
 
 export type AbilityType = AbilityTypeLose | AbilityTypeCreation | AbilityTypeDefault;
 export type AbilityTypeLose = typeof loseTypes[number];
@@ -25,7 +26,7 @@ type RoleInternal = {
     unkillable?: true,
     goodwillRefusel?: 'Optional' | 'Mandatory',
     abilities: readonly Abilitie<{ 'Over all Roles'?: true }>[]
-} & ScriptSpecified;
+} & ScriptSpecified & DoseNotTriggerIncident;
 
 export type OncePer<Text extends string, Constraints extends Object | void = void, T = object> = T &
     {
@@ -581,7 +582,6 @@ export const rolesInternal = toRecord([
 ] as const satisfies readonly RoleInternal[], 'name');
 
 export const roles = rolesInternal as Record<RoleName, RoleInternal & { name: RoleName }>;
-
 
 
 export function isRoleName(name: string): name is RoleName {

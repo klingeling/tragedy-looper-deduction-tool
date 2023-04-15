@@ -78,6 +78,20 @@ export function isScriptIncidentWithoutCulprit(obj: unknown): obj is ScriptIncid
     return isScriptIncident(obj, true);
 }
 
+export function getRoleOfCast(scrtipt: Script, char: CharacterName): RoleName | undefined {
+    const castObject = scrtipt.cast[char as keyof Script['cast']] as RoleName
+        | readonly [RoleName];
+    if (!castObject) {
+        return undefined;
+    }
+    if (typeof castObject == 'string') {
+        return castObject;
+    }
+    else {
+        return castObject[0];
+    }
+}
+
 export type Script = Scripts[keyof Scripts];
 export type Scripts = typeof scripts;
 

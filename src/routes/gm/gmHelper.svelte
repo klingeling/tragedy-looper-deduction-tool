@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { element, xlink_attr } from 'svelte/internal';
-	import type { Script } from '../../model/script';
+	import { getRoleOfCast, type Script } from '../../model/script';
 	import '@picocss/pico/css/pico.css';
 	import { roles, type RoleName, type AbilityType } from '../../model/roles';
 	import { characters, type CharacterName, isCharacterName } from '../../model/characters';
@@ -111,9 +111,7 @@
 		<th>Character</th>
 		<th>Prerequiste</th>
 		<th>Description</th>
-		<th>Role</th>
-		<th>Plot</th>
-		<th>Incident</th>
+		<th>Role / Plot / Incident</th>
 	</thead>
 	<tbody>
 		{#if showAll(scriptRoles).filter((x) => x.unkillable === true).length > 0}
@@ -131,8 +129,6 @@
 					<td>
 						{map.role ?? ''}
 					</td>
-					<td />
-					<td />
 				</tr>
 			{/each}
 			{#each showAll(abilitys)
@@ -155,11 +151,8 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -187,11 +180,8 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -219,11 +209,8 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -245,8 +232,6 @@
 					<td>
 						{map.role ?? ''}
 					</td>
-					<td />
-					<td />
 				</tr>
 			{/each}
 
@@ -271,11 +256,9 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
+
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -297,8 +280,6 @@
 					<td>
 						{map.role ?? ''}
 					</td>
-					<td />
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -327,11 +308,9 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
+
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -360,11 +339,9 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
+
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -393,11 +370,9 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
+
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -426,11 +401,8 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 			{#each scriptRoles
@@ -448,8 +420,6 @@
 					<td>
 						{map.role ?? ''}
 					</td>
-					<td />
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -478,11 +448,8 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 			{#each showAll(abilitys)
@@ -506,39 +473,45 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
+
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 			{#each usedIncedents as i}
-				{@const limit = isCharacterName(i.culprit)
-					? characters[i.culprit].paranoiaLimit
-					: require(i).mob}
+				{@const char = isCharacterName(i.culprit) ? characters[i.culprit] : undefined}
+				{@const limit = char ? char.paranoiaLimit : require(i).mob}
 				{#each i.effect as e}
 					<tr>
 						<td>
 							{e.type ?? ''}
 						</td>
 						<td>
+							{#if char == undefined}
+								Mob:
+							{/if}
 							{i.culprit ?? ''}
 						</td>
 						<td>
-							On day {i.day} {#if limit>0}limit {limit}{/if}
+							On day {i.day}
+							{#if limit ?? 0 > 0}limit {limit}{/if}
 							{#if e.prerequisite}
 								| {e.prerequisite}
 							{/if}
 						</td>
 
 						<td>
-							{e.description ?? ''}
+							{#if require(char)?.doseNotTriggerIncidentEffect}
+								This has no effect but the incident is triggered.
+							{:else if char?.name && roles[getRoleOfCast(selectedScript, char.name) ?? 'Person']?.doseNotTriggerIncidentEffect}
+								This has no effect but the incident is triggered.
+							{:else}
+								{e.description ?? ''}
+							{/if}
 							<OncePer ability={e} />
 							<!-- <OncePer ability={i} /> -->
 						</td>
-						<td />
-						<td />
+
 						<td>
 							{i.incident ?? ''}
 						</td>
@@ -571,11 +544,8 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}
@@ -604,11 +574,9 @@
 					</td>
 					<td>
 						{map.role ?? ''}
-					</td>
-					<td>
+
 						{map.plot ?? ''}
 					</td>
-					<td />
 				</tr>
 			{/each}
 		{/if}

@@ -1,5 +1,6 @@
 import { toRecord } from "../misc";
 import type { ScriptSpecified } from "./core";
+import type { DoseNotTriggerIncident } from "./incidents";
 
 
 
@@ -31,7 +32,7 @@ type CharacterIntern = {
     comesInLater?: true,
     plotLessRole?: true,
 
-} & ScriptSpecified;
+} & ScriptSpecified & DoseNotTriggerIncident;
 
 export type Ability = {
     type: 'active'
@@ -499,6 +500,7 @@ export const characters = toRecord([
         name: 'Black Cat',
         paranoiaLimit: 0,
         tags: ["animal"],
+        doseNotTriggerIncidentEffect: true,
         startLocation: 'School',
         abilitys: [
             {

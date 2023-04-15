@@ -39,6 +39,9 @@ export function includes<T>(a: readonly T[] | undefined, el: ArrayOfUnion<T>): I
     return a.includes(el);
 }
 
+
+
+
 // export type ShowOptional<T> = T extends { [x in KeysOfUnion<T> ]: T[x] } ? { [x in KeysOfUnion<T> ]: T[x] } : { [x in KeysOfUnion<T> ]: undefined };
 export type ShowOptional<T> = {
     [x in KeysOfUnion<T>]: T[x] extends string | object | number ? T[x] : OptionalProp<T, x> | undefined
