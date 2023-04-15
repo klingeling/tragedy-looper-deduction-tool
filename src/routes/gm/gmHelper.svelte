@@ -3,7 +3,7 @@
 	import type { Script } from '../../model/script';
 	import '@picocss/pico/css/pico.css';
 	import { roles, type RoleName, type AbilityType } from '../../model/roles';
-	import { characters, type CharacterName } from '../../model/characters';
+	import { characters, type CharacterName, isCharacterName } from '../../model/characters';
 	import {
 		fromEntries,
 		hasProp,
@@ -514,6 +514,9 @@
 				</tr>
 			{/each}
 			{#each usedIncedents as i}
+				{@const limit = isCharacterName(i.culprit)
+					? characters[i.culprit].paranoiaLimit
+					: require(i).mob}
 				{#each i.effect as e}
 					<tr>
 						<td>
@@ -523,7 +526,10 @@
 							{i.culprit ?? ''}
 						</td>
 						<td>
-							{e.prerequisite ?? ''}
+							On day {i.day} {#if limit>0}limit {limit}{/if}
+							{#if e.prerequisite}
+								| {e.prerequisite}
+							{/if}
 						</td>
 
 						<td>
