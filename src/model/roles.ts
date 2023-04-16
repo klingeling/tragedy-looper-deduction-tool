@@ -29,12 +29,12 @@ type RoleInternal = {
     abilities: readonly Abilitie<{ 'Over all Roles'?: true }>[]
 } & ScriptSpecified & DoseNotTriggerIncident;
 
-export type OncePer<Text extends string, Constraints extends Object | void = void, T = object> = T &
+export type OncePer<Text extends string, Constraints extends object | void = void, T = object> = T &
     {
         [k in `timesPer${Capitalize<Text>}`]?: Constraints extends void ? number : number | readonly [number, RequireAtLeastOne<Constraints>]
     };
 
-export type Abilitie<Constraints extends Object | void = void> = OncePer<'Loop' | 'day', Constraints, {
+export type Abilitie<Constraints extends object | void = void> = OncePer<'Loop' | 'day', Constraints, {
     description: string,
     prerequisite?: string,
     type: AbilityTypeDefault,
@@ -53,8 +53,8 @@ export type Abilitie<Constraints extends Object | void = void> = OncePer<'Loop' 
     type: AbilityTypeCreation,
 }
 
-export type Role = rolesInternal[keyof rolesInternal];
-export type rolesInternal = typeof rolesInternal;
+export type Role = Roles[keyof Roles];
+export type Roles = typeof rolesInternal;
 export type RoleName = Role['name'];
 
 
