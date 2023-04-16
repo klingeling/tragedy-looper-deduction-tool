@@ -1,8 +1,9 @@
+/* eslint-disable no-extra-boolean-cast */
 import type { SetIntersection } from "utility-types";
-import { type KeysOfUnion, type Union, toRecord } from "../misc";
+import { type KeysOfUnion, type Union, toRecord, require } from "../misc";
 import { isCharacterName, type CharacterName, type LocationName, isLocationName } from "./characters";
 import type { DefinitionRecord, Options, WithScriptSpecification } from "./core";
-import { isIncidentName, type IncidentName, type FakedIncident, type MobIncident, isIncident } from "./incidents";
+import { isIncidentName, type IncidentName, type FakedIncident, type MobIncident, isIncident, incidents, type Incident } from "./incidents";
 import { isPlotName, type Plots } from "./plots";
 import { isRoleName, type RoleName } from "./roles";
 import { isTragedySetName, type CastOptions, type TragedySets } from "./tragedySets";
@@ -58,18 +59,53 @@ export function isScriptIncident(obj: unknown, omitCulprit?: true): obj is Scrip
     if (!('incident' in obj)) {
         return false;
     }
-    if (typeof obj.incident !== 'string' || !isIncidentName(obj.incident)) {
+
+    let currentIncident: Incident;
+    if (typeof obj.incident === 'string') {
+        const name = obj.incident;
+        if (!isIncidentName(name)) {
+            console.error('not an incident name', name)
+            return false;
+        }
+        currentIncident = incidents[name];
+    } else if (Array.isArray(obj.incident) && obj.incident.length == 2) {
+        if (!isIncidentName(obj.incident[0]) || !isIncidentName(obj.incident[1])) {
+            console.error('not an incident name', obj.incident)
+            return false;
+        }
+        currentIncident = incidents[obj.incident[0]];
+    } else {
+        console.error('not an incident name', obj.incident)
         return false;
     }
 
+
+
     if (!omitCulprit) {
+
         if (!('culprit' in obj)) {
             return false;
         }
-        if ((typeof obj.culprit !== 'string' || !isCharacterName(obj.culprit)) &&
-            (!Array.isArray(obj.culprit) || obj.culprit.length != 2 || !isLocationName(obj.culprit[0]) || typeof obj.culprit[1] != 'number')) {
-            return false;
+        if (typeof obj.culprit === 'string') {
+
+            if (require(currentIncident).mob !== undefined) {
+                if (!isLocationName(obj.culprit)) {
+                    console.error('Not a Locaion name', obj.culprit)
+                    return false;
+                }
+            } else {
+                if (!isCharacterName(obj.culprit)) {
+                    console.error('Not a charcter name', obj.culprit)
+                    return false;
+                }
+            }
+        } else {
+            false;
         }
+        // if ((typeof obj.culprit !== 'string' || (!isCharacterName(obj.culprit) && !isLocationName(obj.culprit))) &&
+        //     (!Array.isArray(obj.culprit) || obj.culprit.length != 2 || !isLocationName(obj.culprit[0]) || typeof obj.culprit[1] != 'number')) {
+        //     return false;
+        // }
     }
 
     return true;
@@ -97,65 +133,74 @@ export type Script = Scripts[keyof Scripts];
 export type Scripts = typeof scripts;
 
 
-export function isScript(obj: object): obj is Script {
-    if (typeof obj == 'object'
-        && !Array.isArray(obj)
-        && 'title' in obj
-        && typeof obj.title == 'string'
-        && 'creator' in obj
-        && typeof obj.creator == 'string'
-        && (!('set' in obj)
-            || (typeof obj.set == 'object'
-                && obj.set !== null
-                && 'name' in obj.set && typeof obj.set.name == 'string'
-                && 'number' in obj.set && typeof obj.set.number == 'number')
+export function isScript(obj: unknown): obj is Script {
+    if (typeof obj !== 'object') return false;
+    if (obj === null) return false;
+    if (!(!Array.isArray(obj))) { console.error("faild test !Array.isArray(obj)"); return false; }
+    if (!('title' in obj)) { console.error("faild test 'title' in obj"); return false; }
+    if (!(typeof obj.title == 'string')) { console.error("faild test typeof obj.title == 'string'"); return false; }
+    if (!('creator' in obj)) { console.error("faild test 'creator' in obj"); return false; }
+    if (!(typeof obj.creator == 'string')) { console.error("faild test typeof obj.creator == 'string'"); return false; }
+    if (!(!('set' in obj)
+        || (typeof obj.set == 'object'
+            && obj.set !== null
+            && 'name' in obj.set && typeof obj.set.name == 'string'
+            && 'number' in obj.set && typeof obj.set.number == 'number')
+    )) { console.error("faild test set"); return false; }
+    if (!('difficultySets' in obj)) { console.error("faild test 'difficultySets' in obj"); return false; }
+    if (!(Array.isArray(obj.difficultySets))) { console.error("faild test Array.isArray(obj.difficultySets)"); return false; }
+    if (!(obj.difficultySets.every((e: object) => typeof e == 'object'
+        && e !== null
+        && 'numberOfLoops' in e
+        && typeof e.numberOfLoops == 'number'
+        && 'difficulty' in e
+        && typeof e.difficulty == 'number'
+    ))) { console.error("faild test difficulty"); return false; }
+    if (!('tragedySet' in obj)) { console.error("faild test 'tragedySet' in obj"); return false; }
+    if (!(typeof obj.tragedySet == 'string')) { console.error("faild test typeof obj.tragedySet == 'string'"); return false; }
+    if (!(isTragedySetName(obj.tragedySet))) { console.error("faild test isTragedySetName(obj.tragedySet)"); return false; }
+    if (!('mainPlot' in obj)) { console.error("faild test 'mainPlot' in obj"); return false; }
+    if (!(Array.isArray(obj.mainPlot))) { console.error("faild test Array.isArray(obj.mainPlot)", obj.mainPlot); return false; }
+    if (!(obj.mainPlot.every(isPlotName))) { console.error("faild test obj.mainPlot.every(isPlotName)", obj.mainPlot); return false; }
+    if (!('subPlots' in obj)) { console.error("faild test 'subPlots' in obj"); return false; }
+    if (!(Array.isArray(obj.subPlots))) { console.error("faild test Array.isArray(obj.subPlots)", obj.subPlots); return false; }
+    if (!(obj.subPlots.every(x => {
+        if (typeof x == 'string') {
+            return isPlotName(x);
+        } else if (Array.isArray(x)) {
+            return isPlotName(x[0]);
+        } else {
+            return false;
+        }
+    }))) { console.error("faild test obj.subPlots.every(isPlotName)", obj.subPlots); return false; }
+    if (!('daysPerLoop' in obj)) { console.error("faild test 'daysPerLoop' in obj"); return false; }
+    if (!('cast' in obj)) { console.error("faild test 'cast' in obj"); return false; }
+    if (!(typeof obj.cast == 'object')) { console.error("faild test typeof obj.cast == 'object'"); return false; }
+    if (!(obj.cast !== null)) { console.error("faild test obj.cast !== null"); return false; }
+    if (!(Object.keys(obj.cast).every(isCharacterName))) { console.error("faild test Object.keys(obj.cast).every(isCharacterName)"); return false; }
+    if (!(Object.values(obj.cast).every((value: unknown) => {
+        if (typeof value == 'string') {
+            return isRoleName(value);
+        } else if (Array.isArray(value) && typeof value[0] == 'string') {
+            return isRoleName(value[0]) && typeof value[1] == 'object' && value[1] !== null && Object.keys(value[1]).every(x => typeof x == 'string');
+        }
+    }))) { console.error("faild test cast"); return false; }
+    if (!('incidents' in obj)) { console.error("faild test 'incidents' in obj"); return false; }
+    if (!(Array.isArray(obj.incidents))) { console.error("faild test Array.isArray(obj.incidents)"); return false; }
+    if (!(obj.incidents.every(x => isScriptIncident(x)))) { console.error("faild test obj.incidents.every(x => isScriptIncident(x))", obj.incidents); return false; }
+    if (!(!('specialRules' in obj)
+        || (typeof obj.specialRules == 'object'
+            && Array.isArray(obj.specialRules)
+            && obj.specialRules.every(x => typeof x == 'string')
         )
-        && 'difficultySets' in obj
-        && Array.isArray(obj.difficultySets)
-        && obj.difficultySets.every((e: object) => typeof e == 'object'
-            && e !== null
-            && 'numberOfLoops' in e
-            && typeof e.numberOfLoops == 'number'
-            && 'difficulty' in e
-            && typeof e.difficulty == 'number'
-        )
-        && 'tragedySet' in obj
-        && typeof obj.tragedySet == 'string'
-        && isTragedySetName(obj.tragedySet)
-        && 'mainPlot' in obj
-        && Array.isArray(obj.mainPlot)
-        && obj.mainPlot.every(isPlotName)
-        && 'subPlots' in obj
-        && Array.isArray(obj.subPlots)
-        && obj.subPlots.every(isPlotName)
-        && 'daysPerLoop' in obj
-        && 'cast' in obj
-        && typeof obj.cast == 'object'
-        && obj.cast !== null
-        && Object.keys(obj.cast).every(isCharacterName)
-        && Object.values(obj.cast).every((value: unknown) => {
-            if (typeof value == 'string') {
-                return isRoleName(value);
-            } else if (Array.isArray(value) && typeof value[0] == 'string') {
-                return isRoleName(value[0]) && typeof value[1] == 'object' && value[1] !== null && Object.keys(value[1]).every(x => typeof x == 'string');
-            }
-        })
-        && 'incidents' in obj
-        && Array.isArray(obj.incidents)
-        && obj.incidents.every(x => isScriptIncident(x))
-        && (!('specialRules' in obj)
-            || (typeof obj.specialRules == 'object'
-                && Array.isArray(obj.specialRules)
-                && obj.specialRules.every(x => typeof x == 'string')
-            )
-        )
-        && 'specifics' in obj
-        && typeof obj.specifics == 'string'
-        && 'story' in obj
-        && typeof obj.story == 'string'
-        && 'mastermindHints' in obj
-        && typeof obj.mastermindHints == 'string'
-    ) {
+    )) { console.error("faild test incidents"); return false; }
+    if (!('specifics' in obj)) { console.error("faild test 'specifics' in obj"); return false; }
+    if (!(typeof obj.specifics == 'string')) { console.error("faild test typeof obj.specifics == 'string'"); return false; }
+    if (!('story' in obj)) { console.error("faild test 'story' in obj"); return false; }
+    if (!(typeof obj.story == 'string')) { console.error("faild test typeof obj.story == 'string'"); return false; }
+    if (!('mastermindHints' in obj)) { console.error("faild test 'mastermindHints' in obj"); return false; }
+    if (!(typeof obj.mastermindHints == 'string')) { console.error("faild test typeof obj.mastermindHints == 'string'"); return false; }
+    {
 
         return true;
     }

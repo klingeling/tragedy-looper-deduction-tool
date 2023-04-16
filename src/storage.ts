@@ -26,8 +26,8 @@ function fromJson(str: string | undefined | null): Script | null {
     }
 }
 
-export function loadAllScripts(): Script[] {
-    return [...loadAllLocalScripts(), ...Object.values(scripts)];
+export function loadAllScripts(): (Script & { local: true | undefined })[] {
+    return [...loadAllLocalScripts(), ...Object.values(scripts).map(x => ({ ...x, local: undefined }))];
 }
 export function loadAllLocalScripts() {
     if (!browser) {
@@ -36,7 +36,7 @@ export function loadAllLocalScripts() {
     if (!window.localStorage) {
         return [];
     }
-    const result: Script[] = [];
+    const result: (Script & { local: true | undefined })[] = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key) {
@@ -44,7 +44,7 @@ export function loadAllLocalScripts() {
             if (element) {
                 const script = fromJson(element);
                 if (script) {
-                    result.push(script);
+                    result.push({ ...script, local: true });
                 }
             }
         }
@@ -62,15 +62,15 @@ export function loadScript({ title, author, set }: { title?: string | null; auth
         && (!author || x.creator == author)
         && (!set || (set.name == x?.set.name && set.number == x?.set.number));
 
-    if (title && author) {
-        const founds = [fromJson(window.localStorage?.getItem(`scripts:${author}:${title}`)),
-        scripts[title as ScriptName]];
-        ;
-        const filtered = founds.filter(filter);
-        return filtered;
-    } else {
-        const found = loadAllScripts().filter(filter);
-        return found;
-    }
+    // if (title && author) {
+    //     const founds = [...[fromJson(window.localStorage?.getItem(`scripts:${author}:${title}`))].ma,
+    //     scripts[title as ScriptName]];
+    //     ;
+    //     const filtered = founds.filter(filter);
+    //     return filtered;
+    // } else {
+    const found = loadAllScripts().filter(filter);
+    return found;
+    // }
 
 }

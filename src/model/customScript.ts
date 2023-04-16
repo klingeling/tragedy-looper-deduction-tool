@@ -809,7 +809,7 @@ export class CustomScript {
                     culprit: get(x.selectedCharacter)
                 };
             }),
-            specialRules: get(this.specialRules),
+            specialRules: [get(this.specialRules)],
             specifics: get(this.specifics),
             story: get(this.story),
             mastermindHints: get(this.mastermindHints),

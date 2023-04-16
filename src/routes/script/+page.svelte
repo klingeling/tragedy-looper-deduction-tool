@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { distinct, join, keys } from '../../misc';
+  import { distinct, join, keys, require } from '../../misc';
   import { scripts as scriptLookup, type Script, isScriptName } from '../../model/script';
   import { page } from '$app/stores';
   import ScriptDetails from './scriptDetails.svelte';
@@ -12,7 +12,10 @@
 
   $: scripts = Object.values(scriptLookup);
 
-  let selectedScript: Script | undefined;
+  let selectedScript:
+    | (Script & { local: true | undefined })
+    | (Script & { local: true | undefined })[]
+    | undefined;
 
   let searchParams: URLSearchParams | undefined;
 
@@ -38,8 +41,7 @@
   $: {
     if (serilizedScript != undefined) {
       selectedScript = JSON.parse(serilizedScript);
-    } else if(searchParams) {
-
+    } else if (searchParams) {
       const search = {
         title,
         author,
@@ -48,9 +50,7 @@
 
       const loading = loadScript(search);
 
-      if (loading.length == 1) {
-        selectedScript = loading[0];
-      }
+      selectedScript = loading;
     }
 
     // if (setName && setNumber > -1) {
@@ -80,7 +80,24 @@
 
 <main class="container">
   <!-- <main class="container"> -->
-  {#if selectedScript}
+  {#if Array.isArray(selectedScript)}
+    <h1>There where more scripts matching please select one.</h1>
+    <article>
+      {#each selectedScript as s}
+        <div>
+          <a href={`${base}/script/?script=${encodeURIComponent(JSON.stringify(s))}`}
+            >{s.set?.number ?? ''}
+            {s.set?.name ?? ''}
+            {s.title} by {s.creator} [{s.tragedySet}] difficulty {join(
+              s.difficultySets?.map((x) => x.difficulty.toString()) ?? [],
+              ' / '
+            )}
+            {s.local ? '(local script)' : ''}</a
+          >
+        </div>
+      {/each}
+    </article>
+  {:else if selectedScript}
     <article>
       <ScriptDetails script={selectedScript} />
     </article>
