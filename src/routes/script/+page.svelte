@@ -77,7 +77,7 @@
 			</header>
 			{#each ownScripts as s}
 				<div>
-					<a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
+					<a href={`${base}/script/?script=${encodeURIComponent(JSON.stringify(s))}`}
 						>{s.set?.number ?? ''}
 						{s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
 							s.difficultySets.map((x) => x.difficulty.toString()),
