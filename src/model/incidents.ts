@@ -36,6 +36,32 @@ export function isRepeatedCulpritIncident(name: string): name is MobIncident {
     return 'repeatedCulprit' in incident && incident.repeatedCulprit === true;
 }
 
+export function isIncident(obj: unknown): obj is Incident {
+
+    if (typeof obj == 'object'
+        && obj != null
+        && 'name' in obj
+        && typeof obj.name == 'string'
+
+        && (!('faked' in obj)
+            || (typeof obj.faked == 'boolean'
+                && obj.faked === true)
+        )
+        && (!('repeatedCulprit' in obj)
+            || (typeof obj.repeatedCulprit == 'boolean'
+                && obj.repeatedCulprit === true)
+        )
+        && (!('mob' in obj)
+            || (typeof obj.mob == 'number'
+                && obj.mob >= 0)
+        )
+    ) {
+        return true;
+    }
+    return false;
+}
+
+
 type IncidentInternal = OncePer<'game', void, {
     name: string,
 

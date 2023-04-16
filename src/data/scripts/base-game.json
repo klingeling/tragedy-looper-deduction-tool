@@ -612,7 +612,7 @@
                 "culprit": "Patient"
             }
         ],
-        "specialRules": "Mastermind removes \"Forbid Goodwill\" from his hand. It cannot be used in any loop",
+        "specialRules": ["Mastermind removes \"Forbid Goodwill\" from his hand. It cannot be used in any loop"],
         "specifics": "See Tragedy Looper Mastermind Handbook",
         "story": "See Tragedy Looper Mastermind Handbook",
         "mastermindHints": "See Tragedy Looper Mastermind Handbook"

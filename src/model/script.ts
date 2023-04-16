@@ -2,10 +2,10 @@ import type { SetIntersection } from "utility-types";
 import { type KeysOfUnion, type Union, toRecord } from "../misc";
 import { isCharacterName, type CharacterName, type LocationName, isLocationName } from "./characters";
 import type { DefinitionRecord, Options, WithScriptSpecification } from "./core";
-import { isIncidentName, type IncidentName, type FakedIncident, type MobIncident } from "./incidents";
-import type { Plots } from "./plots";
-import type { RoleName } from "./roles";
-import type { CastOptions, TragedySets } from "./tragedySets";
+import { isIncidentName, type IncidentName, type FakedIncident, type MobIncident, isIncident } from "./incidents";
+import { isPlotName, type Plots } from "./plots";
+import { isRoleName, type RoleName } from "./roles";
+import { isTragedySetName, type CastOptions, type TragedySets } from "./tragedySets";
 
 import * as data from "../data";
 
@@ -97,11 +97,64 @@ export type Script = Scripts[keyof Scripts];
 export type Scripts = typeof scripts;
 
 
-export function isScript(obj: any): obj is Script {
-console.log('is scripts')
+export function isScript(obj: object): obj is Script {
     if (typeof obj == 'object'
         && !Array.isArray(obj)
         && 'title' in obj
+        && typeof obj.title == 'string'
+        && 'creator' in obj
+        && typeof obj.creator == 'string'
+        && (!('set' in obj)
+            || (typeof obj.set == 'object'
+                && obj.set !== null
+                && 'name' in obj.set && typeof obj.set.name == 'string'
+                && 'number' in obj.set && typeof obj.set.number == 'number')
+        )
+        && 'difficultySets' in obj
+        && Array.isArray(obj.difficultySets)
+        && obj.difficultySets.every((e: object) => typeof e == 'object'
+            && e !== null
+            && 'numberOfLoops' in e
+            && typeof e.numberOfLoops == 'number'
+            && 'difficulty' in e
+            && typeof e.difficulty == 'number'
+        )
+        && 'tragedySet' in obj
+        && typeof obj.tragedySet == 'string'
+        && isTragedySetName(obj.tragedySet)
+        && 'mainPlot' in obj
+        && Array.isArray(obj.mainPlot)
+        && obj.mainPlot.every(isPlotName)
+        && 'subPlots' in obj
+        && Array.isArray(obj.subPlots)
+        && obj.subPlots.every(isPlotName)
+        && 'daysPerLoop' in obj
+        && 'cast' in obj
+        && typeof obj.cast == 'object'
+        && obj.cast !== null
+        && Object.keys(obj.cast).every(isCharacterName)
+        && Object.values(obj.cast).every((value: unknown) => {
+            if (typeof value == 'string') {
+                return isRoleName(value);
+            } else if (Array.isArray(value) && typeof value[0] == 'string') {
+                return isRoleName(value[0]) && typeof value[1] == 'object' && value[1] !== null && Object.keys(value[1]).every(x => typeof x == 'string');
+            }
+        })
+        && 'incidents' in obj
+        && Array.isArray(obj.incidents)
+        && obj.incidents.every(x => isScriptIncident(x))
+        && (!('specialRules' in obj)
+            || (typeof obj.specialRules == 'object'
+                && Array.isArray(obj.specialRules)
+                && obj.specialRules.every(x => typeof x == 'string')
+            )
+        )
+        && 'specifics' in obj
+        && typeof obj.specifics == 'string'
+        && 'story' in obj
+        && typeof obj.story == 'string'
+        && 'mastermindHints' in obj
+        && typeof obj.mastermindHints == 'string'
     ) {
 
         return true;
@@ -142,7 +195,7 @@ type ScriptInternal = Union<{
         castOptions?: Options,
 
         incidents: readonly ScriptIncident<k>[],
-        specialRules?: string,
+        specialRules?: readonly string[],
         specifics: string,
         story: string,
         mastermindHints: string,
@@ -150,11 +203,10 @@ type ScriptInternal = Union<{
 }>
 
 
-
 export type ScriptName = keyof Scripts;
 
 export const scripts = toRecord([
-    ...data.scripts
+    ...data.scripts.filter(x => isScript(x))
 ] as const satisfies readonly ScriptInternal[], 'title');
 
 

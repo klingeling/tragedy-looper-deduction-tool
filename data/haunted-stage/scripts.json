@@ -403,7 +403,7 @@
           "culprit": "Patient"
         }
       ],
-      "specialRules": "Mastermind remove \"Forbid Goodwill\" from his hand. It cannot be used on any loop",
+      "specialRules": ["Mastermind remove \"Forbid Goodwill\" from his hand. It cannot be used on any loop"],
       "specifics": "",
       "story": "",
       "mastermindHints": ""
@@ -458,7 +458,7 @@
           "culprit": "Scientist"
         }
       ],
-      "specialRules": "Mastermind remove \"Forbid Goodwill\" from his hand. It cannot be used on any loop",
+      "specialRules": ["Mastermind remove \"Forbid Goodwill\" from his hand. It cannot be used on any loop"],
       "specifics": "",
       "story": "",
       "mastermindHints": ""
