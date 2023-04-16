@@ -39,7 +39,7 @@
       script.tragedySet,
       distinct(keys<Partial<Record<CharacterName, any>>>(script.cast).concat(additionalCharacters)),
       script.incidents.map(toPlayerIncident),
-      require(script).specialRules ? [require(script)?.specialRules!] : []
+      require(script).specialRules ?? []
     ).toString();
   }
 
@@ -242,10 +242,14 @@
       </tbody>
     </table>
   </div>
-  {#if require(script).specialRules}
+  {#if require(script).specialRules && require(script).specialRules?.filter((x) => x.length > 0).length > 0}
     <h5>Special Rules</h5>
     <div>
-      {require(script).specialRules}
+      {#each require(script).specialRules?.filter((x) => x.length > 0) as s}
+        <p>
+          {s}
+        </p>
+      {/each}
     </div>
   {/if}
   <div>
