@@ -56,6 +56,9 @@ export function loadScript({ title, author, set }: { title?: string | null; auth
         throw new Error('We need to run in Browser');
     }
 
+    if (!title && !author && !set) {
+        return null;
+    }
 
     const filter: ((x: Script | null) => x is Script) = (x): x is Script => x !== null
         && (!title || x.title == title)
