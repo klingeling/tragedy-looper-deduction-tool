@@ -703,10 +703,7 @@
 	.rules {
 		max-width: var(--rule-width);
 	}
-	.vertical-header.rules {
-		max-width: unset;
-		max-height: var(--rule-width);
-	}
+	
 
 	.role-char {
 		background-color: var(--character-background-color-light);
