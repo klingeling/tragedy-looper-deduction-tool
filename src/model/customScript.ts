@@ -612,7 +612,7 @@ export class CustomScript {
      * import
      */
     public import(script: Script) {
-        this.title.set(script.titel);
+        this.title.set(script.title);
         this.creator.set(script.creator);
         this.difficultySets.subscribe(x =>
             console.log('d', x));
@@ -751,7 +751,7 @@ export class CustomScript {
 
         const result = {
 
-            titel: get(this.title),
+            title: get(this.title),
             creator: get(this.creator),
             set: get(this.set),
             difficultySets: get(this.difficultySets),

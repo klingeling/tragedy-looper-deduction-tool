@@ -97,7 +97,7 @@
 
 <hgroup style="align-self: start; justify-self: start;">
 	<h4>{selectedScript.creator}</h4>
-	<h1>{selectedScript.titel}</h1>
+	<h1>{selectedScript.title}</h1>
 
 	<h2>
 		{#if selectedScript.set}

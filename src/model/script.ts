@@ -97,6 +97,19 @@ export type Script = Scripts[keyof Scripts];
 export type Scripts = typeof scripts;
 
 
+export function isScript(obj: any): obj is Script {
+console.log('is scripts')
+    if (typeof obj == 'object'
+        && !Array.isArray(obj)
+        && 'title' in obj
+    ) {
+
+        return true;
+    }
+    return false;
+
+}
+
 
 
 type getCastOptions<T extends keyof TragedySets> = getCastOptions2<TragedySets[T]>
@@ -111,7 +124,7 @@ type roleToTragedySet<T extends keyof TragedySets> = 'Person' | getAdditionalRol
 type ScriptInternal = Union<{
     [k in keyof TragedySets]:
     {
-        titel: string,
+        title: string,
         creator: string,
         set?: {
             name: string,
@@ -142,7 +155,7 @@ export type ScriptName = keyof Scripts;
 
 export const scripts = toRecord([
     ...data.scripts
-] as const satisfies readonly ScriptInternal[], 'titel');
+] as const satisfies readonly ScriptInternal[], 'title');
 
 
 export function isScriptName(name: string | undefined | null): name is ScriptName {

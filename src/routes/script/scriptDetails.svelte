@@ -51,9 +51,9 @@
     host = document.location.host;
     protocoll = document.location.protocol;
   });
-  async function share(shareLink: string, titel: string, text: string) {
+  async function share(shareLink: string, title: string, text: string) {
     const shareData = {
-      title: titel,
+      title: title,
       text: text,
       url: shareLink,
     };
@@ -106,7 +106,7 @@
         on:click={() =>
           share(
             `${base}/script/?script=${encodeURIComponent(JSON.stringify(script))}`,
-            script.titel,
+            script.title,
             'A Tragedy Looper Script'
           )}
         style="grid-row: 1; grid-column: 1;"
@@ -138,7 +138,7 @@
 
     <hgroup style="align-self: start; justify-self: start;">
       <h4>{script.creator}</h4>
-      <h1>{script.titel}</h1>
+      <h1>{script.title}</h1>
 
       <h2>
         {#if script.set}

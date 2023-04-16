@@ -19,6 +19,7 @@
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
   import ExportView from '../../../view/exportView.svelte';
+    import { saveScript } from '../../../storage';
 
   const model = new CustomScript();
 
@@ -63,8 +64,9 @@
 
   function save() {
     const data = model.export();
+	saveScript(data);
     const json = JSON.stringify(data);
-    window.localStorage.setItem(data.titel, json);
+    // window.localStorage.setItem(data.title, json);
     goto(`${base}/script/?script=${encodeURIComponent(json)}`);
   }
 </script>

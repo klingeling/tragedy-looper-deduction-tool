@@ -8,6 +8,7 @@
   import '@picocss/pico/css/pico.css';
   import CustomScript from './customScript/CustomScript.svelte';
   import ExportView from '../../view/exportView.svelte';
+  import { loadAllLocalScripts, loadScript } from '../../storage';
 
   $: scripts = Object.values(scriptLookup);
 
@@ -24,20 +25,7 @@
       searchParams = new URLSearchParams(document.location.search);
     };
 
-    const localStorage = window.localStorage;
-    if (localStorage)
-      ownScripts = Array.from(localStorage)
-        .map((_, i) => {
-          const key = localStorage.key(i);
-          if (key) {
-            const data = localStorage.getItem(key);
-            if (data) {
-              const json = JSON.parse(data);
-              return json;
-            }
-          }
-        })
-        .filter((x) => x && 'titel' in x);
+    ownScripts = loadAllLocalScripts();
   });
 
   $: setNumber = parseInt(searchParams?.get('setNumber') ?? '-1');
@@ -48,15 +36,33 @@
   $: serilizedScript = searchParams?.get('script');
 
   $: {
-    if (setName && setNumber > -1) {
-      selectedScript = scripts.filter(
-        (x) => x.set?.name == setName && x.set?.number == setNumber
-      )[0];
-    } else if (isScriptName(title)) {
-      selectedScript = scriptLookup[title];
-    } else if (serilizedScript != undefined) {
+    if (serilizedScript != undefined) {
       selectedScript = JSON.parse(serilizedScript);
+    } else if(searchParams) {
+
+      const search = {
+        title,
+        author,
+        set: setName && setNumber > -1 ? { name: setName, number: setNumber } : undefined,
+      };
+
+      const loading = loadScript(search);
+
+      if (loading.length == 1) {
+        selectedScript = loading[0];
+      }
     }
+
+    // if (setName && setNumber > -1) {
+
+    //   selectedScript = scripts.filter(
+    //     (x) => x.set?.name == setName && x.set?.number == setNumber
+    //   )[0];
+    // } else if (isScriptName(title)) {
+    //   selectedScript = scriptLookup[title];
+    // } else if (serilizedScript != undefined) {
+    //   selectedScript = JSON.parse(serilizedScript);
+    // }
   }
 
   let exportJson: string | undefined;
@@ -70,7 +76,7 @@
   }
 </script>
 
-<ExportView bind:exportJson={exportJson} />
+<ExportView bind:exportJson />
 
 <main class="container">
   <!-- <main class="container"> -->
@@ -92,8 +98,8 @@
         <div>
           <a href={`${base}/script/?script=${encodeURIComponent(JSON.stringify(s))}`}
             >{s.set?.number ?? ''}
-            {s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
-              s.difficultySets.map((x) => x.difficulty.toString()),
+            {s.title} by {s.creator} [{s.tragedySet}] difficulty {join(
+              s.difficultySets?.map((x) => x.difficulty.toString()) ?? [],
               ' / '
             )}</a
           >
@@ -119,9 +125,9 @@
         .sort((a, b) => (a.set?.number ?? 0) - (b.set?.number ?? 0)) as s}
         {#if s}
           <div>
-            <a href={`${base}/script/?title=${encodeURIComponent(s.titel)}`}
+            <a href={`${base}/script/?title=${encodeURIComponent(s.title)}`}
               >{s.set?.number ?? ''}
-              {s.titel} by {s.creator} [{s.tragedySet}] difficulty {join(
+              {s.title} by {s.creator} [{s.tragedySet}] difficulty {join(
                 s.difficultySets.map((x) => x.difficulty.toString()),
                 ' / '
               )}</a
