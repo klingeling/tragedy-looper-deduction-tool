@@ -1,15 +1,13 @@
 <script lang="ts">
-  import { distinct, join, keys, require } from '../../misc';
-  import { scripts as scriptLookup, type Script, isScriptName } from '../../model/script';
-  import { page } from '$app/stores';
+  import { distinct, join } from '../../misc';
+  import { scripts as scriptLookup, type Script } from '../../model/script';
   import ScriptDetails from './scriptDetails.svelte';
   import { onMount } from 'svelte';
   import { base } from '$app/paths';
   import '@picocss/pico/css/pico.css';
-  import CustomScript from './customScript/CustomScript.svelte';
   import ExportView from '../../view/exportView.svelte';
   import { loadAllLocalScripts, loadScript } from '../../storage';
-
+  
   $: scripts = Object.values(scriptLookup);
 
   let selectedScript:
@@ -49,8 +47,11 @@
       };
 
       const loading = loadScript(search);
-
-      selectedScript = loading;
+      if (loading?.length === 1) {
+        selectedScript = loading[0];
+      } else {
+        selectedScript = loading;
+      }
     }
 
     // if (setName && setNumber > -1) {

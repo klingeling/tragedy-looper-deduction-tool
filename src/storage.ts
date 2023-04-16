@@ -57,7 +57,7 @@ export function loadScript({ title, author, set }: { title?: string | null; auth
     }
 
     if (!title && !author && !set) {
-        return null;
+        return undefined;
     }
 
     const filter: ((x: Script | null) => x is Script) = (x): x is Script => x !== null
