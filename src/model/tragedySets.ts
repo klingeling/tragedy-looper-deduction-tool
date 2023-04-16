@@ -335,6 +335,7 @@ export const tragedySets = toRecord([
             'Max Crazy Gauge',
             'Boundary Between Life and Death',
         ],
+        aditionalRoles: ['Zombie (Haunted Stage)'],
         incidents: [
             'Serial Murder',
             'Increasing Unease',
