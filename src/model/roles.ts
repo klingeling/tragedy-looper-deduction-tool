@@ -16,7 +16,7 @@ export const loseTypes = [
     'Loss condition: Tragedy'
 ] as const;
 
-export type timing = 'Always' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start'
+export type timing = 'Always' | 'Day Start' | 'Day End' | 'Mastermind Ability' | 'Card resolve' | 'Loop End' | 'Loop Start'
     | 'Last Day' | 'First Day' | 'Incident step' | 'Incident trigger' | 'On character death' | 'When this role is to be reveald'
     | 'Mastermind Action step' | 'Goodwill ablility step' | 'After Goodwill Ability used';
 

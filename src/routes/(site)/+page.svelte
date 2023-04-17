@@ -34,7 +34,11 @@
       {getString(
         'For your Language there are missing translations, if you have time and fun you can help and add some localisations using the below. And post them on Github.',
         lang
-      )}
+      )}<br>
+      <a href={`${base}/translations`}>{getString('Translation Overview', lang)} </a>
+    </p>
+  {:else}
+    <p>
       <a href={`${base}/translations`}>{getString('Translation Overview', lang)} </a>
     </p>
   {/if}

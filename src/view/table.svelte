@@ -500,11 +500,20 @@
     {/each}
 
     <div class="header vertical-header role" style="grid-area: goodwillrefusal-header;">
-      {getString('Goodwill Refusel', lang)}
+      <div style="height: min-content; min-height: 100%;">
+        {getString('Goodwill Refusel', lang)}
+      </div>
     </div>
     {#each r as ri}
       <div class="vertical-header role" style="grid-area: goodwillrefusal-{cssesc(ri.name)};">
-        {getString(ri.goodwillRefusel ?? '',lang)}
+        {getString(ri.goodwillRefusel ?? '', lang)}
+        {#if ri.goodwillRefusel && (ri.goodwillOutburst || ri.scriptSpecified?.some((x) => x.name == 'world'))}|{/if}
+        {getString(ri.goodwillOutburst ? 'Goodwill Outburst' : '', lang)}
+        {#if ri.goodwillOutburst && ri.scriptSpecified?.some((x) => x.name == 'world')}|{/if}
+        {getString(
+          ri.scriptSpecified?.some((x) => x.name == 'world') ? 'World Selection' : '',
+          lang
+        )}
       </div>
     {/each}
 
