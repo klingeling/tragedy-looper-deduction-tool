@@ -1,7 +1,31 @@
 import { browser } from "$app/environment";
 import { scripts, type Script, type ScriptName, isScript } from "./model/script";
+import { getString } from "./translations";
 
 
+
+export function getLocalisatio(lang: string) {
+    if (!browser) {
+        throw new Error('We need to run in Browser');
+    }
+    const data = window.localStorage.getItem(`localisation:${lang}`);
+    if (data) {
+        try {
+            return JSON.parse(data);
+        } catch (error) {
+            return undefined;
+        }
+    }
+    return undefined;
+}
+export function setLocalisatio(lang: string, data: Record<string, string>) {
+    if (!browser) {
+        throw new Error('We need to run in Browser');
+    }
+
+    window.localStorage.setItem(`localisation:${lang}`, JSON.stringify(Object.fromEntries(Object.entries(data).filter(([key, value]) => getString(key, lang) !== value && (value?.length ?? 0 > 0)))));
+
+}
 
 export function saveScript(script: Script) {
     if (!browser) {
