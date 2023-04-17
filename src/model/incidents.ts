@@ -134,7 +134,7 @@ class IncidentsHelper {
             ]
         },
         {
-            name: 'Small Power',
+            name: 'Small Force',
             effect: [
                 {
                     description: 'The Protagonist Leader chooses any character and 1 Goodwill, or 1 Paranoia, or 1 Intrigue. Put one chosen counter on that character. When determining whether this incident occurs or not, the culprit is regarded as having Paranoia Limit -1.'

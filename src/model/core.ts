@@ -120,6 +120,7 @@ type Extended<Type extends 'role' | 'character' | 'incident' | 'plot', Keys exte
     ;
 
 
+
 type typeLookup<x> =
     x extends 'location'
     ? LocationName
@@ -136,7 +137,7 @@ type typeLookup<x> =
     : x extends 'text'
     ? string
     : x extends readonly string[]
-    ? x
+    ? x[number]
     : never;
 
 

@@ -87,10 +87,11 @@ export const tragedySets = toRecord([
             'Assassination',
             'World End',
             'World Convergence',
-            'Small Power',
+            'Small Force',
             'Breakthrough',
             'Confession',
         ],
+        aditionalRoles: ['Shadow'],
         numberOfMainPlots: 1,
         numberOfSubPlots: 2,
         extraRules: [
