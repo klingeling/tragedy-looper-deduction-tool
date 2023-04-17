@@ -1,0 +1,19 @@
+{
+    "(If the Extra Gauge is at zero, the Protagonists always lose)": "(Wenn die Zusatzleiste auf 0 ist, verlieren die Protagonisten immer)",
+    "\"Forbid Goodwill\" has the effect of \"Forbid Movement\"": "\"Gunst verbieten\" hat den effekt \"Bewegen verbieten\"",
+    "(Immortal)": "(Unsterblich)",
+    "(optional) The protagonists die during the Day end.": "(Optional) Die Protagonisten sterben am ende des Tages.",
+    "+/-1 Paranoia on character in same location.": "+/-1 Paranoia auf einen Character in dem selben Standort.",
+    "+1 Goodwill on character in same location.": "+1 Gunst auf einen Character in dem selben Standort.",
+    "+1 Paranoia on character in same location.": "+1 Paranoia auf einen Character in dem selben Standort.",
+    "-1 Intrigue on Shrine.": "-1 Intrige auf den Schrein.",
+    "-1 Intrigue on same location or Character in same location.": "-1 Intrige auf einen Character in dem selben Standort oder dem aktuellen Standort.",
+    "-1 Paranoia on character in same location.": "-1 Paranoia auf einen Character in dem selben Standort.",
+    "-1 Paranoia on panicked character in same location.": "-1 Paranoia auf einen Character in Panik in dem selben Standort.",
+    "-1 Paranoia on student in same location.": "-1 Paranoia auf einen Schüler in dem selben Standort.",
+    "1 Intrigue on the City": "1 Intrige auf die Stadt",
+    "1 Intrigue on the Hospital": "1 Intrige auf das Krankenhaus",
+    "1 Intrigue on the School": "1 Intrige auf die Schule",
+    "1 Intrigue on the culprit": "1 Intrige auf den Verursacher",
+    "2 Intrigue on the Brain’s starting location": "2 Intrige auf den Startstandort des Brain's"
+}

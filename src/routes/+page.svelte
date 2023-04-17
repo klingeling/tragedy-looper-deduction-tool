@@ -1,6 +1,14 @@
 <script lang="ts">
   import { base } from '$app/paths';
   import '@picocss/pico/css/pico.css';
+  import { onMount } from 'svelte';
+  import { getMissingForLanguage, getString } from '../translations';
+
+  let lang: string;
+  onMount(() => {
+    lang = navigator.language?.split('-')[0];
+  });
+  $: missingTranslation = getMissingForLanguage(lang);
 </script>
 
 <main class="container">
@@ -20,6 +28,16 @@
       >Board Game Geek</a
     >.
   </p>
+
+  {#if missingTranslation.length > 0}
+    <p>
+      {getString(
+        'For your Language there are missing translations, if you have time and fun you can help and add some localisations using the below. And post them on Github.',
+        lang
+      )}
+      <a href={`${base}/translations`}>{getString('Translation Overview', lang)} </a>
+    </p>
+  {/if}
 </main>
 
 <style>

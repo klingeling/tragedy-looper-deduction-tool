@@ -8,7 +8,10 @@
   import './page.css';
 
   let searchParams: URLSearchParams | undefined;
+  let lang: string;
+
   onMount(() => {
+    lang = navigator.language?.split('-')[0];
     searchParams = new URLSearchParams(document.location.search);
     const pushState = history.pushState;
     history.pushState = function (data: any, unused: string, url?: string | URL | null) {
@@ -64,6 +67,7 @@
     </ul>
   </nav>
   <Table
+    {lang}
     {tragedySet}
     {cast}
     {incidents}

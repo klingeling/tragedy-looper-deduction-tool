@@ -14,6 +14,7 @@
   import { tragedySets, type TragedySet, type TragedySetName } from '../model/tragedySets';
   import Selection from './selection.svelte';
   import Ability from './Ability.svelte';
+  import { getString } from '../translations';
 
   export let tragedySet: TragedySetName;
   export let cast: readonly CharacterName[];
@@ -22,6 +23,8 @@
 
   export let tablet = true;
   export let touchTarget = false;
+
+  export let lang: string;
 
   onMount(() => {
     const incidentTemplate = document.getElementById('incidences') as HTMLTemplateElement;
@@ -390,11 +393,11 @@
       ''};"
   >
     <div class="header vertical-header plot-main" style="grid-area: main-plot-header;">
-      Main Plot
+      {getString('Main Plot', lang)}
     </div>
     {#each mainPlots as p}
       <div class="plot-main" style="grid-area: main-plot-header-{cssesc(p.name)};">
-        {p.name}
+        {getString(p.name, lang)}
       </div>
       <div class="plot-main rules" style="grid-area: main-role-plot-rule-{cssesc(p.name)};">
         {#each p.rules as a}
@@ -424,7 +427,7 @@
     <div class="header vertical-header plot-sub" style="grid-area: sub-plot-header;">Sub Plot</div>
     {#each subPlots as p}
       <div class="plot-sub" style="grid-area: sub-plot-header-{cssesc(p.name)};">
-        {p.name}
+        {getString(p.name, lang)}
       </div>
       <div class="plot-sub rules" style="grid-area: sub-role-plot-rule-{cssesc(p.name)};">
         {#each p.rules as a}
@@ -460,7 +463,7 @@
         {ri.name}
         {#if ri.unkillable}
           <!-- <small>(Unkillable)</small> -->
-          <small>(Immortal)</small>
+          <small>{getString('(Immortal)', lang)}</small>
         {/if}
       </div>
     {/each}
@@ -468,7 +471,7 @@
     <div class="header vertical-header incident" style="grid-area: incident-header;">Incidents</div>
     {#each ince as i}
       <div class="vertical-header incident" style="grid-area: incident-header-{i.day};">
-        {i.name}<br />
+        {getString(i.name, lang)}<br />
       </div>
       <div class="vertical-header incident" style="grid-area: incident-day-{i.day};">
         {i.day}
@@ -476,11 +479,11 @@
     {/each}
 
     <div class="header vertical-header character" style="grid-area: character-header;">
-      Characters
+      {getString('Characters', lang)}
     </div>
     {#each chars as ci}
       <div class="character" style="grid-area: char-header-{cssesc(ci.name)}; ">
-        {ci.name}
+        {getString(ci.name, lang)}
         {#if isCharacterLate(ci.name)} <i>(?)</i>{/if}
       </div>
 
@@ -497,11 +500,11 @@
     {/each}
 
     <div class="header vertical-header role" style="grid-area: goodwillrefusal-header;">
-      Goodwill<br />Refusel
+      {getString('Goodwill Refusel', lang)}
     </div>
     {#each r as ri}
       <div class="vertical-header role" style="grid-area: goodwillrefusal-{cssesc(ri.name)};">
-        {ri.goodwillRefusel ?? ''}
+        {getString(ri.goodwillRefusel ?? '',lang)}
       </div>
     {/each}
 
@@ -538,20 +541,20 @@
   {#each ince as i}
     <article class="incident">
       <h1>
-        {i.name}
+        {getString(i.name, lang)}
       </h1>
-      <h2>Day {i.day}</h2>
+      <h2>{getString('Day {day}', lang, { name: 'day', value: i.day })}</h2>
 
       {#each i.effect as e}
         <p>
           {#if require(e).type}
-            <b>[{require(e).type}]</b>
+            <b>[{getString(require(e).type, lang)}]</b>
           {/if}
           {#if require(e).prerequisite}
-            [<i>{require(e).prerequisite}</i>]{#if require(e).description}⇒{/if}
+            [<i>{getString(require(e).prerequisite, lang)}</i>]{#if require(e).description}⇒{/if}
           {/if}
           {#if require(e).description}
-            {require(e).description}
+            {getString(require(e).description, lang)}
           {/if}
         </p>
       {/each}
@@ -562,11 +565,15 @@
   {#each r as ri}
     <article class="role">
       <h1>
-        {ri.name}
+        {getString(ri.name, lang)}
       </h1>
-      <h2>{ri.goodwillRefusel ? `Goodwill refusal: ${ri.goodwillRefusel}` : ''}</h2>
+      <h2>
+        {ri.goodwillRefusel
+          ? `${getString('Goodwill refusal', lang)}: ${getString(ri.goodwillRefusel, lang)}`
+          : ''}
+      </h2>
       {#if ri.unkillable}
-        <h2>Immortal</h2>
+        <h2>{getString('Immortal', lang)}</h2>
       {/if}
       {#each ri.abilities as a}
         <Ability {a} compact />
@@ -577,10 +584,10 @@
 <template id="tragedyRules">
   {#if (specialRules?.filter((x) => x.length > 0).length ?? 0) > 0}
     <article class="tragedyRules">
-      <h1>Special Rule</h1>
+      <h1>{getString('Special Rule', lang)}</h1>
       {#each specialRules.filter((x) => x.length > 0) as sp}
         <p>
-          {sp}
+          {getString(sp, lang)}
         </p>
       {/each}
     </article>
@@ -589,10 +596,10 @@
   {#each tg.extraRules as ri}
     <article class="tragedyRules">
       <h1>
-        {ri.name}
+        {getString(ri.name, lang)}
       </h1>
       <p>
-        {ri.description}
+        {getString(ri.description, lang)}
       </p>
     </article>
   {/each}
