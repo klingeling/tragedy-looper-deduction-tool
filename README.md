@@ -19,3 +19,7 @@ your own Scripts.
 
 It will safe your custom scripts locally in your Browser, and you can ex-/import
 them to text. You can also share the script with others.
+
+## Board Game Geek
+
+There is also a thread on [Board Game Geek](https://boardgamegeek.com/thread/3066363/website-generate-script-specific-mastermind-and-pl) where you can discuss, (or fill bugs if you don't want to create a github account).
