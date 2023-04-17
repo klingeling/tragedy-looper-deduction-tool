@@ -132,14 +132,17 @@
       let originalWidth: number;
 
       const elementWidth = containers.map((container) => {
-        const width = container.getBoundingClientRect().width;
-
         const randomElement = Array.from(tragedyRulesTemplate.content.children)
           .concat(Array.from(incidentTemplate.content.children))
           .concat(Array.from(roleTemplate.content.children))
           .map((x) => x.cloneNode(true) as HTMLDivElement)[0];
 
         container.appendChild(randomElement);
+        // fill other containers, otherwise they will not layouted correctly.
+        const emptyContaines = containers.filter((x) => x.children.length == 0);
+        emptyContaines.forEach((c) => c.appendChild(randomElement.cloneNode(true)));
+        const width = container.getBoundingClientRect().width;
+
         const elementWidth = randomElement.getBoundingClientRect().width;
         if (!originalWidth) originalWidth = elementWidth;
         randomElement.remove();
@@ -152,6 +155,7 @@
           Math.abs((width - max * border) / max - elementWidth)
             ? (width - min * border) / min
             : (width - max * border) / max;
+        emptyContaines.forEach((c) => c.firstChild?.remove());
 
         return newElementWidth;
       });
@@ -169,9 +173,17 @@
               incident.style.width = `${originalWidth}px`;
             }
 
+            // check that the other containr have element, otherwise the may change the size of this container wehn no longer empty
+
+            const emptyContaines = containers.filter((x) => x.children.length == 0);
+
+            emptyContaines.forEach((c) => c.appendChild(incident.cloneNode(true)));
+
             const rect = container.getBoundingClientRect();
             const container2IncedentRect = incident.getBoundingClientRect();
-            if (isInsilde(container2IncedentRect, rect)) {
+            const wasInside = isInsilde(container2IncedentRect, rect);
+            emptyContaines.forEach((c) => c.firstChild?.remove());
+            if (wasInside) {
               return;
             }
             incident.remove();
