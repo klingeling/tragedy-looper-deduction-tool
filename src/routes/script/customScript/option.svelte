@@ -63,6 +63,10 @@
         {#each $unusedRoles as p}
           <option value={p}>{p}</option>
         {/each}
+      {:else if Array.isArray(option.option.type)}
+        {#each option.option.type as p}
+          <option value={p}>{p}</option>
+        {/each}
       {/if}
     </select>
   {/if}

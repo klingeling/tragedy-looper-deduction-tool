@@ -6,7 +6,7 @@ import type { PlotName, Plots } from "./plots";
 import type { RoleName, Roles } from "./roles";
 
 
-type SpecificationType = 'location' | 'incident' | 'role' | 'character' | 'plot' | 'number' | 'text';
+type SpecificationType = 'location' | 'incident' | 'role' | 'character' | 'plot' | 'number' | 'text' | readonly string[];
 
 export type Option = {
     name: string;
@@ -120,7 +120,7 @@ type Extended<Type extends 'role' | 'character' | 'incident' | 'plot', Keys exte
     ;
 
 
-type typeLookup<x extends string> =
+type typeLookup<x> =
     x extends 'location'
     ? LocationName
     : x extends 'incident'
@@ -134,7 +134,10 @@ type typeLookup<x extends string> =
     : x extends 'number'
     ? number
     : x extends 'text'
-    ? string : never;
+    ? string
+    : x extends readonly string[]
+    ? x
+    : never;
 
 
 
