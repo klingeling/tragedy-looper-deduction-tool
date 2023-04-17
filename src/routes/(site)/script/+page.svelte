@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { distinct, join } from '../../misc';
-  import { scripts as scriptLookup, type Script } from '../../model/script';
+  import { distinct, join } from '../../../misc';
+  import { scripts as scriptLookup, type Script } from '../../../model/script';
   import ScriptDetails from './scriptDetails.svelte';
   import { onMount } from 'svelte';
   import { base } from '$app/paths';
   import '@picocss/pico/css/pico.css';
-  import ExportView from '../../view/exportView.svelte';
-  import { loadAllLocalScripts, loadScript } from '../../storage';
+  import ExportView from '../../../view/exportView.svelte';
+  import { loadAllLocalScripts, loadScript } from '../../../storage';
   
   $: scripts = Object.values(scriptLookup);
 

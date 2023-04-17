@@ -2,7 +2,7 @@
   import { base } from '$app/paths';
   import '@picocss/pico/css/pico.css';
   import { onMount } from 'svelte';
-  import { getMissingForLanguage, getString } from '../translations';
+  import { getMissingForLanguage, getString } from '../../translations';
 
   let lang: string;
   onMount(() => {

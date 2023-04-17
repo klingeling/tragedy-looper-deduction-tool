@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { keys } from '../../../misc';
-	import type { ICustomScriptPlotMutalExclusiveSelection } from '../../../model/customScript';
-	import type { PlotName } from '../../../model/plots';
+	import { keys } from '../../../../misc';
+	import type { ICustomScriptPlotMutalExclusiveSelection } from '../../../../model/customScript';
+	import type { PlotName } from '../../../../model/plots';
 	import Option from './option.svelte';
 
 	export let plotSelection: ICustomScriptPlotMutalExclusiveSelection<PlotName>;

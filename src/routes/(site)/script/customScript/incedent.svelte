@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { CharacterName } from '../../../model/characters';
-	import type { ICustomScriptIncidentSelection } from '../../../model/customScript';
+	import type { CharacterName } from '../../../../model/characters';
+	import type { ICustomScriptIncidentSelection } from '../../../../model/customScript';
 	import Option from './option.svelte';
 
 	export let incident: ICustomScriptIncidentSelection<CharacterName>;

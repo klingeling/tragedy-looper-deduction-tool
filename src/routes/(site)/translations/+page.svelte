@@ -1,10 +1,10 @@
 <script lang="ts">
   import { base } from '$app/paths';
   import '@picocss/pico/css/pico.css';
-  import { getMissingForLanguage, getString } from '../../translations';
-  import { distinct } from '../../misc';
+  import { getMissingForLanguage, getString } from '../../../translations';
+  import { distinct } from '../../../misc';
   import { onMount } from 'svelte';
-  import ExportView from '../../view/exportView.svelte';
+  import ExportView from '../../../view/exportView.svelte';
 
   let lang: string;
   onMount(() => {

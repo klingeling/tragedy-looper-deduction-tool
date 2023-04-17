@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { CharacterName } from '../../../model/characters';
-	import type { ICustomScriptRoleExclusiveSelectionGroup } from '../../../model/customScript';
+	import type { CharacterName } from '../../../../model/characters';
+	import type { ICustomScriptRoleExclusiveSelectionGroup } from '../../../../model/customScript';
 	import RoleSelect from './roleSelect.svelte';
 
 	export let group: ICustomScriptRoleExclusiveSelectionGroup<CharacterName>;

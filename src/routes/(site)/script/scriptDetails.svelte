@@ -4,13 +4,13 @@
     type Script,
     type isScriptName,
     toPlayerIncident,
-  } from '../../model/script';
+  } from '../../../model/script';
 
   import { onMount } from 'svelte';
 
-  import { characterscomesInLater, type CharacterName } from '../../model/characters';
-  import { stringifySearchForPlayerAid } from '../../serilezer';
-  import { distinct, keys, require } from '../../misc';
+  import { characterscomesInLater, type CharacterName } from '../../../model/characters';
+  import { stringifySearchForPlayerAid } from '../../../serilezer';
+  import { distinct, keys, require } from '../../../misc';
   import { base } from '$app/paths';
   import Option from './customScript/option.svelte';
   export let script: Script;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getString } from '../../translations';
+  import { getString } from '../../../translations';
   import { onMount } from 'svelte';
 
   type Obj = $$Generic<OncePer<Text, any>>;

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { element, xlink_attr } from 'svelte/internal';
-  import { getRoleOfCast, type Script } from '../../model/script';
+  import { getRoleOfCast, type Script } from '../../../model/script';
   import '@picocss/pico/css/pico.css';
-  import { roles, type RoleName, type AbilityType } from '../../model/roles';
-  import { characters, type CharacterName, isCharacterName } from '../../model/characters';
+  import { roles, type RoleName, type AbilityType } from '../../../model/roles';
+  import { characters, type CharacterName, isCharacterName } from '../../../model/characters';
   import {
     fromEntries,
     hasProp,
@@ -13,10 +13,10 @@
     require,
     showAll,
     type RenderCharacterDeath,
-  } from '../../misc';
-  import { plots } from '../../model/plots';
+  } from '../../../misc';
+  import { plots } from '../../../model/plots';
   import OncePer from './oncePer.svelte';
-  import { incidents } from '../../model/incidents';
+  import { incidents } from '../../../model/incidents';
 
   export let selectedScript: Script;
 

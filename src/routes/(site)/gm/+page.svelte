@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { distinct, join, keys } from '../../misc';
-	import { scripts as scriptLookup, type Script, isScriptName } from '../../model/script';
+	import { distinct, join, keys } from '../../../misc';
+	import { scripts as scriptLookup, type Script, isScriptName } from '../../../model/script';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';

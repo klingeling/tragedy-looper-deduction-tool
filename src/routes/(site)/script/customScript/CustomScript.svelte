@@ -1,25 +1,25 @@
 <script lang="ts">
   import { bind, object_without_properties, onMount } from 'svelte/internal';
-  import { fromEntries, keys } from '../../../misc';
-  import { plots, type Plot, type PlotName } from '../../../model/plots';
-  import type { RoleName } from '../../../model/roles';
-  import { tragedySets, type TragedySet, type TragedySets } from '../../../model/tragedySets';
+  import { fromEntries, keys } from '../../../../misc';
+  import { plots, type Plot, type PlotName } from '../../../../model/plots';
+  import type { RoleName } from '../../../../model/roles';
+  import { tragedySets, type TragedySet, type TragedySets } from '../../../../model/tragedySets';
   import {
     characters,
     type Character,
     type CharacterName,
     isCharacterPlotless,
-  } from '../../../model/characters';
+  } from '../../../../model/characters';
 
-  import { CustomScript } from '../../../model/customScript';
+  import { CustomScript } from '../../../../model/customScript';
   import PlotSelection from './plotSelection.svelte';
   import RoleGroup from './roleGroup.svelte';
   import Incedent from './incedents.svelte';
   import Difficulty from './difficulty.svelte';
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
-  import ExportView from '../../../view/exportView.svelte';
-    import { saveScript } from '../../../storage';
+  import ExportView from '../../../../view/exportView.svelte';
+    import { saveScript } from '../../../../storage';
 
   const model = new CustomScript();
 

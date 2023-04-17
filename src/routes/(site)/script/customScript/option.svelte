@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { characters } from '../../../model/characters';
-  import type { AdditionalOptions } from '../../../model/customScript';
+  import { characters } from '../../../../model/characters';
+  import type { AdditionalOptions } from '../../../../model/customScript';
 
   export let option: AdditionalOptions;
 

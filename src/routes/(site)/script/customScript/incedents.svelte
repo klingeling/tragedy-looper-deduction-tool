@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { CharacterName } from '../../../model/characters';
-	import type { ICustomScriptIncidentSelectionGroup } from '../../../model/customScript';
+	import type { CharacterName } from '../../../../model/characters';
+	import type { ICustomScriptIncidentSelectionGroup } from '../../../../model/customScript';
 	import Incedent from './incedent.svelte';
 
 	export let incedentGroup: ICustomScriptIncidentSelectionGroup<CharacterName>;

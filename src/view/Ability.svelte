@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { join, require, showAll } from '../misc';
   import type { Abilitie } from '../model/roles';
-  import OncePer from '../routes/gm/oncePer.svelte';
+  import OncePer from '../routes/(site)/gm/oncePer.svelte';
   import { getString } from '../translations';
 
   export let a: Abilitie<Record<string, any>>;
