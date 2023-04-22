@@ -23,3 +23,19 @@ them to text. You can also share the script with others.
 ## Board Game Geek
 
 There is also a thread on [Board Game Geek](https://boardgamegeek.com/thread/3066363/website-generate-script-specific-mastermind-and-pl) where you can discuss, (or fill bugs if you don't want to create a github account).
+
+## What's Next?
+
+- [ ] Fix Character Metadata: start positions and Forbidden Locations are Wrong for almost everyone
+- [ ] Generated Character Cards: The
+  [official Website](http://bakafire.main.jp/rooper/sr_dl_04_sozai.htm) has
+  blank Cards and the Character images. With this we could generate images for
+  cards that contains localization (if available) and use Custom Characters.
+- [ ] Validate Data: Not all Rules are enforced, e.g. A Person can be the
+  Culprit of many incidents (not only for serial murder). Or a Script may have
+  the wrong roles. This would brake some Another Horizon Scripts (which is a good
+  thing I guess)
+- [ ] Persist Player Aid Choices, so an accidental reload will not delete every thing…
+- [ ] Better Localization, with placeholders, so there would be less text overall and it is the same for the same actions.
+
+Not sure when or if I will do anything of this, It is good enough for now I guess.
