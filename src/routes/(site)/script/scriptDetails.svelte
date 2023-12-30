@@ -57,7 +57,7 @@
       text: text,
       url: shareLink,
     };
-
+    const shareFunction = navigator.canShare ?? (data:any)=>false;
     const isSharable = navigator.canShare(shareData);
     if (isSharable) {
       try {
