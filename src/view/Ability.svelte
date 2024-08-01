@@ -8,11 +8,11 @@
   export let a: Abilitie<Record<string, any>>;
   export let compact: boolean = false;
 
-  export let lang: string;
-  onMount(() => {
-    lang = navigator.language?.split('-')[0];
-  });
-
+  let lang: string;
+  // onMount(() => {
+  //   lang = navigator.language?.split('-')[0];
+  // });
+  lang = 'zh';
   $: ability = require(a);
 </script>
 
