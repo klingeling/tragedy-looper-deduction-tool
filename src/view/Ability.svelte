@@ -27,8 +27,8 @@
       >{/if}]</span
   >
   {#if ability.prerequisite}
-    [<i>{getString(ability.prerequisite, lang)}</i>] {#if a.description !== undefined}⇒{/if}
+    [<i>{getString(ability.prerequisite, 'zh')}</i>] {#if a.description !== undefined}⇒{/if}
   {/if}
-  {getString(a.description ?? '', lang)}
+  {getString(a.description ?? '', 'zh')}
   <OncePer {ability} {compact} />
 </p>
