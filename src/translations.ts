@@ -67,7 +67,7 @@ export function getString(key: string | undefined, lang: string | undefined, ...
     }
 
     if (!lang) {
-        return key+ "测试";
+        // return key+ "测试";
     }
     let translated = translation[lang]?.[key] ?? key;
 
