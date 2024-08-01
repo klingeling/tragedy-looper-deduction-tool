@@ -6,9 +6,10 @@
   export let compact: boolean = false;
 
   let lang: string;
-  onMount(() => {
-    lang = navigator.language?.split('-')[0];
-  });
+  // onMount(() => {
+  //   lang = navigator.language?.split('-')[0];
+  // });
+  lang = 'zh';
 
   const texts = ['Day', 'Loop', 'Game'] as const;
   export let ability: Obj;
