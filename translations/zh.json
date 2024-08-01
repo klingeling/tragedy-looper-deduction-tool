@@ -82,5 +82,21 @@
   "Missing Person": "失踪",
   "Put any counter on any character in culprit’s Location.": "往与当事人位于同一区域的任意1名角色身上放置任意1枚标记。",
   "This character dies.": "强制：该角色死亡时。",
-  "The loop ends immediately.": "当前轮回立即结束。"
+  "The loop ends immediately.": "当前轮回立即结束。",
+  "Alien": "异界人",
+  "Suicide": "自杀",
+  "The culprit dies.": "当事人死亡。",
+  "Move culprit to any Location. Put 1 Intrigue on that Location.": "将当事人移动至任意版图。随后，往当事人所在版图放置1枚密谋。",
+  "Place 2 Paranoia on any character, then 1 Intrigue on any other character.": "往任意1名角色身上放置2枚不安，随后往另外1名角色身上放置1枚密谋。",
+  "Once per {type}": "每{type}一次",
+  "You may place 1 Intrigue on any location.": "往任意1块版图上放置1枚密谋。",
+  "All Persons with at least 3 Paranoia turn into Serial Killers.": "某1名平民角色有3枚不安时，那名平民身份变为杀人狂。",
+  "Place 2 Paranoia on all characters who had Goodwill last loop.": "上轮轮回结束时所有带有友好的角色，全部放置2枚不安。",
+  "Immortal": "不死",
+  "(Immortal)": "（不死）",
+  "Time Traveler": "时间旅者",
+  "Factor": "不安定因子",
+  "Witch": "魔女",
+  "Loved One": "心上人",
+  "Lover": "求爱者"
 }
