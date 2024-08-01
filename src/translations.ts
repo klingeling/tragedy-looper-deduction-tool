@@ -63,11 +63,11 @@ export function getString(key: string | undefined, lang: string | undefined, ...
     const toTest = getAllStrings(toCheck);
     if (!toTest.includes(key)) {
         missingInToCheck.add(key);
-        console.info('Missing Translations', [...missingInToCheck]);
+        console.info('Missing Translations: ', [...missingInToCheck]);
     }
 
     if (!lang) {
-        return key;
+        return key+ "测试";
     }
     let translated = translation[lang]?.[key] ?? key;
 
