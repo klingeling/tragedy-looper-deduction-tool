@@ -19,8 +19,8 @@
   $: allAdditionamCharacters = alwaysTransmitCharacters.every((x) => x == true)
     ? true
     : alwaysTransmitCharacters.every((x) => x == false)
-    ? false
-    : undefined;
+      ? false
+      : undefined;
 
   function swtchAllCharacters() {
     const target = allAdditionamCharacters !== true;
@@ -57,8 +57,8 @@
       text: text,
       url: shareLink,
     };
-    const shareFunction = navigator.canShare ?? ((data:any)=>false);
-    const isSharable = navigator.canShare(shareData);
+    const shareFunction = navigator.canShare ?? ((data: any) => false);
+    const isSharable = shareFunction(shareData);
     if (isSharable) {
       try {
         await navigator.share(shareData);
@@ -113,14 +113,22 @@
         >Share Script
       </button>
       <!-- svelte-ignore a11y-interactive-supports-focus -->
-      <button
+      <!-- <button
         aria-disabled={script == undefined}
         class="outline"
         on:click={() =>
           share(`${base}/player/?${parameter}`, 'Player Aid', 'A Tragedy Looper Player Aid')}
         style=" grid-row: 2; grid-column: 1 / span 2"
         >Share Player Aid
-      </button>
+      </button> -->
+      <a
+        aria-disabled={script == undefined}
+        href={`${base}/player/?${parameter}`}
+        class="outline"
+        target="_blank"
+        style=" grid-row: 2; grid-column: 1 / span 2"
+        role="button">Open Player Aid</a
+      >
       <a
         aria-disabled={script == undefined}
         href={`${base}/gm/?script=${encodeURIComponent(JSON.stringify(script))}`}

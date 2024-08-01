@@ -65,7 +65,7 @@
     )}
   </p>
   <p>
-    <a href="https://lokimidgard.github.io/tragedy-looper-deduction-">Github Reposetory</a>
+    <a href="https://github.com/klingeling/tragedy-looper-deduction-tool">{getString('Github Reposetory', lang)}</a>
   </p>
 
   <label>

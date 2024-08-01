@@ -126,7 +126,7 @@
         ],
         "cast": {
             "Boy Student": "Person",
-            "Girl Student": "Frind",
+            "Girl Student": "Freind",
             "Class Rep": "Loved One",
             "Shrine Maiden": "Key Person",
             "Police Officer": "Person",
@@ -186,7 +186,7 @@
             "Boy Student": "Person",
             "Girl Student": "Person",
             "Rich Man’s Daughter": "Brain",
-            "Shrine Maiden": "Frind",
+            "Shrine Maiden": "Freind",
             "Office Worker": "Serial Killer",
             "Informer": "Person",
             "Journalist": "Factor",
@@ -249,8 +249,8 @@
             "Rich Man’s Daughter": "Witch",
             "Class Rep": "Person",
             "Shrine Maiden": "Person",
-            "Alien": "Frind",
-            "Office Worker": "Frind",
+            "Alien": "Freind",
+            "Office Worker": "Freind",
             "Informer": "Conspiracy Theorist",
             "Pop Idol": "Person",
             "Journalist": "Person",
@@ -323,7 +323,7 @@
             "Office Worker": "Serial Killer",
             "Pop Idol": "Lover",
             "Patient": "Person",
-            "Nurse": "Frind"
+            "Nurse": "Freind"
         },
         "incidents": [
             {
@@ -511,9 +511,9 @@
             "Shrine Maiden": "Key Person",
             "Police Officer": "Conspiracy Theorist",
             "Office Worker": "Person",
-            "Informer": "Frind",
+            "Informer": "Freind",
             "Doctor": "Brain",
-            "Patient": "Frind"
+            "Patient": "Freind"
         },
         "incidents": [
             {

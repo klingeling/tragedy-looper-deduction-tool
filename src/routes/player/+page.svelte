@@ -5,6 +5,7 @@
   import type { CharacterName } from '../../model/characters';
   import type { TragedySetName } from '../../model/tragedySets';
   import { parseSearchForPlayerAid } from '../../serilezer';
+  import { getString } from '../../translations';
   import './page.css';
 
   let searchParams: URLSearchParams | undefined;
@@ -54,13 +55,13 @@
     <ul>
       <li>
         <a href="?{reversedTablet?.toString()}" data-sveltekit-reload>
-          {#if tablet}Print View{:else}Tablet View{/if}</a
+          {#if tablet}{getString('Print View', lang)}{:else}{getString('Tablet View', lang)}{/if}</a
         >
       </li>
       {#if tablet}
         <li>
           <a href="?{reversedTouchTarget?.toString()}" data-sveltekit-reload>
-            {#if touchTarget}Compakt View{:else}Touch optimized View{/if}</a
+            {#if touchTarget}{getString('Compakt View', lang)}{:else}{getString('Touch optimized View', lang)}{/if}</a
           >
         </li>
       {/if}
@@ -79,13 +80,13 @@
   <div
     style="display: grid; justify-items: center; align-items: center; grid-template-rows: auto 1fr; height: 100vh;"
   >
-    <h1>Tragedy Looper Deduction overview</h1>
+    <h1>{getString('Tragedy Looper Deduction overview', lang)}</h1>
 
     <p
       aria-busy="true"
       style="font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; font-size: xx-large;"
     >
-      Rendering
+      {getString('Rendering', lang)}
     </p>
   </div>
 {/if}

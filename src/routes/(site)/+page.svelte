@@ -12,7 +12,7 @@
 </script>
 
 <main class="container">
-  <h1>Tragedy Looper Deduction overview</h1>
+  <h1>{getString('Tragedy Looper Deduction overview', lang)}</h1>
   <p>
     If your are the Mastermind <a href="{base}/script">choose a script (SPOILER!!)</a>.
   </p>

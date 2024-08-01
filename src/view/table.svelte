@@ -404,7 +404,7 @@
     style="grid-template-columns: {gird_template_column} ;grid-template-rows: {gird_template_row} ; grid-template-areas: {gird_template_area ??
       ''};"
   >
-    <div class="header vertical-header plot-main" style="grid-area: main-plot-header;">
+    <div class="header vertical-header-up plot-main" style="grid-area: main-plot-header;">
       {getString('Main Plot', lang)}
     </div>
     {#each mainPlots as p}
@@ -436,7 +436,7 @@
       {/each}
     {/each}
 
-    <div class="header vertical-header plot-sub" style="grid-area: sub-plot-header;">Sub Plot</div>
+    <div class="header vertical-header-up plot-sub" style="grid-area: sub-plot-header;">{getString('Sub Plot', lang)}</div>
     {#each subPlots as p}
       <div class="plot-sub" style="grid-area: sub-plot-header-{cssesc(p.name)};">
         {getString(p.name, lang)}
@@ -469,23 +469,23 @@
     {/each}
 
     <!-- <div class="header vertical-header role" style="grid-area: role-ability-header;">Abbiliy</div> -->
-    <div class="header vertical-header role" style="grid-area: role-header;">Roles</div>
+    <div class="header vertical-header role" style="grid-area: role-header;">{getString('Roles', lang)}</div>
     {#each r as ri}
       <div class="vertical-header role" style="grid-area: role-header-{cssesc(ri.name)};">
-        {ri.name}
+        {getString(ri.name, lang)}
         {#if ri.unkillable}
           <!-- <small>(Unkillable)</small> -->
           <small>{getString('(Immortal)', lang)}</small>
         {/if}
       </div>
     {/each}
-    <div class="header vertical-header incident" style="grid-area: incident-header-day;">Day</div>
-    <div class="header vertical-header incident" style="grid-area: incident-header;">Incidents</div>
+    <div class="header vertical-header incident" style="grid-area: incident-header-day;">{getString('Day', lang)}</div>
+    <div class="header vertical-header incident" style="grid-area: incident-header;">{getString('Incidents', lang)}</div>
     {#each ince as i}
       <div class="vertical-header incident" style="grid-area: incident-header-{i.day};">
         {getString(i.name, lang)}<br />
       </div>
-      <div class="vertical-header incident" style="grid-area: incident-day-{i.day};">
+      <div class="vertical-header-up incident" style="grid-area: incident-day-{i.day};">
         {i.day}
       </div>
     {/each}
@@ -512,7 +512,7 @@
     {/each}
 
     <div class="header vertical-header role" style="grid-area: goodwillrefusal-header;">
-      <div style="height: min-content; min-height: 100%;">
+      <div style="min-height: 100%;">
         {getString('Goodwill Refusel', lang)}
       </div>
     </div>
@@ -768,12 +768,20 @@
     font-weight: bold;
     text-align: center;
   }
-  .vertical-header {
-    writing-mode: vertical-rl;
-    transform: scale(-1, -1);
+  .vertical-header-up {
+    writing-mode: vertical-lr;
+    text-orientation: upright;
+    // transform: scale(-1, -1);
+    // transform: rotate(-90deg);
     /* width: min-content; */
   }
 
+  .vertical-header {
+    writing-mode: vertical-lr;
+    // transform: scale(-1, -1);
+    // transform: rotate(-90deg);
+    /* width: min-content; */
+  }
   .tablet {
     --page-width: 100%;
     --page-height: unset;
