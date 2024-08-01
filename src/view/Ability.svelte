@@ -8,7 +8,7 @@
   export let a: Abilitie<Record<string, any>>;
   export let compact: boolean = false;
 
-  let lang: string;
+  export let lang: string;
   onMount(() => {
     lang = navigator.language?.split('-')[0];
   });
@@ -27,8 +27,8 @@
       >{/if}]</span
   >
   {#if ability.prerequisite}
-    [<i>{getString(ability.prerequisite, 'zh')}</i>] {#if a.description !== undefined}⇒{/if}
+    [<i>{getString(ability.prerequisite, lang)}</i>] {#if a.description !== undefined}⇒{/if}
   {/if}
-  {getString(a.description ?? '', 'zh')}
+  {getString(a.description ?? '', lang)}
   <OncePer {ability} {compact} />
 </p>
